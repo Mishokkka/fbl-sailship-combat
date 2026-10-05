@@ -98,13 +98,13 @@
   --ssc-left-col: 190px;
   --ssc-right-col: 300px;
   --ssc-center-min: 320px;
-  --ssc-bottom-info-h: 250px;
+  --ssc-bottom-info-h: 270px;
 }
 .sailships-combat .ssc-main-grid[data-layout="narrow"] {
   --ssc-grid-pad: 6px;
   --ssc-grid-gap: 6px;
   --ssc-center-min: 0px;
-  --ssc-bottom-info-h: 250px;
+  --ssc-bottom-info-h: 270px;
   grid-template-rows: 38px minmax(0, 1fr) var(--ssc-bottom-info-h);
 }
 .sailships-combat :is(.ssc-left-panel, .ssc-right-panel) { padding: 12px; }

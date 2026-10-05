@@ -100,9 +100,11 @@ try {
         await page.locator('details[data-ui-section^="shot-"] summary').first().click();
       }
       assert.deepEqual(errors, [], "Browser runtime errors");
-      const summaryFits = await page.locator(".ssc-bottom-info").evaluate(el =>
-        !el.getClientRects().length || el.scrollHeight <= el.clientHeight + 2);
-      assert.equal(summaryFits, true, "Selected ship summary must fit without clipped rows");
+      const summarySize = await page.locator(".ssc-bottom-info").evaluate(el => ({
+        visible: Boolean(el.getClientRects().length), content: el.scrollHeight, available: el.clientHeight
+      }));
+      assert.ok(!summarySize.visible || summarySize.content <= summarySize.available + 2,
+        phase + " at " + width + "px clips the ship summary: " + JSON.stringify(summarySize));
       await page.locator(".ssc-right-panel").evaluate(el => { el.scrollTop = 0; });
       await page.screenshot({ path: "artifacts/interface/" + phase + "-" + width + ".png", fullPage: true });
       if (process.env.SSC_INLINE_PREVIEW === "1" && ((phase === "gunnery" && width === 1500) || (phase === "orders" && width === 1100))) {
