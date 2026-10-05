@@ -208,3 +208,7 @@
 .sailships-combat .ssc-shot-preview-card .ssc-choice-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sailships-combat .ssc-shot-preview-card .ssc-choice-chip { border-radius: 6px; }
 .sailships-combat .ssc-player-control-box > summary { padding: 2px; }
+.sailships-combat .ssc-turn-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.sailships-combat .ssc-turn-heading .ssc-active-ship { flex: 1 1 130px; margin: 0; overflow-wrap: anywhere; }
+.sailships-combat .ssc-turn-ap { color: var(--ssc-muted); white-space: nowrap; }
+.sailships-combat .ssc-turn-ap strong { color: var(--ssc-text); }
