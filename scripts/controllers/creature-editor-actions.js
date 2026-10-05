@@ -128,7 +128,7 @@ export class CreatureEditorActions {
       type: "image",
       current: input?.value ?? "",
       callback: path => {
-        if (input) input.value = path;
+        if (input) { input.value = path; input.dispatchEvent(new Event("input", { bubbles: true })); }
       }
     });
     try {

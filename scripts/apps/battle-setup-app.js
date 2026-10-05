@@ -1,3 +1,4 @@
+import { WorkbenchController } from "../controllers/workbench-controller.js";
 import { BattleScenarioService } from "../services/battle-scenario-service.js";
 import { BattleSetupPreviewBuilder } from "../context/battle-setup-preview-builder.js";
 import { ImportValidationService } from "../services/import-validation-service.js";
@@ -25,6 +26,7 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.selectedEnvironmentPreset = options.environmentPreset ?? "clearSea";
     this.selectedScenarioPreset = options.scenarioPreset ?? "openDuel";
     this._dirty = false;
+    this.workbench = new WorkbenchController(this);
   }
 
   static DEFAULT_OPTIONS = {
@@ -37,7 +39,7 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
       resizable: true
     },
     position: {
-      width: 1500,
+      width: 1220,
       height: 860
     },
     actions: {
@@ -132,6 +134,7 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    this.workbench.bind();
   }
 
   _markMainStale() {
@@ -149,7 +152,13 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   async _updateBattleAndRender(mutator, options = {}) {
-    const battle = await game.sailshipsCombat.storage.updateBattle(mutator, { reason: options.reason ?? "" });
+    let applied = false;
+    const battle = await game.sailshipsCombat.storage.updateBattle(async current => {
+      const result = await mutator(current);
+      applied = result !== false;
+      return result;
+    }, { reason: options.reason ?? "" });
+    if (applied && (options.reason === "setup-apply-sides")) this.workbench.accept();
     this._dirty = true;
     this._markMainStale();
     this.render({ force: true });
@@ -475,6 +484,7 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   _onClose(options) {
+    this.workbench.destroy();
     if (this._dirty) game.sailshipsCombat.app?.onExternalBattleUpdate?.();
     if (game.sailshipsCombat?.setupApp === this) game.sailshipsCombat.setupApp = null;
     if (super._onClose) super._onClose(options);

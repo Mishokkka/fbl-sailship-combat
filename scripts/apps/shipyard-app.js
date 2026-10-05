@@ -1,3 +1,4 @@
+import { WorkbenchController } from "../controllers/workbench-controller.js";
 import { ShipyardContextBuilder } from "../context/shipyard-context-builder.js";
 import { ShipEditorController } from "../controllers/ship-editor-controller.js";
 import { ShipyardBattleController } from "../controllers/shipyard-battle-controller.js";
@@ -25,6 +26,7 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.creatureLibraryController = new CreatureLibraryController(this);
     this.creatureEditorActions = new CreatureEditorActions(this);
     this._needsMainRefresh = false;
+    this.workbench = new WorkbenchController(this, (group, id) => { if (group === "yard") this.activeTab = id; });
   }
 
   static DEFAULT_OPTIONS = {
@@ -50,6 +52,7 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       addBattleSide: this._onAddBattleSide,
       setActiveSide: this._onSetActiveSide,
       openBattleSetup: this._onOpenBattleSetup,
+      openBattle: this._onOpenBattle,
       applyShipEdits: this._onApplyShipEdits,
       applyCreatureEdits: CreatureEditorActions.applyEdits,
       resetSelectedShip: this._onResetSelectedShip,
@@ -125,6 +128,7 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    this.workbench.bind();
     this.element.querySelectorAll(".ssc-yard-ship-row[data-ship-id]").forEach(node => {
       node.addEventListener("click", event => {
         event.preventDefault();
@@ -177,7 +181,13 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   async _updateBattleAndRender(mutator, options = {}) {
-    const battle = await game.sailshipsCombat.storage.updateBattle(mutator, { reason: options.reason ?? "" });
+    let applied = false;
+    const battle = await game.sailshipsCombat.storage.updateBattle(async current => {
+      const result = await mutator(current);
+      applied = result !== false;
+      return result;
+    }, { reason: options.reason ?? "" });
+    if (applied && (options.reason === "shipyard-apply-edits" || /^bestiary-(apply-edits|add-section|remove-section|add-attack|remove-attack|add-ability|remove-ability)$/.test(options.reason ?? ""))) this.workbench.accept();
     const main = game.sailshipsCombat.app;
     if (main) {
       main.selectedShipId = this.selectedShipId;
@@ -209,7 +219,7 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const tab = getActionTarget(event, target)?.dataset?.tab;
     if (!TAB_IDS.has(tab)) return;
     this.activeTab = tab;
-    this.render({ force: true });
+    this.workbench.show(this.element.querySelector('[data-workspace="yard"]'), tab);
   }
   static async _onRefreshShipyard(event) {
     event.preventDefault();
@@ -253,6 +263,11 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (!sideId) return;
     this.activeSideId = sideId;
     this.render({ force: true });
+  }
+
+  static _onOpenBattle(event) {
+    event.preventDefault();
+    game.sailshipsCombat?.open?.();
   }
 
   static async _onOpenBattleSetup(event) {
@@ -359,6 +374,7 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   _onClose(options) {
+    this.workbench.destroy();
     if (this._needsMainRefresh) game.sailshipsCombat.app?.onExternalBattleUpdate?.();
     if (game.sailshipsCombat?.shipyardApp === this) game.sailshipsCombat.shipyardApp = null;
     if (super._onClose) super._onClose(options);

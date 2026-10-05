@@ -1,3 +1,4 @@
+import { WorkbenchController } from "../controllers/workbench-controller.js";
 import { SoundService, SOUND_EVENT_TYPES } from "../services/sound-service.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -11,6 +12,9 @@ const EVENT_META = Object.freeze({
 });
 
 export class SoundSettingsApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  constructor(options = {}) { super(options); this.workbench = new WorkbenchController(this); }
+  _onRender(context, options) { super._onRender(context, options); this.workbench.bind(); }
+
   static DEFAULT_OPTIONS = {
     id: "sailships-combat-sound-settings",
     classes: ["sailships-combat", "sailships-sound-settings-app"],
@@ -67,12 +71,14 @@ export class SoundSettingsApp extends HandlebarsApplicationMixin(ApplicationV2) 
 
   async saveSettings() {
     await SoundService.saveProfile(this.readProfile());
+    this.workbench.accept();
     ui.notifications.info("Настройки звука сохранены для этого клиента.");
     this.render({ force: true });
   }
 
   async resetSettings() {
     await SoundService.resetProfile();
+    this.workbench.accept();
     ui.notifications.info("Настройки звука сброшены: используются встроенные процедурные эффекты.");
     this.render({ force: true });
   }
@@ -120,6 +126,7 @@ export class SoundSettingsApp extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _onClose(options) {
+    this.workbench.destroy();
     if (game.sailshipsCombat?.soundSettingsApp === this) game.sailshipsCombat.soundSettingsApp = null;
     if (super._onClose) super._onClose(options);
   }
