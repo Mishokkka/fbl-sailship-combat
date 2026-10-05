@@ -7,12 +7,12 @@
   </label>
   <div class="ssc-action-stack">
     <button type="button" class="primary" data-action="applyScenarioPreset" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-wand-magic-sparkles"></i> Применить сценарий</button>
-    <button type="button" data-action="generateScenarioTerrain" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-dice"></i> Перегенерировать террейн</button>
+    <button type="button" data-action="generateScenarioTerrain" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-dice"></i> Создать другую местность</button>
   </div>
 </section>
 
 <section class="ssc-setup-card">
-  <header class="ssc-card-header horizontal"><div><h3>Мои сценарии</h3><p>{{savedScenarioCount}} сохранено</p></div><button type="button" class="icon" data-action="saveScenario" {{#unless isGM}}disabled{{/unless}} title="Сохранить текущий"><i class="fa-solid fa-floppy-disk"></i></button></header>
+  <header class="ssc-card-header horizontal"><div><h3>Мои сценарии</h3><p>{{savedScenarioCount}} сохранено</p></div><button type="button" class="icon" data-action="saveScenario" {{#unless isGM}}disabled{{/unless}} title="Сохранить текущий">Сохранить текущий</button></header>
   <div class="ssc-inline-actions">
     <button type="button" class="grow" data-action="importScenario" {{#unless isGM}}disabled{{/unless}}>Импорт</button>
     <button type="button" class="grow" data-action="exportScenario">Экспорт текущего</button>
@@ -22,9 +22,9 @@
       <article class="ssc-saved-scenario-card">
         <div><strong>{{entry.name}}</strong><span>{{entry.shipCount}} ед. · {{entry.saved}}</span></div>
         <div class="ssc-scenario-actions">
-          <button type="button" data-action="loadScenario" data-scenario-id="{{entry.id}}" {{#unless ../isGM}}disabled{{/unless}} title="Загрузить"><i class="fa-solid fa-folder-open"></i></button>
-          <button type="button" data-action="exportScenario" data-scenario-id="{{entry.id}}" title="Экспорт"><i class="fa-solid fa-file-export"></i></button>
-          <button type="button" class="danger" data-action="deleteScenario" data-scenario-id="{{entry.id}}" {{#unless ../isGM}}disabled{{/unless}} title="Удалить"><i class="fa-solid fa-trash"></i></button>
+          <button type="button" data-action="loadScenario" data-scenario-id="{{entry.id}}" {{#unless ../isGM}}disabled{{/unless}} title="Загрузить">Загрузить</button>
+          <button type="button" data-action="exportScenario" data-scenario-id="{{entry.id}}" title="Экспорт">Экспорт</button>
+          <button type="button" class="danger" data-action="deleteScenario" data-scenario-id="{{entry.id}}" {{#unless ../isGM}}disabled{{/unless}} title="Удалить">Удалить</button>
         </div>
       </article>
     {{else}}
