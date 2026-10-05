@@ -1,6 +1,11 @@
-<aside class="ssc-right-panel">
+<aside class="ssc-right-panel" aria-label="Действия и состояние">
+  <section class="ssc-guidance ssc-guidance-{{guidance.tone}}" role="status" aria-live="polite">
+    <span class="ssc-eyebrow">{{guidance.eyebrow}}</span>
+    <h2>{{guidance.title}}</h2>
+    <p>{{guidance.description}}</p>
+    {{#if guidance.action}}<button type="button" class="primary" data-action="{{guidance.action}}">{{guidance.actionLabel}}</button>{{/if}}
+  </section>
   {{#if selectedShip}}
-    <h2>{{sscPhase battle.phase}}</h2>
     {{> "modules/sailships-combat/templates/naval/parts/right/naval-turn-box.hbs"}}
     {{#if selectedIsCreature}}
       {{> "modules/sailships-combat/templates/naval/parts/right/naval-creature-movement-panel.hbs"}}

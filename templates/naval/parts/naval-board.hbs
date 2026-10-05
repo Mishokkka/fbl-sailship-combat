@@ -135,8 +135,9 @@
         <div class="ssc-terrain-tooltip hidden" role="tooltip" aria-live="polite"></div>
 
         <div class="ssc-board-phase-strip" aria-label="Этапы раунда">
+          <strong class="ssc-round-label">Раунд {{battle.round}}</strong>
           {{#each phases as |phase|}}
-            <span class="ssc-phase-pill {{#if phase.active}}active{{/if}}">{{sscPhase phase.id}}</span>
+            <span class="ssc-phase-pill {{#if phase.active}}active{{/if}} {{#if phase.done}}done{{/if}}" {{#if phase.active}}aria-current="step"{{/if}}><b>{{phase.number}}</b> {{sscPhase phase.id}}</span>
           {{/each}}
         </div>
 
@@ -174,10 +175,10 @@
 
         <div class="ssc-board-control-dock">
           <button type="button" class="ssc-overlay-action" data-action="passTurn" title="{{passTurnTitle}}" {{#unless canPassTurn}}disabled{{/unless}}>
-            <i class="fa-solid fa-check"></i>
+            <i class="fa-solid fa-check" aria-hidden="true"></i><span>Завершить действие</span>
           </button>
-          <button type="button" class="ssc-overlay-action primary" data-action="nextPhase" title="Переход к следующей фазе боя. Доступен после подтверждения подготовки." {{#unless canNextPhase}}disabled{{/unless}}>
-            <i class="fa-solid fa-forward-step"></i>
+          <button type="button" class="ssc-overlay-action primary" data-action="nextPhase" title="{{nextPhaseTitle}}" {{#unless canNextPhase}}disabled{{/unless}}>
+            <i class="fa-solid fa-forward-step" aria-hidden="true"></i><span>{{nextPhaseLabel}}</span>
           </button>
         </div>
       </section>

@@ -132,6 +132,7 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       setAmmo: this._onSetAmmo,
       setFireMode: this._onSetFireMode,
       clearTarget: this._onClearTarget,
+      selectActiveShip: this._onSelectActiveShip,
       toggleDeployMode: this._onToggleDeployMode,
       setTerrainMode: this._onSetTerrainMode,
       cancelTerrainMode: this._onCancelTerrainMode,
@@ -310,6 +311,11 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   getSelectedShip(battle) {
     return battle.ships.find(s => s.id === this.selectedShipId) ?? null;
+  }
+  static _onSelectActiveShip(event) {
+    event.preventDefault();
+    const active = this._getActiveShip(this.battle);
+    if (active) this._selectShip(active.id);
   }
   static async _onOpenShipyard(event) {
     event.preventDefault();

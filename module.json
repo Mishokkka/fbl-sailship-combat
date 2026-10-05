@@ -27,7 +27,8 @@
     "styles/owners/45-creatures.css",
     "styles/owners/50-shipyard.css",
     "styles/owners/60-battle-setup.css",
-    "styles/owners/70-sound-settings.css"
+    "styles/owners/70-sound-settings.css",
+    "styles/owners/80-interface.css"
   ],
   "languages": [
     {

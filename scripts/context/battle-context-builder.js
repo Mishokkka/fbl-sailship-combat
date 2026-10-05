@@ -8,6 +8,7 @@ import { GunneryEngine } from "../engine/gunnery-engine.js";
 import { RenderContextCache } from "./render-context-cache.js";
 import { VictoryContextBuilder } from "./victory-context-builder.js";
 import { CombatantRules } from "../rules/combatant-rules.js";
+import { BattleGuidanceBuilder } from "./battle-guidance-builder.js";
 
 const ALL_PARTS = Object.freeze(["fleet", "board", "summary", "controls"]);
 
@@ -114,7 +115,8 @@ export class BattleContextBuilder {
       setupConfirmed: Boolean(battle.setupConfirmed),
       canConfirmSetup: Boolean(game.user.isGM && !battle.setupConfirmed),
       canReturnToSetup: Boolean(game.user.isGM && battle.setupConfirmed),
-      canNextPhase: Boolean(game.user.isGM && battle.setupConfirmed && !battle.outcome?.resolved),
+      canNextPhase: Boolean(game.user.isGM && battle.setupConfirmed && !battle.outcome?.resolved
+        && (!this.app._isActivationPhase(battle.phase) || !state.activeShip)),
       battle,
       battleMode: state.battleMode,
       deployMode: this.app.deployMode,
@@ -157,8 +159,12 @@ export class BattleContextBuilder {
         && state.activeShip
         && activeActionState.canPass),
       passTurnTitle,
+      nextPhaseLabel: battle.phase === "end" ? "Новый раунд" : "Следующая фаза",
+      nextPhaseTitle: this.app._isActivationPhase(battle.phase) && state.activeShip
+        ? "Сначала завершите активации всех участников этой фазы."
+        : "Продолжить бой: перейти к следующему этапу.",
       turnOrder: this.app._getTurnOrder(battle),
-      phases: PHASES.map(id => ({ id, active: id === battle.phase }))
+      phases: PHASES.map((id, index) => ({ id, number: index + 1, active: id === battle.phase, done: index < PHASES.indexOf(battle.phase) }))
     };
   }
 
@@ -251,6 +257,13 @@ export class BattleContextBuilder {
     return {
       ...this.getTurnFields(battle, state),
       actionState: detail.actionState,
+      guidance: BattleGuidanceBuilder.build({
+        battle, selectedShip: state.selectedShip, activeShip: state.activeShip,
+        actionState: detail.actionState, canViewDetails: detail.canViewSelectedShipDetails,
+        isGM: game.user.isGM, canSubmitOrder: detail.playerControl.canSubmitOrder,
+        pendingOrder: Boolean(detail.playerControl.selectedPendingOrder),
+        hasShotPreview: shotPreviews.some(shot => shot.canFireNow)
+      }),
       playerControl: detail.playerControl,
       orderControls: detail.orderControls,
       canViewSelectedShipDetails: detail.canViewSelectedShipDetails,

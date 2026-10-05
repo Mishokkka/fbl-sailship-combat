@@ -328,7 +328,7 @@ export class CombatPanelContextBuilder {
         tooltip: this.getShotTooltip(battery, targetInfo, preview),
         rangeTooltip: `Дистанция до цели: ${targetInfo.range} гекс. (${targetInfo.range * HEX_SCALE_METERS} м); боевая рабочая зона ${preview.minRange}-${preview.maxRange} гекс. (${preview.minRangeMeters}-${preview.maxRangeMeters} м), исторический практический предел для этого типа — до ${uiMeta.extremeMax} гекс. (${uiMeta.extremeMeters} м).`,
         chanceTooltip: preview.fireMode === "delayed" ? "Задержка залпа не требует броска сейчас: батарея готовит +2 к следующему настоящему залпу." : `Шанс рассчитан по текущему правилу 3d6: бросок должен быть не выше ${preview.skill}.`,
-        effectTooltip: "Ожидаемый эффект учитывает тип орудий, боеприпас, режим залпа и надежный запас навыка.",
+        effectTooltip: "Ориентир урона при успешном попадании, до брони и защитных эффектов цели. Итог зависит от броска; это не средний урон с учётом промахов.",
         rangeBandLabel: this.getRangeBandLabel(targetInfo.range, uiMeta),
         roleLabel: uiMeta.roleLabel,
         arcHintLabel: uiMeta.arcLabel

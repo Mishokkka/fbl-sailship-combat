@@ -12,11 +12,13 @@
                 <span>{{localize "SAILSHIPS.SpentActions"}}: {{actionState.spentAP}}</span>
               </div>
             {{/if}}
-            <div class="ssc-turn-list">
+            {{#if isGM}}<button type="button" class="ssc-narrow-pass" data-action="passTurn" title="{{passTurnTitle}}" {{#unless canPassTurn}}disabled{{/unless}}>Завершить действие</button>{{/if}}
+            <details class="ssc-disclosure" data-ui-section="turn-order"><summary>Очередность участников</summary><div class="ssc-turn-list">
               {{#each turnOrder as |turnShip|}}
                 <span class="ssc-turn-pill side-{{turnShip.side}} {{#if turnShip.active}}active{{/if}} {{#if turnShip.done}}done{{/if}}" style="--ssc-side-color: {{turnShip.sideColor}};">{{turnShip.name}}{{#if turnShip.initiative}} <em>{{turnShip.initiative}}</em>{{/if}}</span>
               {{/each}}
             </div>
+            </details>
             {{#unless actionState.isActive}}
               <p class="ssc-hint">{{localize "SAILSHIPS.NotActiveShipHint"}}</p>
             {{/unless}}

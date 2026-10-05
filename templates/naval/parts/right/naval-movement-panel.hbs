@@ -49,12 +49,14 @@
                   <span title="Вертикальная скорость применяется в конце раунда. Один уровень H — примерно 50 м.">Вертикаль: {{selectedInfo.coreAdvice.verticalText}}</span>
                 </div>
                 <p>{{selectedInfo.coreAdvice.notice}}</p>
+                <details class="ssc-disclosure" data-ui-section="core-mode"><summary>Режим ядра: {{selectedInfo.coreAdvice.modeLabel}}</summary>
                 <div class="ssc-core-mode-grid">
                   <button type="button" data-action="coreModeNormal" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'normal')}}active{{/if}}">Штатный</button>
                   <button type="button" data-action="coreModeBoosted" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'boosted')}}active{{/if}}">Форсаж</button>
                   <button type="button" data-action="coreModeEmergency" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'emergency')}}active{{/if}}">Аварийный</button>
                   <button type="button" data-action="coreModeShutdown" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'shutdown')}}active{{/if}}">Заглушить</button>
                 </div>
+                </details>
               </div>
             {{/if}}
             <div class="ssc-action-subgroup">
@@ -75,6 +77,7 @@
                 <button type="button" data-action="coreEmergencyDescend" title="Аварийное снижение: быстро уводит вниз, но посадка будет жесткой." {{#unless actionState.canCore}}disabled{{/unless}}>Авар. снижение</button>
                 <button type="button" data-action="coreImpulse" title="Короткий гравитационный толчок ядра: прибавляет ход, но быстро перегревает кристалл." {{#unless actionState.canCoreImpulse}}disabled{{/unless}}>{{localize "SAILSHIPS.CoreImpulse"}}</button>
               </div>
+              <details class="ssc-disclosure" data-ui-section="core-shift"><summary>Ядерное смещение · форсаж</summary>
               <div class="ssc-core-shift-grid" title="Ядерное смещение доступно только в форсированном режиме, выше H0. Курс корабля не меняется.">
                 <button type="button" data-action="coreShift0" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг С</button>
                 <button type="button" data-action="coreShift60" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг СВ</button>
@@ -83,6 +86,7 @@
                 <button type="button" data-action="coreShift240" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг ЮЗ</button>
                 <button type="button" data-action="coreShift300" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг СЗ</button>
               </div>
+              </details>
             </div>
             {{/if}}
             {{#if actionState.movementState.mustMove}}<p class="ssc-hint danger"><strong>Инерция:</strong> до завершения активации корабль обязан пройти не менее {{actionState.movementState.requiredAdvance}} гекс.</p>{{/if}}
