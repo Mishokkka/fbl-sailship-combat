@@ -40,8 +40,6 @@ jobs:
       - name: Check interface layouts
         run: node tools/preview-interface.mjs
       - name: Check module workspaces
-        env:
-          SSC_REVIEW: "1"
         run: node tools/preview-workspaces.mjs
       - name: Save interface previews
         if: always()

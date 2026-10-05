@@ -201,7 +201,7 @@ try {
         await fit(kind);
       }
       await page.screenshot({ path: "artifacts/interface/workspaces/" + kind + "-" + width + ".png" });
-      if (process.env.SSC_REVIEW === "1" && (width === 1280 || width === 720)) console.log("SSC_REVIEW_" + kind + ":" + (await page.screenshot({ type: "jpeg", quality: 65 })).toString("base64"));
+
       await page.close();
     }
   }
