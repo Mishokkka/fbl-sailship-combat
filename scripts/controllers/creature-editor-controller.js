@@ -53,9 +53,8 @@ export class CreatureEditorController {
     this.applyAttackEdits(creature);
     this.applyAbilityEdits(creature);
 
-    const normalized = CreatureNormalizer.normalize(creature, { battleRound: creature.turn?.round ?? 1 });
-    for (const key of Object.keys(creature)) delete creature[key];
-    Object.assign(creature, normalized);
+    // The normalizer updates this same object in place.
+    CreatureNormalizer.normalize(creature, { battleRound: creature.turn?.round ?? 1 });
     return { oldName, newName: creature.name, renamed: oldName !== creature.name };
   }
 

@@ -64,13 +64,13 @@ export class CreatureEditorActions {
     new CreatureEditorController(this.app.element).resetCombatState(creature);
   }
 
+  /** Persist only the requested structural change; form fields remain local drafts. */
   async mutate(reason, mutator) {
     if (!this.app._assertSetup("Редактор существа")) return;
     await this.app._updateBattleAndRender(battle => {
       if (battle.setupConfirmed) return false;
       const creature = this.app.getSelectedShip(battle);
       if (!creature || creature.unitType !== "creature") return false;
-      new CreatureEditorController(this.app.element).applyEdits(creature);
       mutator(creature);
     }, { reason });
   }
@@ -128,7 +128,7 @@ export class CreatureEditorActions {
       type: "image",
       current: input?.value ?? "",
       callback: path => {
-        if (input) input.value = path;
+        if (input) { input.value = path; input.dispatchEvent(new Event("input", { bubbles: true })); }
       }
     });
     try {

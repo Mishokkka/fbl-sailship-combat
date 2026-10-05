@@ -1,23 +1,22 @@
-    {{#if isBestiaryTab}}
-      <section class="ssc-shipyard-tab-panel">
+<section data-filter="bestiary" data-view-panel="bestiary" {{#unless isBestiaryTab}}hidden{{/unless}} class="ssc-shipyard-tab-panel">
         <div class="ssc-yard-section-head">
           <div>
             <h3>{{localize "SAILSHIPS.BestiaryTemplates"}}</h3>
-            <p class="ssc-hint">Встроенные заготовки создают отдельные боевые единицы типа creature. На этом этапе они отображаются и редактируются, но еще не участвуют в фазах движения и атак.</p>
+            <p class="ssc-hint">Выберите существо для команды. Его полёт, атаки, способности и поведение можно настроить в редакторе.</p>
           </div>
           {{#if setupLocked}}<p class="ssc-hint danger">Бой подтвержден: добавление существ заблокировано.</p>{{/if}}
         </div>
-
+<div class="ssc-catalog-search"><label>Поиск по названию и описанию<input type="search" data-filter-input placeholder="Например, фрегат или охотник" aria-label="Поиск в каталоге"></label><button type="button" data-filter-clear>Сбросить поиск</button><span data-filter-count role="status"></span></div><p class="ssc-empty-state" data-filter-empty hidden>Ничего не найдено. Измените запрос или сбросьте поиск.</p>
         <div class="ssc-template-groups">
           {{#each creatureTemplateGroups as |group|}}
-            <section class="ssc-template-group">
+            <section class="ssc-template-group" data-filter-group>
               <h4>{{group.category}}</h4>
               <div class="ssc-template-grid">
                 {{#each group.templates as |template|}}
-                  <article class="ssc-template-card ssc-creature-template-card">
+                  <article data-filter-item class="ssc-template-card ssc-creature-template-card">
                     <div class="ssc-template-title">
                       <strong>{{template.label}}</strong>
-                      <span>{{template.creatureType}}</span>
+                      
                     </div>
                     <p>{{template.description}}</p>
                     <div class="ssc-template-stats">
@@ -36,4 +35,3 @@
           {{/each}}
         </div>
       </section>
-    {{/if}}

@@ -2,7 +2,7 @@ name: Module checks
 
 on:
   push:
-    branches: [main, scripts-upload]
+    branches: [main, scripts-upload, 'ui/**']
   pull_request:
   workflow_dispatch:
 
@@ -39,6 +39,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Check interface layouts
         run: node tools/preview-interface.mjs
+      - name: Check module workspaces
+        run: node tools/preview-workspaces.mjs
       - name: Save interface previews
         if: always()
         uses: actions/upload-artifact@v7

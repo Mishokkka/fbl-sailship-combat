@@ -1,8 +1,8 @@
 <section class="ssc-setup-card ssc-setup-preview-card">
   <div class="ssc-yard-section-head">
     <div>
-      <h3>Предпросмотр</h3>
-      <p class="ssc-hint">Поле, террейн, зоны расстановки и корабли активного боя.</p>
+      <h3>Поле сражения</h3>
+      <p class="ssc-hint">Местность, зоны команд и участники.</p>
     </div>
     <b class="ssc-preview-size">{{preview.width}}×{{preview.height}}</b>
   </div>
@@ -15,7 +15,7 @@
   </div>
 
   <div class="ssc-preview-board-wrap">
-    <svg class="ssc-setup-preview-svg" viewBox="{{preview.viewBox}}" preserveAspectRatio="xMidYMid meet" role="img">
+    <svg class="ssc-setup-preview-svg" viewBox="{{preview.viewBox}}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Предпросмотр тактического поля">
       <defs>
         <marker id="ssc-setup-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
           <path d="M0,0 L0,6 L6,3 z"></path>
@@ -62,11 +62,11 @@
   </div>
 
   <div class="ssc-preview-legend">
-    <span>Террейн: <b>{{preview.terrainCount}}</b> кл.</span>
+    <span>Местность: <b>{{preview.terrainCount}}</b> кл.</span>
     {{#each preview.terrainSummary as |item|}}
       <span>{{item.label}} ×{{item.count}}</span>
     {{else}}
-      <span>террейна нет</span>
+      <span>чистое поле</span>
     {{/each}}
   </div>
 </section>

@@ -1,12 +1,11 @@
-    {{#if isCreatureLibraryTab}}
-      <section class="ssc-shipyard-tab-panel">
+<section data-filter="creatureLibrary" data-view-panel="creatureLibrary" {{#unless isCreatureLibraryTab}}hidden{{/unless}} class="ssc-shipyard-tab-panel">
         <div class="ssc-yard-section-head">
           <div>
             <h3>{{localize "SAILSHIPS.CreatureLibrary"}} <span class="ssc-muted">({{creatureLibraryCount}})</span></h3>
-            <p class="ssc-hint">Пользовательские существа хранятся в world setting отдельно от кораблей. Текущие повреждения и боевые флаги при сохранении очищаются.</p>
+            <p class="ssc-hint">Сохраняйте собственных существ для будущих боёв. Повреждения и боевые состояния в шаблон не переносятся.</p>
           </div>
         </div>
-
+<div class="ssc-catalog-search"><label>Поиск по названию и описанию<input type="search" data-filter-input placeholder="Например, скат или охотник" aria-label="Поиск в каталоге"></label><button type="button" data-filter-clear>Сбросить поиск</button><span data-filter-count role="status"></span></div><p class="ssc-empty-state" data-filter-empty hidden>Ничего не найдено. Измените запрос или сбросьте поиск.</p>
         <section class="ssc-library-save-box">
           <label>Название шаблона
             <input type="text" data-creature-library-name value="{{defaultCreatureLibraryName}}">
@@ -21,14 +20,14 @@
         {{#if creatureLibrary.length}}
           <div class="ssc-library-grid">
             {{#each creatureLibrary as |entry|}}
-              <article class="ssc-library-card ssc-creature-library-card">
+              <article data-filter-item class="ssc-library-card ssc-creature-library-card">
                 <div class="ssc-template-title">
                   <strong>{{entry.name}}</strong>
                   <span>#{{entry.index}}</span>
                 </div>
-                <p>{{entry.creatureName}} · {{entry.creatureType}}</p>
+                <p>{{entry.creatureName}}</p>
                 <div class="ssc-template-stats">
-                  <span>Размер {{entry.size}}</span>
+                  <span>{{entry.sizeLabel}}</span>
                   <span>{{localize "SAILSHIPS.Speed"}} {{entry.maxSpeed}}</span>
                   <span>{{localize "SAILSHIPS.Vitality"}} {{entry.vitality}}</span>
                   <span>{{localize "SAILSHIPS.Armor"}} {{entry.armor}}</span>
@@ -46,4 +45,3 @@
           <p class="ssc-hint">Бестиарий пока пуст.</p>
         {{/if}}
       </section>
-    {{/if}}

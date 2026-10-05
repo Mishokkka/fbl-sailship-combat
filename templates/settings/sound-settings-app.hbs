@@ -1,39 +1,7 @@
-<div class="ssc-sound-settings">
-  <header>
-    <div>
-      <h2>Звуки боя</h2>
-      <p>Настройки сохраняются отдельно для каждого клиента. Пустой путь использует встроенный процедурный эффект.</p>
-    </div>
-    <label class="ssc-sound-enabled">
-      <input type="checkbox" data-sound-field="enabled" {{#if profile.enabled}}checked{{/if}}>
-      <span>Включить звуки</span>
-    </label>
-  </header>
-
-  <label class="ssc-sound-master">
-    <span>Общая громкость <b>{{volumePercent}}%</b></span>
-    <input type="range" min="0" max="1" step="0.05" value="{{profile.volume}}" data-sound-field="volume">
-  </label>
-
-  <div class="ssc-sound-event-list">
-    {{#each events as |sound|}}
-      <section class="ssc-sound-event-card">
-        <h3><i class="{{sound.icon}}"></i> {{sound.label}}</h3>
-        <div class="ssc-sound-path-row">
-          <input type="text" value="{{sound.path}}" data-sound-path="{{sound.type}}" placeholder="Встроенный процедурный звук">
-          <button type="button" data-action="browseSound" data-sound-type="{{sound.type}}" title="Выбрать аудиофайл"><i class="fa-solid fa-folder-open"></i></button>
-          <button type="button" data-action="previewSound" data-sound-type="{{sound.type}}" title="Прослушать"><i class="fa-solid fa-play"></i></button>
-        </div>
-        <label>
-          <span>Громкость события: {{sound.volumePercent}}%</span>
-          <input type="range" min="0" max="1" step="0.05" value="{{sound.volume}}" data-sound-volume="{{sound.type}}">
-        </label>
-      </section>
-    {{/each}}
-  </div>
-
-  <footer>
-    <button type="button" data-action="resetSoundSettings"><i class="fa-solid fa-arrow-rotate-left"></i> Сбросить</button>
-    <button type="button" class="primary" data-action="saveSoundSettings"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
-  </footer>
-</div>
+<div class="ssc-settings-shell" data-draft-scope="sound">
+<header class="ssc-workbench-header"><div><span class="ssc-eyebrow">ЛИЧНЫЕ НАСТРОЙКИ</span><h2>Звуки боя</h2><p>Меняются только у вас. Прослушайте эффект перед сохранением.</p></div></header>
+<main class="ssc-settings-body"><section class="ssc-settings-card"><label class="ssc-switch-row"><input type="checkbox" data-sound-field="enabled" {{#if profile.enabled}}checked{{/if}}><span>Включить звуки боя</span></label><label class="ssc-range-field"><span>Общая громкость <output>{{volumePercent}}%</output></span><input type="range" min="0" max="1" step="0.05" value="{{profile.volume}}" data-sound-field="volume"></label></section>
+<div class="ssc-sound-event-list">{{#each events as |sound|}}<section class="ssc-sound-event-card"><header class="ssc-sound-event-head"><h3>{{sound.label}}</h3><button type="button" data-action="previewSound" data-sound-type="{{sound.type}}" aria-label="Прослушать: {{sound.label}}">▷ Прослушать</button></header><label class="ssc-range-field"><span>Громкость эффекта <output>{{sound.volumePercent}}%</output></span><input type="range" min="0" max="1" step="0.05" value="{{sound.volume}}" data-sound-volume="{{sound.type}}"></label>
+<details class="ssc-disclosure" data-disclosure="sound-{{sound.type}}" {{#if sound.path}}open{{/if}}><summary>{{#if sound.path}}Свой аудиофайл{{else}}Встроенный эффект · заменить{{/if}}</summary><div class="ssc-sound-path-row"><label>Путь к аудиофайлу<input type="text" value="{{sound.path}}" data-sound-path="{{sound.type}}" placeholder="Пусто — встроенный эффект"></label><button type="button" data-action="browseSound" data-sound-type="{{sound.type}}">Выбрать…</button></div></details></section>{{/each}}</div>
+<details class="ssc-disclosure" data-disclosure="sound-reset"><summary>Восстановить стандартные звуки</summary><p class="ssc-hint">Сброс сразу сохраняет стандартные эффекты и громкость для вас.</p><button type="button" data-action="resetSoundSettings">Сбросить настройки звука</button></details></main>
+<footer class="ssc-save-bar"><span data-draft-status role="status"></span><div><button type="button" data-discard-draft>Отменить правки</button><button type="button" class="primary" data-action="saveSoundSettings">Сохранить звук</button></div></footer></div>
