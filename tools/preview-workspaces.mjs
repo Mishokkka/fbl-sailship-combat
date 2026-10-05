@@ -47,6 +47,13 @@ battle.setupConfirmed = false;
 const creature = createCreature({ id: "preview-creature", name: "Страж Серебряной гряды", template: "skyRay", side: "red" });
 battle.ships.push(creature);
 game.sailshipsCombat = { storage: { getBattle: () => structuredClone(battle) } };
+// Populated libraries exercise real card formatting and long user-supplied titles.
+const { ShipLibraryService } = await import("../scripts/services/ship-library-service.js");
+const { CreatureLibraryService } = await import("../scripts/services/creature-library-service.js");
+const { BattleScenarioService } = await import("../scripts/services/battle-scenario-service.js");
+ShipLibraryService.getLibrary = () => [{ id: "sample-ship", name: "Флагман воздушного флота Серебряной гряды", ship: structuredClone(battle.ships[0]) }];
+CreatureLibraryService.getLibrary = () => [{ id: "sample-creature", name: "Страж высокогорного перевала", creature: structuredClone(creature) }];
+BattleScenarioService.getSavedScenarios = () => [{ id: "sample-scenario", name: "Перехват конвоя над Серебряной грядой", saved: "05.10.2026", scenario: structuredClone(battle) }];
 await mkdir("artifacts/interface/workspaces", { recursive: true });
 const browser = await chromium.launch();
 let checks = 0;
@@ -166,7 +173,7 @@ try {
         await fit(kind);
       }
       await page.screenshot({ path: "artifacts/interface/workspaces/" + kind + "-" + width + ".png" });
-      if (process.env.SSC_REVIEW === "1" && width === 1280) console.log("SSC_REVIEW_" + kind + ":" + (await page.screenshot({ type: "jpeg", quality: 65 })).toString("base64"));
+      if (process.env.SSC_REVIEW === "1" && (width === 1280 || width === 720)) console.log("SSC_REVIEW_" + kind + ":" + (await page.screenshot({ type: "jpeg", quality: 65 })).toString("base64"));
       await page.close();
     }
   }

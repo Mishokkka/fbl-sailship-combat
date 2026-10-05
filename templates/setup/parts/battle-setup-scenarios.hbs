@@ -2,7 +2,7 @@
   <header class="ssc-card-header"><div><h3>Сценарий</h3><p>Готовая комбинация поля, окружения, террейна и зон.</p></div></header>
   <label class="ssc-field full">Пресет сценария
     <select data-preset-select="scenario">
-      {{#each scenarioPresets as |preset|}}<option value="{{preset.id}}" {{#if preset.selected}}selected{{/if}}>{{preset.label}} · {{preset.mode}}</option>{{/each}}
+      {{#each scenarioPresets as |preset|}}<option value="{{preset.id}}" {{#if preset.selected}}selected{{/if}}>{{preset.label}}</option>{{/each}}
     </select>
   </label>
   <div class="ssc-action-stack">
@@ -12,7 +12,7 @@
 </section>
 
 <section class="ssc-setup-card">
-  <header class="ssc-card-header horizontal"><div><h3>Мои сценарии</h3><p>{{savedScenarioCount}} сохранено</p></div><button type="button" class="icon" data-action="saveScenario" {{#unless isGM}}disabled{{/unless}} title="Сохранить текущий">Сохранить текущий</button></header>
+  <header class="ssc-card-header horizontal"><div><h3>Мои сценарии</h3><p>{{savedScenarioCount}} сохранено</p></div><button type="button" data-action="saveScenario" {{#unless isGM}}disabled{{/unless}} title="Сохранить текущий">Сохранить текущий</button></header>
   <div class="ssc-inline-actions">
     <button type="button" class="grow" data-action="importScenario" {{#unless isGM}}disabled{{/unless}}>Импорт</button>
     <button type="button" class="grow" data-action="exportScenario">Экспорт текущего</button>

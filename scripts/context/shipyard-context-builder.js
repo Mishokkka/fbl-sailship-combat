@@ -46,6 +46,7 @@ export class ShipyardContextBuilder {
       creatureName: creature.name ?? entry.name,
       creatureType: creature.creatureType ?? "custom",
       size: creature.size ?? "large",
+      sizeLabel: ({ tiny: "Крошечное", small: "Малое", medium: "Среднее", large: "Крупное", huge: "Огромное", swarm: "Стая" })[creature.size ?? "large"] ?? creature.size,
       maxSpeed: creature.maxSpeed ?? 0,
       vitality: creature.vitality?.max ?? 0,
       armor: creature.stats?.armor ?? 0,
