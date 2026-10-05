@@ -100,3 +100,35 @@ test("expired signed actions are rejected before signature processing", async ()
   const result = await SocketService.canAcceptPlayerAction({ userId: "player-a", ts: Date.now() - 120_000 });
   assert.deepEqual(result, { ok: false, reason: "expired-action" });
 });
+
+test("signed actions and responses use server time despite local clock skew", async () => {
+  const serverNow = 1_800_000_000_000;
+  game.time = { serverTime: serverNow };
+  game.user = game.users.get("player-a");
+  const originalNow = Date.now;
+  let capturedAction;
+  let capturedResult;
+  game.socket.emit = (_name, payload) => {
+    if (payload.type === "playerAction") {
+      capturedAction = structuredClone(payload);
+      const pending = SocketService.pendingActions.get(payload.action.actionId);
+      clearTimeout(pending.timeoutId);
+      SocketService.pendingActions.delete(payload.action.actionId);
+      pending.resolve({ ok: true });
+    } else capturedResult = structuredClone(payload);
+  };
+  try {
+    Date.now = () => serverNow - 300_000;
+    await SocketService.requestAction({ type: "submitOrder", shipId: "ship-blue", order: "brace" });
+    assert.equal(capturedAction.ts, serverNow);
+    game.user = game.users.get("gm-a");
+    Date.now = () => serverNow + 300_000;
+    assert.equal((await SocketService.canAcceptPlayerAction(capturedAction)).ok, true);
+    await SocketService.sendPlayerActionResult(capturedAction, { status: "accepted" });
+    assert.equal(capturedResult.ts, serverNow);
+    game.time.serverTime += 61_000;
+    assert.equal((await SocketService.canAcceptPlayerAction(capturedAction)).reason, "expired-action");
+  } finally {
+    Date.now = originalNow;
+  }
+});

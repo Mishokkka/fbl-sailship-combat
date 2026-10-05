@@ -1,0 +1,17 @@
+<div class="ssc-gunnery-choice-row">
+  <span>Боеприпас</span>
+  <div class="ssc-choice-strip">
+    {{#each weapon.ammoOptions as |ammo|}}
+      <button type="button" class="ssc-choice-chip {{#if ammo.active}}active{{/if}}" aria-pressed="{{#if ammo.active}}true{{else}}false{{/if}}" data-action="setAmmo" data-weapon-id="{{../weapon.id}}" data-ammo="{{ammo.id}}" title="{{ammo.title}}" {{#unless ../isGM}}disabled{{/unless}}>{{ammo.label}}</button>
+    {{/each}}
+  </div>
+</div>
+{{#if weapon.ammoUnavailable}}<p class="ssc-hint danger">Текущий боеприпас недоступен в этом сценарии. Выберите разрешённый перед залпом.</p>{{/if}}
+<div class="ssc-gunnery-choice-row">
+  <span>Режим залпа</span>
+  <div class="ssc-choice-strip">
+    {{#each weapon.fireModeOptions as |mode|}}
+      <button type="button" class="ssc-choice-chip {{#if mode.active}}active{{/if}}" aria-pressed="{{#if mode.active}}true{{else}}false{{/if}}" data-action="setFireMode" data-weapon-id="{{../weapon.id}}" data-fire-mode="{{mode.id}}" title="{{mode.title}}" {{#unless ../isGM}}disabled{{/unless}}>{{mode.label}}</button>
+    {{/each}}
+  </div>
+</div>

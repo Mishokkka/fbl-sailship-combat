@@ -41,7 +41,7 @@
         {{/each}}
       </div>
 
-      <h2>{{localize "SAILSHIPS.BattleLog"}}</h2>
+      <details class="ssc-disclosure ssc-log-disclosure" data-ui-section="battle-log" open><summary>{{localize "SAILSHIPS.BattleLog"}}</summary>
       <div class="ssc-log">
         {{#each log as |entry|}}
           <div class="ssc-log-entry">
@@ -50,4 +50,5 @@
           </div>
         {{/each}}
       </div>
+      </details>
     </aside>

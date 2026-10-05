@@ -1,0 +1,48 @@
+name: Module checks
+
+on:
+  push:
+    branches: [main, scripts-upload]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - run: npm run check
+  interface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Install preview tools
+        run: npm install --no-save --package-lock=false handlebars@4.7.9 playwright@1.63.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Check interface layouts
+        run: node tools/preview-interface.mjs
+      - name: Save interface previews
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: interface-preview
+          path: artifacts/interface/
+          retention-days: 14

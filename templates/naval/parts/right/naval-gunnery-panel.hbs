@@ -8,14 +8,6 @@
             </div>
             <p class="ssc-hint">{{localize "SAILSHIPS.AimHint"}}</p>
             {{#if (sscEq aimSection 'crystalCore')}}<p class="ssc-hint danger">{{localize "SAILSHIPS.CoreAimWarning"}}</p>{{/if}}
-            <div class="ssc-action-grid">
-              <button type="button" data-action="firePort" {{#unless actionState.canFirePort}}disabled{{/unless}}>{{localize "SAILSHIPS.FirePort"}}</button>
-              <button type="button" data-action="fireStarboard" {{#unless actionState.canFireStarboard}}disabled{{/unless}}>{{localize "SAILSHIPS.FireStarboard"}}</button>
-              <button type="button" data-action="fireBow" {{#unless actionState.canFireBow}}disabled{{/unless}}>{{localize "SAILSHIPS.FireBow"}}</button>
-              <button type="button" data-action="fireStern" {{#unless actionState.canFireStern}}disabled{{/unless}}>{{localize "SAILSHIPS.FireStern"}}</button>
-              <button type="button" data-action="fireMortar" {{#unless actionState.canFireMortar}}disabled{{/unless}}>Мортиры</button>
-              <button type="button" data-action="fireSwivel" {{#unless actionState.canFireSwivel}}disabled{{/unless}}>Поворотные</button>
-            </div>
           </section>
 
           <section class="ssc-shot-preview-box">
@@ -29,7 +21,7 @@
                         <strong>{{shot.batteryLabel}}</strong>
                         <span>{{shot.arcLabel}} · {{shot.weaponTypeLabel}}</span>
                       </div>
-                      <button type="button" class="ssc-shot-fire-button" data-action="{{shot.fireAction}}" {{#unless shot.canFireNow}}disabled{{/unless}}>Залп</button>
+                      <button type="button" class="ssc-shot-fire-button" data-action="{{shot.fireAction}}" {{#unless shot.canFireNow}}disabled{{/unless}}>{{#if (sscEq shot.preview.fireMode "delayed")}}Подготовить{{else}}Залп{{/if}}</button>
                     </header>
 
                     <div class="ssc-shot-preview-meta">
@@ -40,6 +32,8 @@
                       <span title="Разница высот между стрелком и целью.">ΔH: <strong>{{shot.preview.altitudeDelta}}</strong></span>
                     </div>
 
+                    {{#if (sscEq shot.preview.fireMode "delayed")}}<p class="ssc-hint">Подготовка батареи: без выстрела сейчас, +2 к следующему залпу.</p>{{/if}}
+                    {{#unless (sscEq shot.preview.fireMode "delayed")}}
                     <div class="ssc-hit-chance" title="{{shot.chanceTooltip}}">
                       <span>{{localize "SAILSHIPS.ToHit"}}: <strong>{{shot.hitChanceLabel}}</strong></span>
                       <span>навык {{shot.preview.skill}}</span>
@@ -47,10 +41,13 @@
                     </div>
 
                     <div class="ssc-shot-effect" title="{{shot.effectTooltip}}">
-                      {{localize "SAILSHIPS.ExpectedEffect"}}: <strong>{{shot.preview.expectedDamage}}</strong>
+                      Урон при попадании: <strong>{{shot.preview.expectedDamage}}</strong><span>до брони</span>
                       <span>{{sscAmmo shot.preview.ammo}}</span>
                       <span>{{shot.fireModeLabel}}</span>
                     </div>
+                    {{/unless}}
+                    {{> "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs" weapon=shot.controls isGM=../isGM}}
+                    <details class="ssc-disclosure" data-ui-section="shot-{{shot.arc}}"><summary>Модификаторы и свойства батареи</summary>
                     <div class="ssc-shot-role-row">
                       <span class="ssc-summary-chip" title="Историческая роль этой батареи в бою.">{{shot.roleLabel}}</span>
                       <span class="ssc-summary-chip" title="Типичная дуга стрельбы этой батареи.">{{shot.arcHintLabel}}</span>
@@ -62,6 +59,7 @@
                         <span class="ssc-shot-mod {{#if mod.active}}active{{/if}}" title="{{mod.title}}">{{mod.label}} {{mod.valueText}}</span>
                       {{/each}}
                     </div>
+                    </details>
                   </article>
                 {{/each}}
               </div>

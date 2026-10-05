@@ -1,22 +1,22 @@
         {{#if phaseFlags.showTurnBox}}
           <section class="ssc-turn-box">
-            <h3>{{localize "SAILSHIPS.TurnOrder"}}</h3>
+            <div class="ssc-turn-heading">
             {{#if activeShip}}
-              <div class="ssc-active-ship">{{localize "SAILSHIPS.ActiveShip"}}: <strong>{{activeShip.name}}</strong></div>
+              <div class="ssc-active-ship">Ход: <strong>{{activeShip.name}}</strong></div>
             {{else}}
               <div class="ssc-active-ship muted">{{localize "SAILSHIPS.AllShipsDone"}}</div>
             {{/if}}
             {{#if actionState.phaseBudget}}
-              <div class="ssc-ap-box">
-                {{localize "SAILSHIPS.ActionPoints"}}: <strong>{{actionState.remainingAP}}/{{actionState.phaseBudget}}</strong>
-                <span>{{localize "SAILSHIPS.SpentActions"}}: {{actionState.spentAP}}</span>
-              </div>
+              <span class="ssc-turn-ap" title="Очки действий: осталось / всего. Потрачено: {{actionState.spentAP}}">ОД <strong>{{actionState.remainingAP}}/{{actionState.phaseBudget}}</strong></span>
             {{/if}}
-            <div class="ssc-turn-list">
+            </div>
+            {{#if isGM}}<button type="button" class="ssc-narrow-pass" data-action="passTurn" title="{{passTurnTitle}}" {{#unless canPassTurn}}disabled{{/unless}}>Завершить действие</button>{{/if}}
+            <details class="ssc-disclosure" data-ui-section="turn-order"><summary>Очередность участников</summary><div class="ssc-turn-list">
               {{#each turnOrder as |turnShip|}}
                 <span class="ssc-turn-pill side-{{turnShip.side}} {{#if turnShip.active}}active{{/if}} {{#if turnShip.done}}done{{/if}}" style="--ssc-side-color: {{turnShip.sideColor}};">{{turnShip.name}}{{#if turnShip.initiative}} <em>{{turnShip.initiative}}</em>{{/if}}</span>
               {{/each}}
             </div>
+            </details>
             {{#unless actionState.isActive}}
               <p class="ssc-hint">{{localize "SAILSHIPS.NotActiveShipHint"}}</p>
             {{/unless}}

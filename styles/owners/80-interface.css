@@ -1,0 +1,214 @@
+/* Shared visual language. Scoped to module windows; Foundry chrome retains its layout. */
+.sailships-combat {
+  --ssc-bg: #0c141d;
+  --ssc-panel: #121e2a;
+  --ssc-panel-2: #1b2c3b;
+  --ssc-border: #34495c;
+  --ssc-text: #edf1f3;
+  --ssc-muted: #a9bac6;
+  --ssc-accent: #d5b476;
+  --ssc-blue: #88b3d5;
+  --ssc-red: #e3978e;
+  --ssc-green: #83bca8;
+  --ssc-focus: #f0d299;
+  color: var(--ssc-text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.sailships-combat *, .sailships-combat *::before, .sailships-combat *::after { box-sizing: border-box; }
+.sailships-combat .window-content { background: var(--ssc-bg); color: var(--ssc-text); }
+.sailships-combat .window-header { background: #101b26; border-bottom: 1px solid var(--ssc-border); }
+.sailships-combat :is(button, input, select, textarea) { font: inherit; }
+.sailships-combat .window-content button {
+  min-height: 32px;
+  height: auto;
+  padding: 6px 9px;
+  border: 1px solid var(--ssc-border);
+  border-radius: 7px;
+  background: var(--ssc-panel-2);
+  color: var(--ssc-text);
+  line-height: 1.3;
+  white-space: normal;
+  box-shadow: none;
+  cursor: pointer;
+}
+.sailships-combat .window-content button:hover:not(:disabled) {
+  background: #263c4e;
+  border-color: var(--ssc-blue);
+  box-shadow: none;
+}
+.sailships-combat .window-content button:is(.active, [aria-pressed="true"]) {
+  border-color: var(--ssc-accent);
+  background: #343326;
+  color: #f8e1b5;
+  box-shadow: none;
+}
+.sailships-combat .window-content button:is(.primary, .ssc-shot-fire-button) {
+  border-color: var(--ssc-accent);
+  background: var(--ssc-accent);
+  color: #18212a;
+  font-weight: 700;
+}
+.sailships-combat .window-content button:is(.primary, .ssc-shot-fire-button):hover:not(:disabled) {
+  border-color: #ecd09a;
+  background: #ecd09a;
+}
+.sailships-combat .window-content button.danger { color: #ffc4b9; border-color: #965e5a; }
+.sailships-combat .window-content button:disabled { opacity: .5; cursor: not-allowed; }
+.sailships-combat :is(button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--ssc-focus);
+  outline-offset: 2px;
+}
+.sailships-combat .window-content :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: 32px;
+  border: 1px solid var(--ssc-border);
+  border-radius: 6px;
+  background: #0d1721;
+  color: var(--ssc-text);
+  padding: 5px 8px;
+  color-scheme: dark;
+}
+.sailships-combat :is(input[type="checkbox"], input[type="radio"]) { accent-color: var(--ssc-accent); }
+.sailships-combat :is(select option, select optgroup) { background: var(--ssc-panel); color: var(--ssc-text); }
+.sailships-combat label { color: var(--ssc-muted); }
+.sailships-combat :is(h2, h3, h4) { font-family: inherit; text-shadow: none; }
+.sailships-combat :is(.ssc-hint, .ssc-muted) { color: var(--ssc-muted); line-height: 1.45; }
+.sailships-combat .ssc-hint.danger { color: #ffc4b9; }
+.sailships-combat :is(.ssc-left-panel, .ssc-right-panel, .ssc-bottom-info) {
+  border: 1px solid #2b3b4b;
+  border-radius: 10px;
+  background: var(--ssc-panel);
+  box-shadow: none;
+  backdrop-filter: none;
+  scrollbar-color: #40576b transparent;
+  scrollbar-width: thin;
+}
+.sailships-combat .ssc-main-grid {
+  --ssc-grid-pad: 10px;
+  --ssc-grid-gap: 10px;
+  --ssc-left-col: 240px;
+  --ssc-right-col: 350px;
+  --ssc-center-min: 420px;
+  --ssc-bottom-info-h: 164px;
+}
+.sailships-combat .ssc-main-grid[data-layout="compact"] {
+  --ssc-grid-pad: 8px;
+  --ssc-grid-gap: 8px;
+  --ssc-left-col: 190px;
+  --ssc-right-col: 300px;
+  --ssc-center-min: 320px;
+  --ssc-bottom-info-h: 270px;
+}
+.sailships-combat .ssc-main-grid[data-layout="narrow"] {
+  --ssc-grid-pad: 6px;
+  --ssc-grid-gap: 6px;
+  --ssc-center-min: 0px;
+  --ssc-bottom-info-h: 270px;
+  grid-template-rows: 38px minmax(0, 1fr) var(--ssc-bottom-info-h);
+}
+.sailships-combat :is(.ssc-left-panel, .ssc-right-panel) { padding: 12px; }
+.sailships-combat :is(.ssc-left-panel h2, .ssc-right-panel h2, .ssc-right-panel h3, .ssc-summary-title-wrap h2, .ssc-summary-card h3) {
+  color: var(--ssc-text);
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.3;
+}
+.sailships-combat :is(.ssc-left-panel h2, .ssc-right-panel h2) { font-size: 16px; }
+.sailships-combat .ssc-right-panel h3 { font-size: 13px; margin: 0 0 10px; }
+.sailships-combat .ssc-guidance {
+  padding: 14px;
+  margin-bottom: 14px;
+  border: 1px solid #4b5860;
+  border-left: 3px solid var(--ssc-accent);
+  border-radius: 9px;
+  background: #1a2935;
+}
+.sailships-combat .ssc-guidance h2 { margin: 5px 0 8px; font-size: 18px; line-height: 1.25; }
+.sailships-combat .ssc-guidance p { color: #c3ced6; margin: 0; font-size: 12px; line-height: 1.5; }
+.sailships-combat .ssc-guidance .ssc-eyebrow { color: var(--ssc-accent); font-size: 11px; font-weight: 650; }
+.sailships-combat .ssc-guidance button { width: 100%; margin-top: 12px; }
+.sailships-combat .ssc-guidance.ssc-guidance-warning { border-left-color: #e6a27c; }
+.sailships-combat .ssc-guidance.ssc-guidance-ready { border-left-color: var(--ssc-green); }
+.sailships-combat :is(.ssc-turn-box, .ssc-orders-box, .ssc-player-control-box, .ssc-maneuver-advice, .ssc-core-advice) {
+  padding: 10px;
+  border: 1px solid var(--ssc-border);
+  border-radius: 8px;
+  background: #172532;
+}
+.sailships-combat .ssc-action-box { padding-top: 12px; margin-bottom: 14px; }
+.sailships-combat .ssc-action-grid { gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sailships-combat .ssc-action-grid button { min-width: 0; }
+.sailships-combat .ssc-orders-grid button { display: grid; gap: 5px; padding: 10px; text-align: left; }
+.sailships-combat .ssc-orders-grid button strong { font-size: 12px; }
+.sailships-combat .ssc-orders-grid button span { color: var(--ssc-muted); font-size: 11px; line-height: 1.4; font-weight: 400; }
+.sailships-combat .ssc-orders-grid button.active span { color: #ddd0ad; }
+.sailships-combat .ssc-disclosure { margin-top: 8px; border-top: 1px solid #304252; }
+.sailships-combat .ssc-disclosure > summary {
+  padding: 10px 2px;
+  color: #c3ced6;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.sailships-combat .ssc-disclosure > summary::marker { color: var(--ssc-accent); }
+.sailships-combat .ssc-disclosure > summary:hover { color: var(--ssc-text); }
+.sailships-combat .ssc-disclosure[open] > summary { margin-bottom: 4px; }
+.sailships-combat .ssc-ship-list { gap: 8px; }
+.sailships-combat button.ssc-ship-list-item { padding: 10px; gap: 5px; background: #182734; border-color: #304252; border-radius: 8px; }
+.sailships-combat button.ssc-ship-list-item.selected { background: #223442; border-color: var(--ssc-accent); box-shadow: inset 3px 0 var(--ssc-accent); }
+.sailships-combat button.ssc-ship-list-item.active-turn { border-color: var(--ssc-accent); }
+.sailships-combat .ssc-ship-name { font-size: 14px; overflow-wrap: anywhere; }
+.sailships-combat :is(.ssc-ship-meta, .ssc-ship-order, .ssc-ship-flags b) { font-size: 11px; }
+.sailships-combat .ssc-hp-bar { height: 5px; margin-top: 3px; }
+.sailships-combat .ssc-log-entry { border-left-color: #3d5264; padding: 3px 0 3px 9px; }
+.sailships-combat .ssc-log-entry:first-child { border-left-color: var(--ssc-accent); }
+.sailships-combat .ssc-log-entry p { line-height: 1.45; color: #cad4dc; }
+.sailships-combat .ssc-shot-preview-card { border: 1px solid #3d5264; border-radius: 9px; padding: 12px; background: #172532; box-shadow: none; }
+.sailships-combat .ssc-shot-preview-header { gap: 8px; align-items: center; }
+.sailships-combat .ssc-shot-preview-title { min-width: 0; }
+.sailships-combat .ssc-shot-preview-title strong { font-size: 14px; overflow-wrap: anywhere; }
+.sailships-combat .ssc-shot-preview-meta { line-height: 1.5; }
+.sailships-combat .ssc-hit-chance { margin-top: 10px; }
+.sailships-combat .ssc-shot-effect { display: flex; flex-wrap: wrap; gap: 4px 7px; color: var(--ssc-muted); }
+.sailships-combat .ssc-shot-effect strong { color: var(--ssc-text); }
+.sailships-combat .ssc-shot-mods { gap: 5px; }
+.sailships-combat .ssc-shot-mod { font-size: 11px; line-height: 1.4; }
+.sailships-combat .ssc-bottom-info { margin-top: 0; padding: 9px; overflow: auto; }
+.sailships-combat .ssc-summary-head { flex-wrap: wrap; gap: 6px; }
+.sailships-combat .ssc-summary-title-line h2 { font-size: 14px; }
+.sailships-combat .ssc-summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.sailships-combat .ssc-summary-card { background: #172532; padding: 7px; border-color: #304252; }
+.sailships-combat .ssc-summary-card h3 { font-size: 11px; margin-bottom: 5px; }
+.sailships-combat .ssc-summary-card-grid b { font-size: 10px; line-height: 1.2; }
+.sailships-combat .ssc-summary-card-grid strong { font-size: 12px; line-height: 1.3; }
+.sailships-combat .ssc-summary-chip { font-size: 10px; min-height: 20px; max-width: 180px; }
+.sailships-combat .ssc-board-phase-strip { flex-wrap: wrap; gap: 4px; max-width: calc(100% - 20px); }
+.sailships-combat .ssc-round-label { color: var(--ssc-text); font-size: 11px; padding: 3px 6px; font-weight: 700; }
+.sailships-combat .ssc-phase-pill { font-size: 10px; padding: 4px 7px; display: inline-flex; align-items: center; gap: 5px; }
+.sailships-combat .ssc-phase-pill b { opacity: .6; font-size: 10px; }
+.sailships-combat .ssc-phase-pill.active { background: #36372a; border-color: var(--ssc-accent); color: #ffe3af; }
+.sailships-combat .ssc-board-control-dock button:is([data-action="passTurn"], [data-action="nextPhase"]) {
+  width: auto; min-width: 0; padding: 7px 10px; font-size: 11px; gap: 6px;
+}
+.sailships-combat .ssc-board-control-dock { max-width: calc(100% - 20px); flex-wrap: wrap; }
+.sailships-combat .ssc-target-row { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 5px; }
+.sailships-combat .ssc-target-row strong { overflow-wrap: anywhere; }
+@media (prefers-reduced-motion: reduce) {
+  .sailships-combat * { scroll-behavior: auto; animation-duration: .01ms; animation-iteration-count: 1; transition-duration: .01ms; }
+}
+.sailships-combat .ssc-narrow-pass { display: none; }
+.sailships-combat .ssc-main-grid[data-layout="narrow"] .ssc-narrow-pass { display: block; width: 100%; }
+.sailships-combat .ssc-main-grid[data-layout="compact"] .ssc-board-control-dock { flex-direction: column; align-items: stretch; }
+.sailships-combat .ssc-shot-preview-card .ssc-choice-chip { min-height: 28px; padding: 4px 7px; font-size: 11px; }
+.sailships-combat .ssc-shot-preview-card .ssc-gunnery-choice-row { margin-top: 10px; }
+.sailships-combat .ssc-main-grid:is([data-layout="compact"], [data-layout="narrow"]) .ssc-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sailships-combat .ssc-shot-preview-card .ssc-gunnery-choice-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.sailships-combat .ssc-shot-preview-card .ssc-choice-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sailships-combat .ssc-shot-preview-card .ssc-choice-chip { border-radius: 6px; }
+.sailships-combat .ssc-player-control-box > summary { padding: 2px; }
+.sailships-combat .ssc-turn-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.sailships-combat .ssc-turn-heading .ssc-active-ship { flex: 1 1 130px; margin: 0; overflow-wrap: anywhere; }
+.sailships-combat .ssc-turn-ap { color: var(--ssc-muted); white-space: nowrap; }
+.sailships-combat .ssc-turn-ap strong { color: var(--ssc-text); }
