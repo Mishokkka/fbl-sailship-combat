@@ -1,5 +1,6 @@
 import { angleBetween } from "../board/board-geometry.js";
 import { DamageEngine } from "./damage-engine.js";
+import { CreatureDamageEngine } from "./creature-damage-engine.js";
 import { BoardingEngine } from "./boarding-engine.js";
 
 const CONTACT_LABELS = {
@@ -118,6 +119,9 @@ export class CollisionEngine {
   }
 
   static applySectionDamage(ship, sectionId, damage, reason) {
+    if (ship?.unitType === "creature") {
+      return CreatureDamageEngine.applyDamage(ship, damage, { sectionId, ignoreArmor: true });
+    }
     const section = ship?.sections?.[sectionId] ?? Object.values(ship?.sections ?? {})[0];
     if (!section) return;
     section.hp ??= { value: 0, max: 0 };

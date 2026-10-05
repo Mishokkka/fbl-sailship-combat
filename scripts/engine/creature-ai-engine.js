@@ -33,9 +33,10 @@ export class CreatureAIEngine {
       entries.push(recovery.text);
       if (!recovery.ok || !recovery.success) return { ok: recovery.ok, moved: false, recovered: false, text: entries.join(" ") };
     }
+    const recovered = entries.length > 0;
     if (CreatureGrappleEngine.isAttached(creature)) return { ok: true, text: `${creature.name}: остается на корпусе захваченного корабля.` };
     const target = this.chooseTarget(battle, creature);
-    if (!target) return { ok: entries.length > 0, moved: false, recovered: entries.length > 0, text: [...entries, `${creature.name}: ИИ не видит противников.`].join(" ") };
+    if (!target) return { ok: entries.length > 0, moved: false, recovered, text: [...entries, `${creature.name}: ИИ не видит противников.`].join(" ") };
     const behavior = String(creature.behavior?.mode ?? "manual");
     const preferred = Math.max(1, Number(creature.behavior?.preferredRange ?? 1));
     const currentDistance = Math.max(distanceCells(creature, target), Math.abs(Number(creature.altitude ?? 0) - Number(target.altitude ?? 0)));
@@ -48,11 +49,11 @@ export class CreatureAIEngine {
 
     if (Number(creature.speed ?? 0) <= 0) MovementEngine.increaseSpeed(battle, creature.id);
     const targetAltitude = Number(target.altitude ?? creature.altitude ?? 0);
-    if (targetAltitude > Number(creature.altitude ?? 0) && Number(creature.movement?.climb ?? 0) > 0) {
-      const after = Math.min(targetAltitude, Number(creature.altitude ?? 0) + Number(creature.movement.climb));
-      creature.altitude = after;
-    } else if (targetAltitude < Number(creature.altitude ?? 0) && Number(creature.movement?.dive ?? 0) > 0) {
-      creature.altitude = Math.max(targetAltitude, Number(creature.altitude ?? 0) - Number(creature.movement.dive));
+    const currentAltitude = Number(creature.altitude ?? 0);
+    if (targetAltitude !== currentAltitude) {
+      const vertical = CreatureMovementEngine.verticalManeuver(battle, creature,
+        targetAltitude > currentAltitude ? "climb" : "dive", MovementEngine, { targetAltitude });
+      if (vertical.ok) entries.push(`${creature.name}: ${vertical.text}`);
     }
     const reachable = MovementEngine.getReachableCells(battle, creature);
     if (!reachable.length) {

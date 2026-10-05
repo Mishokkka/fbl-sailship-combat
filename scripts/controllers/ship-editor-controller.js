@@ -46,7 +46,7 @@ export class ShipEditorController {
 
   applyWeaponEdits(ship) {
     for (const weapon of ship.weapons ?? []) {
-      const byId = field => this.root.querySelector(`[data-weapon-edit="${field}"][data-weapon-id="${weapon.id}"]`)?.value;
+      const byId = field => this.root.querySelector(`[data-weapon-edit="${field}"][data-weapon-id="${CSS.escape(String(weapon.id))}"]`)?.value;
       weapon.damage = Math.round(this.clamp(byId("damage"), 0, 99, Number(weapon.damage ?? 1)));
       weapon.range = Math.round(this.clamp(byId("range"), 1, 99, Number(weapon.range ?? 1)));
       weapon.reloadMax = Math.round(this.clamp(byId("reloadMax"), 0, 10, Number(weapon.reloadMax ?? 1)));
@@ -56,7 +56,7 @@ export class ShipEditorController {
 
   applySectionEdits(ship) {
     for (const [sectionId, section] of Object.entries(ship.sections ?? {})) {
-      const sectionValue = field => this.root.querySelector(`[data-section-edit="${field}"][data-section-id="${sectionId}"]`)?.value;
+      const sectionValue = field => this.root.querySelector(`[data-section-edit="${field}"][data-section-id="${CSS.escape(String(sectionId))}"]`)?.value;
       section.hp ??= { value: 1, max: 1 };
       section.hp.max = Math.round(this.clamp(sectionValue("hpMax"), 1, 999, Number(section.hp.max ?? 1)));
       section.hp.value = Math.round(this.clamp(sectionValue("hpValue"), 0, section.hp.max, Number(section.hp.value ?? section.hp.max)));
@@ -66,7 +66,7 @@ export class ShipEditorController {
       section.breaches = Math.round(this.clamp(sectionValue("breaches"), 0, 12, Number(section.breaches ?? 0)));
 
       for (const [index, system] of (section.systems ?? []).entries()) {
-        const systemValue = field => this.root.querySelector(`[data-system-edit="${field}"][data-section-id="${sectionId}"][data-system-index="${index}"]`)?.value;
+        const systemValue = field => this.root.querySelector(`[data-system-edit="${field}"][data-section-id="${CSS.escape(String(sectionId))}"][data-system-index="${index}"]`)?.value;
         system.name = String(systemValue("name") ?? system.name ?? `Система ${index + 1}`).trim() || `Система ${index + 1}`;
         system.slot = Math.round(this.clamp(systemValue("slot"), 1, 6, Number(system.slot ?? index + 1)));
         const status = String(systemValue("status") ?? system.status ?? "intact");

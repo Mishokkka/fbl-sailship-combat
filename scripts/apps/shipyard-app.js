@@ -91,7 +91,9 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   getSelectedShip(battle = this.battle) {
-    return battle.ships.find(s => s.id === this.selectedShipId) ?? battle.ships[0] ?? null;
+    const ships = battle.ships ?? [];
+    if (this.selectedShipId != null) return ships.find(ship => ship.id === this.selectedShipId) ?? null;
+    return ships[0] ?? null;
   }
 
   getActiveSideId(battle = this.battle) {
@@ -107,7 +109,7 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const battle = this.battle;
     const selectedShip = this.getSelectedShip(battle);
     const resolvedShipId = selectedShip?.id ?? null;
-    if (this.selectedShipId !== resolvedShipId) this.selectedShipId = resolvedShipId;
+    if (this.selectedShipId == null && resolvedShipId != null) this.selectedShipId = resolvedShipId;
     if (!TAB_IDS.has(this.activeTab)) this.activeTab = "battle";
 
     const activeSideId = this.getActiveSideId(battle);

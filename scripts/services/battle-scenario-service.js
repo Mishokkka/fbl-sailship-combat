@@ -314,6 +314,13 @@ export class BattleScenarioService {
     };
   }
 
+  static clampUnitsToBoard(battle) {
+    for (const unit of battle.ships ?? []) {
+      unit.x = Math.max(0, Math.min(battle.board.width - 1, Number(unit.x) || 0));
+      unit.y = Math.max(0, Math.min(battle.board.height - 1, Number(unit.y) || 0));
+    }
+  }
+
   static applyBoardPreset(battle, presetId) {
     const preset = this.getBoardPreset(presetId);
     const oldBoard = clone(battle.board ?? { width: preset.width, height: preset.height });
@@ -322,6 +329,7 @@ export class BattleScenarioService {
     battle.board.width = preset.width;
     battle.board.height = preset.height;
     battle.board.cellSize = preset.cellSize;
+    this.clampUnitsToBoard(battle);
     battle.board.terrain ??= {};
     this.touchTerrain(battle);
     battle.setup ??= this.defaultSetup({ width: preset.width, height: preset.height, scenarioName: battle.name });
@@ -352,10 +360,7 @@ export class BattleScenarioService {
       const current = battle.setup?.sides?.[sideId];
       if (current?.zone) current.zone = scaleZone(oldSides[sideId].zone, oldBoard, battle.board);
     }
-    for (const unit of battle.ships ?? []) {
-      unit.x = Math.max(0, Math.min(battle.board.width - 1, Number(unit.x ?? 0)));
-      unit.y = Math.max(0, Math.min(battle.board.height - 1, Number(unit.y ?? 0)));
-    }
+    this.clampUnitsToBoard(battle);
     this.normalizeSetupZones(battle);
     return battle.board;
   }
@@ -378,6 +383,7 @@ export class BattleScenarioService {
     battle.round = 1;
     battle.phase = "orders";
     battle.board = { width: board.width, height: board.height, cellSize: board.cellSize, terrainRevision: 1, terrain: generated.terrain };
+    this.clampUnitsToBoard(battle);
     battle.wind = clone(environment.wind);
     battle.sea = clone(environment.sea);
     battle.setup = {

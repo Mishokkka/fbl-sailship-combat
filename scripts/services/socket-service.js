@@ -13,6 +13,12 @@ const UPDATE_SCOPES = new Set(SOCKET_UPDATE_SCOPES);
 const BATTLE_RENDER_PARTS = new Set(["fleet", "board", "summary", "controls"]);
 const ACTION_RESPONSE_TIMEOUT_MS = 10_000;
 
+// Use the same synchronized clock on both ends of a signed action.
+function serverTime() {
+  const value = game.time?.serverTime;
+  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : Date.now();
+}
+
 function decodeBase64Url(value) {
   const normalized = String(value ?? "").replace(/-/g, "+").replace(/_/g, "/");
   const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
@@ -269,7 +275,7 @@ export class SocketService {
     if (!payload?.userId) return { ok: false, reason: "invalid-user" };
     const user = game.users?.get?.(payload.userId);
     if (!user || user.isGM || user.active === false) return { ok: false, reason: "inactive-user" };
-    const age = Math.abs(Date.now() - Number(payload.ts ?? 0));
+    const age = Math.abs(serverTime() - Number(payload.ts ?? 0));
     if (age > 60_000) return { ok: false, reason: "expired-action" };
 
     const auth = game.sailshipsCombat?.storage?.getPlayerActionAuth?.(payload.userId);
@@ -302,7 +308,7 @@ export class SocketService {
       currentRevision: Math.max(0, Number(currentRevision) || 0),
       keyVersion: auth.keyVersion,
       signature: "pending",
-      ts: Date.now()
+      ts: serverTime()
     };
     result.signature = await signMessage(auth.secret, resultSigningMessage(result));
     game.socket.emit(SOCKET_NAME, result);
@@ -384,7 +390,7 @@ export class SocketService {
       reason: String(metadata?.reason ?? "").slice(0, 128),
       visibilityDirty: Boolean(metadata?.visibilityDirty),
       ...(renderParts?.length ? { renderParts } : {}),
-      ts: Date.now()
+      ts: serverTime()
     });
     return true;
   }
@@ -420,7 +426,7 @@ export class SocketService {
       keyVersion: auth.keyVersion,
       signature: "pending",
       action: preparedAction,
-      ts: Date.now()
+      ts: serverTime()
     };
 
     try {

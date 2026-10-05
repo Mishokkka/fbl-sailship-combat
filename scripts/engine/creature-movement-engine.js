@@ -337,12 +337,17 @@ export class CreatureMovementEngine {
     };
   }
 
-  static verticalManeuver(battle, creature, mode, movementApi) {
+  static verticalManeuver(battle, creature, mode, movementApi, { targetAltitude = null } = {}) {
     if (!creature || creature.flags?.struck || creature.flags?.withdrawn || creature.flags?.falling || creature.flags?.attachedTo) return { ok: false, reason: "Существо не может менять высоту." };
     const before = Number(creature.altitude ?? 0);
     let amount = mode === "climb" ? Number(creature.movement?.climb ?? 1) : Number(creature.movement?.dive ?? 1);
     const state = this.sectionState(creature);
     if (mode === "climb" && state.destroyedFlight.length) amount = Math.max(0, amount - 1);
+    if (targetAltitude != null) {
+      const distance = mode === "climb" ? Number(targetAltitude) - before : before - Number(targetAltitude);
+      if (!Number.isFinite(distance) || distance <= 0) return { ok: false, reason: "Целевая высота не соответствует маневру." };
+      amount = Math.min(amount, distance);
+    }
     if (amount <= 0) return { ok: false, reason: "Повреждения не позволяют выполнить вертикальный маневр." };
     const after = Math.max(ALTITUDE_MIN, Math.min(ALTITUDE_MAX, before + (mode === "climb" ? amount : -amount)));
     if (after === before) return { ok: false, reason: mode === "climb" ? "Достигнут верхний предел поля." : "Достигнута поверхность." };

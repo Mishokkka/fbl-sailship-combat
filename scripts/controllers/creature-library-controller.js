@@ -32,6 +32,7 @@ export class CreatureLibraryController {
     const entry = libraryId ? library.find(item => item.id === libraryId) : library.at(-1);
     if (!entry) return ui.notifications.warn("Шаблон существа не найден.");
     await this.app._updateBattleAndRender(battle => {
+      if (battle.setupConfirmed) return false;
       const side = this.app.getActiveSideId(battle);
       const creature = CreatureLibraryService.cloneCreatureForBattle(entry.creature, battle, { side });
       battle.ships.push(creature);
@@ -78,6 +79,7 @@ export class CreatureLibraryController {
       return ui.notifications.error(error.message ?? "Не удалось импортировать существо.");
     }
     await this.app._updateBattleAndRender(battle => {
+      if (battle.setupConfirmed) return false;
       const side = this.app.getActiveSideId(battle);
       const creature = CreatureLibraryService.cloneCreatureForBattle(source, battle, { side });
       battle.ships.push(creature);

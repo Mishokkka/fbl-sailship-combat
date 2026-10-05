@@ -216,7 +216,16 @@ export class StorageService {
     return BattleNormalizer.normalize(battle);
   }
 
-  static async saveBattle(battle, {
+  static async saveBattle(battle, options = {}) {
+    if (!this.canWriteBattle()) return this.getBattle();
+    const snapshot = clone(battle);
+    const operation = () => this.#saveBattleUnqueued(snapshot, options);
+    const queued = this.mutationQueue.then(operation, operation);
+    this.mutationQueue = queued.then(() => undefined, () => undefined);
+    return queued;
+  }
+
+  static async #saveBattleUnqueued(battle, {
     broadcast = true,
     fromSocket = false,
     expectedRevision = null,
@@ -280,7 +289,7 @@ export class StorageService {
       const nextBattle = result && typeof result === "object" ? result : battle;
       nextBattle.revision = previousRevision + 1;
       try {
-        return await this.saveBattle(nextBattle, {
+        return await this.#saveBattleUnqueued(nextBattle, {
           broadcast,
           fromSocket,
           expectedRevision: previousRevision,

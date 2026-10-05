@@ -10,7 +10,8 @@ export function rotateHeading(heading, steps) {
 }
 
 export function normalizeAngle(angle) {
-  return ((Number(angle ?? 0) % 360) + 360) % 360;
+  const value = Number(angle ?? 0);
+  return Number.isFinite(value) ? ((value % 360) + 360) % 360 : 0;
 }
 
 export function angleBetween(a, b) {

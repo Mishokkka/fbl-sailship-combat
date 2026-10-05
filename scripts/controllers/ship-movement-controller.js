@@ -57,6 +57,11 @@ export class ShipMovementController {
         return false;
       }
       const result = MovementEngine.reduceSpeed(battle, ship.id);
+      if (!result?.ok || Number(ship.speed ?? 0) >= beforeSpeed) {
+        this.app._refundTurnAction(battle, ship, "sail");
+        ui.notifications.warn(result?.reason ?? "Нельзя снизить ход.");
+        return false;
+      }
       this.app._addLog(battle, `${ship.name}: снижает ход ${result?.before ?? "?"} → ${ship.speed} (торможение ${result?.braking ?? 1}). Осталось ОД: ${this.app._getRemainingAP(battle, ship, "movement")}.`);
       await this.app._completeIfNoAP(battle, ship, "movement");
     }, { reason: "reduce-sail" });

@@ -279,9 +279,13 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ui.notifications.warn("Команды боя: бой уже подтвержден. Вернитесь к подготовке в главном окне.");
         return false;
       }
-      const width = Math.max(8, Math.min(80, Number(values["board.width"] ?? battle.board.width)));
-      const height = Math.max(8, Math.min(80, Number(values["board.height"] ?? battle.board.height)));
-      const cellSize = Math.max(28, Math.min(96, Number(values["board.cellSize"] ?? battle.board.cellSize)));
+      const positiveNumber = (raw, fallback) => {
+        const value = Number(raw);
+        return Number.isFinite(value) && value > 0 ? value : Number(fallback);
+      };
+      const width = Math.max(8, Math.min(80, positiveNumber(values["board.width"], battle.board.width)));
+      const height = Math.max(8, Math.min(80, positiveNumber(values["board.height"], battle.board.height)));
+      const cellSize = Math.max(28, Math.min(96, positiveNumber(values["board.cellSize"], battle.board.cellSize)));
       if (width !== battle.board.width || height !== battle.board.height || cellSize !== battle.board.cellSize) BattleScenarioService.resizeBoard(battle, { width, height, cellSize });
       for (const sideId of BattleScenarioService.getSideIds(battle)) {
         BattleScenarioService.updateSideFromForm(battle, sideId, values);

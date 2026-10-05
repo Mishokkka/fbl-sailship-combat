@@ -125,6 +125,10 @@ export class ShipyardBattleController {
   async setSelectedShipSide(sideId) {
     if (!this.app._assertSetup("Смена команды")) return;
     await this.app._updateBattleAndRender(battle => {
+      if (battle.setupConfirmed) {
+        ui.notifications.warn("Смена команды: бой уже подтвержден. Вернитесь к подготовке.");
+        return false;
+      }
       const ship = this.app.getSelectedShip(battle);
       if (!ship || !battle.setup?.sides?.[sideId]) return false;
       ship.side = sideId;

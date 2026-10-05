@@ -70,12 +70,16 @@ export class BoardSettingsApp extends HandlebarsApplicationMixin(ApplicationV2) 
     const form = this.element?.querySelector?.("form");
     if (!form) return ui.notifications.warn("Форма настроек поля недоступна.");
     const data = new FormData(form);
+    const numberOrDefault = (raw, fallback) => {
+      const value = Number(raw);
+      return raw != null && String(raw).trim() !== "" && Number.isFinite(value) ? value : fallback;
+    };
     await game.sailshipsCombat.storage.updateBattle(battle => {
       battle.board.background ??= {};
       battle.board.background.src = String(data.get("background.src") ?? "");
       battle.board.background.enabled = data.get("background.enabled") === "on";
-      battle.board.background.opacity = Math.max(0, Math.min(1, Number(data.get("background.opacity") ?? 0.35)));
-      battle.board.background.tileSize = Math.max(64, Math.min(2048, Number(data.get("background.tileSize") ?? 512)));
+      battle.board.background.opacity = Math.max(0, Math.min(1, numberOrDefault(data.get("background.opacity"), 0.35)));
+      battle.board.background.tileSize = Math.max(64, Math.min(2048, numberOrDefault(data.get("background.tileSize"), 512)));
     });
     this._dirty = true;
     this.markMainStale();

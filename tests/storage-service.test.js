@@ -103,3 +103,45 @@ test("startup migration moves legacy world settings into permissioned documents"
   assert.equal(redacted.storageRole, DOCUMENT_STORAGE_ROLES.BATTLE_CORE);
   assert.equal(redacted.name, undefined);
 });
+
+test("direct saves and queued player mutations cannot interleave document writes", async () => {
+  const battle = await prepareBattle({ revision: 1 });
+  battle.name = "Loaded scenario";
+  const originalWrite = DocumentStateStore.writeAuthoritativeBattle;
+  let release;
+  let entered;
+  const gate = new Promise(resolve => { release = resolve; });
+  const firstWrite = new Promise(resolve => { entered = resolve; });
+  let activeWrites = 0;
+  let maxActiveWrites = 0;
+  let calls = 0;
+  DocumentStateStore.writeAuthoritativeBattle = async function (value) {
+    activeWrites += 1;
+    maxActiveWrites = Math.max(maxActiveWrites, activeWrites);
+    calls += 1;
+    try {
+      if (calls === 1) { entered(); await gate; }
+      return await originalWrite.call(this, value);
+    } finally {
+      activeWrites -= 1;
+    }
+  };
+  let save;
+  let update;
+  try {
+    save = StorageService.saveBattle(battle);
+    await firstWrite;
+    update = StorageService.updateBattle(current => { current.name += " + order"; });
+    await Promise.resolve();
+    release();
+    await Promise.all([save, update]);
+    assert.equal(maxActiveWrites, 1);
+    const stored = DocumentStateStore.readAuthoritativeBattle();
+    assert.equal(stored.name, "Loaded scenario + order");
+    assert.equal(stored.revision, 3);
+  } finally {
+    release();
+    await Promise.allSettled([save, update]);
+    DocumentStateStore.writeAuthoritativeBattle = originalWrite;
+  }
+});

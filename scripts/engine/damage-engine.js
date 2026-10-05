@@ -335,7 +335,8 @@ export class DamageEngine {
 
     if (!system) return "";
 
-    if (name.includes("ядр") && name.includes("крист") && result?.aimedSection !== "crystalCore") {
+    const coreActive = String(result?.battle?.setup?.mode ?? "mixed") !== "sea";
+    if (coreActive && name.includes("ядр") && name.includes("крист") && result?.aimedSection !== "crystalCore") {
       const coreDamage = Math.max(1, Math.ceil(Number(penetrating ?? 0) / 2));
       const coreText = this.applyCrystalCoreHit(ship, coreDamage, result, { incidental: true });
       if (coreText) fragments.push(coreText);
@@ -579,7 +580,7 @@ export class DamageEngine {
         }
       }
       this.updateCrisisFlags(ship, entries);
-      this.advanceCrystalCore(ship, entries);
+      if (String(battle?.setup?.mode ?? "mixed") !== "sea") this.advanceCrystalCore(ship, entries);
       this.checkStruck(ship, entries);
     }
     return entries;

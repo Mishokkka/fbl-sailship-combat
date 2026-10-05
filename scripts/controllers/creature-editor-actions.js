@@ -52,6 +52,7 @@ export class CreatureEditorActions {
   async applyEdits() {
     if (!this.app._assertSetup("Редактор существа")) return;
     await this.app._updateBattleAndRender(battle => {
+      if (battle.setupConfirmed) return false;
       const creature = this.app.getSelectedShip(battle);
       if (!creature || creature.unitType !== "creature") return false;
       const result = new CreatureEditorController(this.app.element).applyEdits(creature);
@@ -66,6 +67,7 @@ export class CreatureEditorActions {
   async mutate(reason, mutator) {
     if (!this.app._assertSetup("Редактор существа")) return;
     await this.app._updateBattleAndRender(battle => {
+      if (battle.setupConfirmed) return false;
       const creature = this.app.getSelectedShip(battle);
       if (!creature || creature.unitType !== "creature") return false;
       new CreatureEditorController(this.app.element).applyEdits(creature);

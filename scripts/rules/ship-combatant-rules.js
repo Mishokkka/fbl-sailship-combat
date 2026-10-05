@@ -25,7 +25,7 @@ export const ShipCombatantRules = Object.freeze({
   getMovementBlockReason(unit, battle) {
     const usesAltitude = String(battle?.setup?.mode ?? "mixed") !== "sea";
     if (!unit) return "Боевая единица не выбрана.";
-    if (unit.flags?.grappledWith) return "Корабль сцеплен и не может двигаться.";
+    if (unit.flags?.grappledWith && !unit.flags?.towingId) return "Корабль сцеплен и не может двигаться.";
     if (unit.flags?.struck) return "Корабль выбыл из боя.";
     if (unit.flags?.withdrawn) return "Корабль уже вышел из зоны боя.";
     if (usesAltitude && unit.flags?.falling) return "Корабль падает.";
