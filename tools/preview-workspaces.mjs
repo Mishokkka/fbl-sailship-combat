@@ -3,6 +3,7 @@ import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import Handlebars from "handlebars";
 import { chromium } from "playwright";
+import { installWorkspaceActions, applyWorkspaceAction, checkCreatureDraftActions, checkBackgroundSaveActions } from "./workspace-actions.mjs";
 import { installTestEnvironment } from "../tests/test-env.js";
 import { createDefaultBattle } from "../scripts/data/default-battle.js";
 import { createCreature } from "../scripts/data/creature-factory.js";
@@ -22,6 +23,7 @@ const language = JSON.parse(await readFile("lang/ru.json", "utf8"));
 game.i18n = { localize: key => key.split(".").reduce((v, k) => v?.[k], language) ?? key };
 Handlebars.registerHelper("localize", key => game.i18n.localize(key));
 registerHandlebarsHelpers();
+const partials = {};
 async function register(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = directory + "/" + entry.name;
@@ -30,6 +32,7 @@ async function register(directory) {
       const source = await readFile(path, "utf8");
       Handlebars.precompile(source);
       Handlebars.registerPartial("modules/sailships-combat/" + path, source);
+      partials["modules/sailships-combat/" + path] = source;
     }
   }
 }
@@ -76,6 +79,9 @@ try {
       page.on("pageerror", error => errors.push(error.message));
       await page.setContent(html, { waitUntil: "load" });
       await page.waitForFunction(() => Boolean(window.workbench));
+      if (kind === "setup" || (kind === "creature" && width === 1280) || (kind === "background" && width === 720)) {
+        await installWorkspaceActions(page, { kind, battle, creatureId: creature.id, partials, language });
+      }
       async function fit(label) {
         const overflow = await page.locator(".window-content, .ssc-shipyard-tab-panel, .ssc-setup-pages, .ssc-editor-fieldset, .ssc-settings-body").evaluateAll(elements =>
           elements.filter(el => el.getClientRects().length && el.scrollWidth > el.clientWidth + 2)
@@ -141,6 +147,7 @@ try {
         assert.equal(await page.locator(field).inputValue(), "Несохранённое имя");
         await page.locator('[data-workspace="' + editorType + '"] [data-discard-draft]').click();
         assert.equal(await page.locator(field).inputValue(), before);
+        if (kind === "creature" && width === 1280) await checkCreatureDraftActions(page);
         // Locking a form clears stale drafts and leaves section navigation usable.
         if (width === 900) {
           await page.locator(field).fill("Правка до блокировки");
@@ -169,14 +176,10 @@ try {
         assert.equal(await page.evaluate(() => [...window.workbench.drafts.values()].some(d => d.size)), false, "Choosing a preset is not an unapplied form edit");
         await page.locator('[data-setup-field="battle.name"]').fill("Название в черновике");
         await page.locator('[data-setup-field="board.width"]').fill("50");
-        await page.evaluate(() => {
-          window.workbench.accept('[data-setup-field^="board."]');
-          const root = document.querySelector(".window-content");
-          root.innerHTML = root.innerHTML;
-          const width = root.querySelector('[data-setup-field="board.width"]');
-          width.value = "24"; width.setAttribute("value", "24");
-          window.workbench.bind();
-        });
+        await preset.selectOption("skirmish");
+        await applyWorkspaceAction(page, '[data-action="applyBoardPreset"]');
+        assert.equal(await page.evaluate(() => window.workspaceTest.readBattle().board.width), 24);
+        assert.equal(await page.evaluate(() => window.workspaceTest.readBattle().name), battle.name, "Preset does not save the pending name");
         assert.equal(await page.locator('[data-setup-field="board.width"]').inputValue(), "24", "Applied preset replaces the old manual dimension");
         assert.equal(await page.locator('[data-setup-field="battle.name"]').inputValue(), "Название в черновике", "Applying field dimensions preserves unrelated drafts");
         await page.locator("[data-discard-draft]").click();
@@ -198,6 +201,7 @@ try {
           await detail.locator("summary").click();
           await page.locator(".ssc-settings-body").evaluate(el => { el.scrollTop = 0; });
         }
+        if (kind === "background" && width === 720) await checkBackgroundSaveActions(page);
         await fit(kind);
       }
       await page.screenshot({ path: "artifacts/interface/workspaces/" + kind + "-" + width + ".png" });
@@ -206,4 +210,4 @@ try {
     }
   }
 } finally { await browser.close(); }
-console.log("Workspace checks passed: " + checks + " views; search, drafts, keyboard-compatible controls, locked forms and live ranges.");
+console.log("Workspace checks passed: " + checks + " views; search, drafts, keyboard-compatible controls, locked forms and live ranges. Application action regressions passed: presets, creature structures, background normalization and write failures.");
