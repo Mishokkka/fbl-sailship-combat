@@ -1,0 +1,18 @@
+        {{#if phaseFlags.showTargets}}
+          <section class="ssc-targets">
+            <h3>{{localize "SAILSHIPS.AvailableTargets"}}</h3>
+            {{#if targets.length}}
+              {{#each targets as |target|}}
+                <button type="button" class="ssc-target-row {{#if (sscEq ../selectedTargetId target.ship.id)}}selected{{/if}}" data-target-id="{{target.ship.id}}">
+                  <strong>{{target.ship.name}}</strong>
+                  <span>{{localize "SAILSHIPS.Range"}} {{target.minRange}}</span>
+                  <span>{{localize "SAILSHIPS.ToHit"}} {{target.bestSkill}}</span>
+                  <span>{{localize "SAILSHIPS.Section"}} {{target.sectionLabel}}</span>
+                  <span>{{target.arcLabelText}}</span>
+                </button>
+              {{/each}}
+            {{else}}
+              <p class="ssc-muted">{{localize "SAILSHIPS.NoTargets"}}</p>
+            {{/if}}
+          </section>
+        {{/if}}

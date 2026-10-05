@@ -1,0 +1,36 @@
+{{#if phaseFlags.gunnery}}
+  <section class="ssc-action-box">
+    <h3>Естественные атаки</h3>
+    {{#if selectedTarget}}
+      <p class="ssc-hint">Выбранная цель: <strong>{{selectedTarget.name}}</strong>.</p>
+    {{else}}
+      <p class="ssc-hint">Выберите доступную цель на поле или в списке ниже.</p>
+    {{/if}}
+    <div class="ssc-shot-preview-list">
+      {{#each creatureAttacks as |attack|}}
+        <article class="ssc-shot-preview-card arc-{{attack.arc}}" title="Тип: {{attack.typeLabel}}. Сектор: {{attack.arcLabel}}. Теги: {{attack.tagsText}}.">
+          <header class="ssc-shot-preview-header">
+            <div class="ssc-shot-preview-title">
+              <strong>{{attack.label}}</strong>
+              <span>{{attack.typeLabel}} · {{attack.arcLabel}}</span>
+            </div>
+            <button type="button" class="ssc-shot-fire-button" data-action="creatureAttack" data-attack-id="{{attack.id}}" {{#unless attack.canUse}}disabled{{/unless}}>Атаковать</button>
+          </header>
+          <div class="ssc-shot-preview-meta">
+            <span>Урон: <strong>{{attack.damage}}</strong></span>
+            <span>Дальность: <strong>{{attack.range}}</strong></span>
+            <span>Цель: <strong>{{attack.targetName}}</strong></span>
+            <span>Восстановление: <strong>{{attack.cooldownLabel}}</strong></span>
+          </div>
+          <div class="ssc-hit-chance">
+            <span>Попадание: <strong>{{attack.hitChanceLabel}}</strong></span>
+            {{#if attack.skill}}<span>навык {{attack.skill}}</span>{{/if}}
+            <i class="ssc-hit-chance-bar"><b style="--ssc-hit-chance: {{attack.hitChance}}%;"></b></i>
+          </div>
+        </article>
+      {{else}}
+        <p class="ssc-shot-empty">У существа нет атак.</p>
+      {{/each}}
+    </div>
+  </section>
+{{/if}}

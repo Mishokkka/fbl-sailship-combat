@@ -1,0 +1,716 @@
+/* Battle side panels: ship list, turn order, actions, gunnery, setup and log. */
+
+.ssc-ship-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.sailships-battle-app button.ssc-ship-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 3px;
+  width: 100%;
+  height: auto;
+  min-height: 72px;
+  padding: 7px 8px 6px;
+  text-align: left;
+  overflow: hidden;
+  white-space: normal;
+  line-height: 1.15;
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.04);
+}
+
+.ssc-ship-list-item.selected {
+  border-color: var(--ssc-accent);
+  box-shadow: 0 0 0 1px rgba(199,163,93,0.45) inset;
+}
+
+.ssc-ship-list-item.active-turn {
+  border-color: #d7bb78;
+  box-shadow: 0 0 0 1px rgba(215,187,120,0.45) inset, 0 0 12px rgba(215,187,120,0.14);
+}
+
+.ssc-ship-list-item.phase-done:not(.active-turn) {
+  opacity: 0.68;
+}
+
+.ssc-ship-name,
+.ssc-ship-meta,
+.ssc-ship-flags {
+  display: block;
+  overflow: visible;
+  text-overflow: initial;
+}
+
+.ssc-ship-name {
+  width: 100%;
+  font-weight: 700;
+  text-align: left;
+}
+
+.ssc-ship-meta,
+.ssc-ship-order {
+  width: 100%;
+  color: var(--ssc-muted);
+  font-size: 11px;
+  text-align: left;
+}
+
+.ssc-ship-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 0;
+  color: var(--ssc-muted);
+  font-size: 10px;
+}
+
+.ssc-ship-flags b {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.08);
+  color: var(--ssc-muted);
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.ssc-ship-flags b.active {
+  color: var(--ssc-accent);
+}
+
+.ssc-ship-flags b.danger,
+.ssc-ship-flags .danger {
+  color: #ff9f9f;
+  background: rgba(199,93,93,0.20);
+}
+
+.ssc-ship-flags b.water {
+  color: #b9d9ff;
+  background: rgba(93,145,199,0.20);
+}
+
+.ssc-ship-flags b.player {
+  color: #cde8a7;
+  background: rgba(121,168,111,0.22);
+}
+
+.ssc-ship-flags b.crystal {
+  background: rgba(112, 70, 160, 0.28);
+  border-color: rgba(190, 150, 255, 0.5);
+  color: #efe5ff;
+}
+
+.ssc-hp-bar {
+  display: block;
+  width: 100%;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.13);
+}
+
+.ssc-hp-bar i {
+  display: block;
+  height: 100%;
+  background: var(--ssc-green);
+}
+
+.ssc-turn-box,
+.ssc-action-box,
+.ssc-targets,
+.ssc-sections,
+.ssc-weapons,
+.ssc-setup-box {
+  margin-bottom: 10px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  padding-top: 8px;
+}
+
+.ssc-right-panel .ssc-action-box:first-of-type,
+.ssc-right-panel .ssc-turn-box:first-of-type {
+  border-top: 0;
+}
+
+.ssc-turn-box {
+  padding: 9px;
+  border: 1px solid rgba(199,163,93,0.35);
+  border-radius: 5px;
+  background: rgba(199,163,93,0.06);
+}
+
+.ssc-turn-box h3 {
+  margin-top: 0;
+}
+
+.ssc-active-ship {
+  margin-bottom: 7px;
+  color: var(--ssc-text);
+}
+
+.ssc-active-ship.muted {
+  color: var(--ssc-muted);
+}
+
+.ssc-turn-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ssc-turn-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 21px;
+  padding: 2px 7px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  box-shadow: 2px 0 0 var(--ssc-side-color, rgba(255,255,255,0.35)) inset;
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-turn-pill.active {
+  border-color: var(--ssc-accent);
+  background: rgba(199,163,93,0.18);
+  color: var(--ssc-text);
+}
+
+.ssc-turn-pill.done {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.ssc-turn-pill em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  min-height: 18px;
+  margin-left: 5px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.26);
+  color: var(--ssc-accent);
+  font-style: normal;
+  font-size: 10px;
+}
+
+.ssc-ship-order {
+  color: var(--ssc-accent);
+  font-size: 10px;
+  opacity: 0.95;
+}
+
+.ssc-ship-order.pending {
+  color: #cde8a7;
+}
+
+.ssc-orders-box {
+  border: 1px solid rgba(199, 163, 93, 0.25);
+  border-radius: 5px;
+  background: rgba(199, 163, 93, 0.05);
+  padding: 8px;
+}
+
+.ssc-orders-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ssc-orders-grid button.active {
+  border-color: rgba(199,163,93,0.78);
+  background: rgba(199,163,93,0.18);
+  color: var(--ssc-text);
+  box-shadow: inset 0 0 0 1px rgba(199,163,93,0.18);
+}
+
+.ssc-orders-grid button.pending {
+  border-color: rgba(121,168,111,0.78);
+  background: rgba(121,168,111,0.15);
+  color: #e8ffd8;
+}
+
+.ssc-player-control-box {
+  border: 1px solid rgba(121, 168, 111, 0.24);
+  border-radius: 5px;
+  background: rgba(121, 168, 111, 0.045);
+  padding: 8px;
+}
+
+.ssc-player-control-summary {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 7px;
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-player-control-summary strong {
+  color: var(--ssc-text);
+  font-size: 12px;
+}
+
+.ssc-player-assignment {
+  display: grid;
+  gap: 5px;
+}
+
+.ssc-assignment-list,
+.ssc-pending-order-list {
+  display: grid;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.ssc-assignment-list div,
+.ssc-pending-order-row {
+  display: grid;
+  gap: 4px;
+  padding: 5px 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-left: 3px solid var(--ssc-side-color, rgba(255,255,255,0.24));
+  border-radius: 4px;
+  background: rgba(255,255,255,0.035);
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-assignment-list strong,
+.ssc-pending-order-row strong {
+  color: var(--ssc-text);
+}
+
+.ssc-assignment-list em {
+  color: var(--ssc-side-color, var(--ssc-muted));
+  font-style: normal;
+  font-size: 10px;
+}
+
+.ssc-pending-order-row.active {
+  border-color: rgba(199,163,93,0.55);
+  background: rgba(199,163,93,0.10);
+}
+
+.ssc-pending-order-row > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.sailships-battle-app button.ssc-choice-chip.danger {
+  border-color: rgba(224,120,120,0.36);
+  color: #ffb1a8;
+}
+
+.ssc-order-reference {
+  display: grid;
+  gap: 5px;
+  margin: 0 0 8px;
+}
+
+.ssc-order-ref-label {
+  color: var(--ssc-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ssc-choice-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ssc-choice-chip,
+.sailships-battle-app button.ssc-choice-chip {
+  min-height: 20px;
+  padding: 2px 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.045);
+  color: var(--ssc-muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.ssc-choice-chip.active,
+.sailships-battle-app button.ssc-choice-chip.active {
+  border-color: rgba(225,181,88,0.95);
+  background: rgba(199,163,93,0.30);
+  color: #fff3c6;
+  box-shadow: 0 0 0 1px rgba(225,181,88,0.30) inset, 0 0 10px rgba(199,163,93,0.16);
+}
+
+.ssc-choice-chip:hover:not(:disabled),
+.sailships-battle-app button.ssc-choice-chip:hover:not(:disabled) {
+  border-color: rgba(199,163,93,0.55);
+}
+
+.ssc-choice-chip:disabled,
+.sailships-battle-app button.ssc-choice-chip:disabled {
+  opacity: 0.55;
+}
+
+.ssc-ap-box {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0 8px;
+  padding: 6px 8px;
+  border: 1px solid rgba(199, 163, 93, 0.28);
+  border-radius: 4px;
+  background: rgba(199, 163, 93, 0.08);
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-ap-box strong {
+  color: var(--ssc-text);
+}
+
+.ssc-action-grid button[data-action="coreClimb"],
+.ssc-action-grid button[data-action="coreDescend"],
+.ssc-action-grid button[data-action="coreImpulse"],
+.ssc-action-grid button[data-action="coolCrystalCore"] {
+  border-color: rgba(165, 120, 255, 0.45);
+}
+
+.ssc-target-row,
+.ssc-system-row {
+  display: grid;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.ssc-section-tags span,
+.ssc-target-row span {
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-target-row {
+  grid-template-columns: minmax(110px, 1fr) auto auto auto;
+}
+
+button.ssc-target-row {
+  width: 100%;
+  margin-bottom: 4px;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.03);
+  text-align: left;
+}
+
+button.ssc-target-row.selected {
+  border-color: rgba(199,163,93,0.75);
+  background: rgba(199,163,93,0.12);
+}
+
+.ssc-section-card {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.04);
+}
+
+.ssc-section-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.ssc-section-tags {
+  display: flex;
+  gap: 8px;
+  margin: 5px 0;
+}
+
+.ssc-system-list {
+  margin-top: 4px;
+}
+
+.ssc-system-row {
+  grid-template-columns: minmax(120px, 1fr) auto auto;
+  font-size: 11px;
+}
+
+.ssc-system-row.status-damaged span:last-child {
+  color: #e0ba65;
+}
+
+.ssc-system-row.status-destroyed span:last-child,
+.ssc-system-row.status-disabled span:last-child {
+  color: #e07878;
+}
+
+.ssc-board-size-box .board-editor {
+  margin-bottom: 8px;
+}
+
+.ssc-board-size-box .board-background-editor {
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ssc-board-background-path,
+.ssc-board-background-toggle {
+  grid-column: 1 / -1;
+}
+
+.ssc-board-background-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+}
+
+.ssc-board-background-toggle input {
+  width: auto;
+  margin: 0;
+}
+
+.ssc-terrain-mode-line {
+  margin: 0 0 7px;
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-terrain-mode-line strong {
+  color: var(--ssc-text);
+}
+
+.ssc-saves-list {
+  margin-top: 8px;
+  max-height: 80px;
+  overflow: auto;
+  border-top: 1px solid rgba(208, 168, 83, 0.18);
+  padding-top: 6px;
+  color: #d8caa8;
+  font-size: 12px;
+}
+
+.ssc-saves-list div {
+  padding: 2px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ssc-log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 48vh;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.ssc-log-entry {
+  border-left: 2px solid rgba(199,163,93,0.45);
+  padding-left: 7px;
+}
+
+.ssc-log-entry span {
+  color: var(--ssc-muted);
+  font-size: 10px;
+}
+
+.ssc-log-entry p {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+
+.ssc-maneuver-advice {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 9px;
+  padding: 9px;
+  border: 1px solid rgba(199, 163, 93, 0.28);
+  border-radius: 6px;
+  background: rgba(199, 163, 93, 0.06);
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-maneuver-advice.danger {
+  border-color: rgba(224, 120, 120, 0.48);
+  background: rgba(150, 40, 40, 0.12);
+}
+
+.ssc-maneuver-advice-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.ssc-maneuver-advice-head strong,
+.ssc-maneuver-advice .ssc-last-check strong {
+  color: var(--ssc-text);
+}
+
+.ssc-maneuver-advice p {
+  margin: 0;
+  line-height: 1.25;
+}
+
+.ssc-inertia-summary {
+  display: grid; grid-template-columns: repeat(2, minmax(100px, 1fr));
+  gap: 5px; margin: 6px 0;
+}
+
+.ssc-inertia-summary span {
+  display: grid; gap: 2px; padding: 5px 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.035);
+}
+
+.ssc-inertia-summary b { color: var(--ssc-muted); font-size: 9px; }
+.ssc-inertia-summary strong { color: var(--ssc-text); font-size: 11px; }
+.ssc-maneuver-advice .ssc-inertia-modifiers { color: #e6c98c; font-size: 10px; }
+
+.ssc-turn-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ssc-turn-preview {
+  display: grid;
+  gap: 2px;
+  min-height: 48px;
+  padding: 6px 7px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.035);
+}
+
+.ssc-turn-preview b {
+  color: var(--ssc-text);
+  font-size: 12px;
+}
+
+.ssc-turn-preview span,
+.ssc-turn-preview em {
+  color: var(--ssc-muted);
+  font-size: 11px;
+  line-height: 1.15;
+  font-style: normal;
+}
+
+.ssc-turn-preview.check {
+  border-color: rgba(209, 166, 72, 0.48);
+  background: rgba(209, 166, 72, 0.09);
+}
+
+.ssc-turn-preview.check span {
+  color: #ecd39a;
+}
+
+.ssc-turn-preview.danger {
+  border-color: rgba(224, 120, 120, 0.45);
+  background: rgba(180, 55, 55, 0.12);
+}
+
+.ssc-turn-preview.danger span,
+.ssc-last-check.danger strong {
+  color: #ffb1a8;
+}
+
+.ssc-last-check {
+  padding: 5px 7px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  color: var(--ssc-muted);
+}
+
+.ssc-last-check.success strong {
+  color: #cde8a7;
+}
+
+.ssc-core-advice {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 9px;
+  padding: 9px;
+  border: 1px solid rgba(118, 164, 205, 0.28);
+  border-radius: 6px;
+  background: rgba(80, 125, 170, 0.06);
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-core-advice.danger {
+  border-color: rgba(224, 120, 120, 0.48);
+  background: rgba(150, 40, 40, 0.12);
+}
+
+.ssc-core-advice p {
+  margin: 0;
+  line-height: 1.25;
+}
+
+.ssc-core-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.ssc-core-mode-grid button {
+  min-width: 0;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-size: 11px;
+}
+
+.ssc-core-mode-grid button.active {
+  border-color: rgba(118, 164, 205, 0.7);
+  color: #cfe6ff;
+  box-shadow: inset 0 0 0 1px rgba(118, 164, 205, 0.35);
+}
+
+.ssc-action-subgroup {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.025);
+}
+
+.ssc-action-subgroup h4 {
+  margin: 0;
+  color: var(--ssc-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ssc-core-shift-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.ssc-core-shift-grid button {
+  min-width: 0;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-size: 11px;
+}

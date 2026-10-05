@@ -1,0 +1,53 @@
+    <aside class="ssc-left-panel">
+      <h2>{{localize "SAILSHIPS.Combatants"}}</h2>
+      <div class="ssc-ship-list">
+        {{#each board.ships as |ship|}}
+          <button type="button" class="ssc-ship-list-item {{#if ship.isCreature}}creature{{/if}} {{#if ship.contactState}}contact contact-{{ship.contactState}}{{/if}} {{#if ship.selected}}selected{{/if}} {{#if ship.active}}active-turn{{/if}} {{#if ship.phaseDone}}phase-done{{/if}} side-{{ship.side}}" style="--ssc-side-color: {{ship.sideColor}};" data-ship-id="{{ship.id}}">
+            <span class="ssc-ship-name">{{ship.name}}</span>
+            {{#if ship.contactState}}
+              <span class="ssc-ship-meta">{{ship.contactLabel}} · {{sscHeading ship.heading}}{{#if ../battleMode.usesAltitude}} · H{{ship.status.altitude}}{{/if}}</span>
+            {{else}}
+              <span class="ssc-ship-meta">{{#if ship.isCreature}}{{localize "SAILSHIPS.Creature"}}{{else}}{{localize "SAILSHIPS.Ship"}}{{/if}} · {{sscHeading ship.heading}} · {{localize "SAILSHIPS.Speed"}} {{ship.speed}}{{#if ship.canViewDetails}} · HP {{ship.hp.value}}/{{ship.hp.max}}{{else}} · HP ?{{/if}}</span>
+            {{/if}}
+            {{#if ship.orderLabel}}<span class="ssc-ship-order">{{localize "SAILSHIPS.Order"}}: {{ship.orderLabel}}</span>{{/if}}
+            {{#if ship.pendingOrderLabel}}<span class="ssc-ship-order pending">Ожидает: {{ship.pendingOrderLabel}}</span>{{/if}}
+            {{#if ship.canViewDetails}}<span class="ssc-hp-bar"><i style="width: {{ship.hp.pct}}%"></i></span>{{/if}}
+            <span class="ssc-ship-flags">
+              {{#if ship.assignedToCurrentUser}}<b class="player">Ваш</b>{{/if}}
+              {{#if ship.assignedUserName}}<b>{{ship.assignedUserName}}</b>{{/if}}
+              {{#if ship.isCreature}}
+                <b class="creature">Существо</b>
+                {{#if ship.rulesPending}}<b>Правила не подключены</b>{{/if}}
+                {{#if ship.status.bleeding}}<b class="danger">Кровотечение {{ship.status.bleeding}}</b>{{/if}}
+                {{#if ship.status.stunned}}<b>Оглушение {{ship.status.stunned}}</b>{{/if}}
+                {{#if ship.status.burning}}<b class="danger">Горит</b>{{/if}}
+                {{#if ship.status.camouflaged}}<b>Маскировка {{ship.status.camouflaged}}</b>{{/if}}
+                {{#if ship.attached}}<b>На корпусе {{ship.attachedHostName}}</b>{{/if}}
+                <b class="crystal">H{{ship.status.altitude}}</b>
+              {{else}}
+                {{#if ship.active}}<b class="active">Ходит</b>{{/if}}
+                {{#if ship.phaseDone}}<b>Готов</b>{{/if}}
+                {{#if ship.status.fire}}<b class="danger">Пожар {{ship.status.fire}}</b>{{/if}}
+                {{#if ship.status.flooding}}<b class="water">Вода {{ship.status.flooding}}</b>{{/if}}
+                {{#if ship.status.breaches}}<b>Пробоины {{ship.status.breaches}}</b>{{/if}}
+                {{#if ship.showAltitudeCore}}<b class="crystal">H{{ship.status.altitude}} · Я{{ship.status.coreHeat}}/{{ship.status.coreMaxHeat}}</b>{{/if}}
+                {{#if ship.reloads}}<b>Перезарядка {{ship.reloads}}</b>{{/if}}
+                {{#if ship.grappled}}<b>Сцеплен</b>{{/if}}
+                {{#if ship.attachedCreatureCount}}<b class="danger">Чудовищ на корпусе: {{ship.attachedCreatureCount}}</b>{{/if}}
+              {{/if}}
+              {{#if ship.struck}}<b class="danger">Выбыл</b>{{/if}}
+            </span>
+          </button>
+        {{/each}}
+      </div>
+
+      <h2>{{localize "SAILSHIPS.BattleLog"}}</h2>
+      <div class="ssc-log">
+        {{#each log as |entry|}}
+          <div class="ssc-log-entry">
+            <span>R{{entry.round}} / {{sscPhase entry.phase}}</span>
+            <p>{{entry.text}}</p>
+          </div>
+        {{/each}}
+      </div>
+    </aside>

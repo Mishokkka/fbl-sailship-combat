@@ -1,0 +1,20 @@
+        {{#if phaseFlags.showStorage}}
+          <section class="ssc-setup-box ssc-storage-box">
+            <h3>{{localize "SAILSHIPS.BattleStorage"}} <span class="ssc-muted">({{savedBattleCount}})</span></h3>
+            <div class="ssc-action-grid compact-actions">
+              <button type="button" data-action="saveBattleSnapshot" {{#unless isGM}}disabled{{/unless}}>{{localize "SAILSHIPS.SaveSnapshot"}}</button>
+              <button type="button" data-action="loadBattleSnapshot" {{#unless isGM}}disabled{{/unless}}>{{localize "SAILSHIPS.LoadSnapshot"}}</button>
+              <button type="button" data-action="deleteBattleSnapshot" {{#unless isGM}}disabled{{/unless}}>{{localize "SAILSHIPS.DeleteSnapshot"}}</button>
+              <button type="button" data-action="exportBattle">{{localize "SAILSHIPS.ExportBattle"}}</button>
+              <button type="button" data-action="importBattle" {{#unless isGM}}disabled{{/unless}}>{{localize "SAILSHIPS.ImportBattle"}}</button>
+              <button type="button" data-action="clearBattleLog" {{#unless isGM}}disabled{{/unless}}>{{localize "SAILSHIPS.ClearLog"}}</button>
+            </div>
+            {{#if savedBattles.length}}
+              <div class="ssc-saves-list">
+                {{#each savedBattles as |save|}}
+                  <div><strong>{{save.index}}.</strong> {{save.name}}</div>
+                {{/each}}
+              </div>
+            {{/if}}
+          </section>
+        {{/if}}

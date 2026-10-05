@@ -1,0 +1,206 @@
+<section class="ssc-setup-box ssc-ship-editor-box ssc-creature-editor-box">
+  <div class="ssc-yard-section-head">
+    <div>
+      <h3>{{localize "SAILSHIPS.CreatureEditor"}}: {{selectedShip.name}}</h3>
+      <p class="ssc-hint">Структура существа уже хранится отдельно от корабельных систем. Движение и атаки будут подключены на следующем этапе.</p>
+      {{#if setupLocked}}<p class="ssc-hint danger">{{localize "SAILSHIPS.ShipyardLockedEditorHint"}}</p>{{/if}}
+    </div>
+    <div class="ssc-action-grid compact-actions">
+      <button type="button" data-action="applyCreatureEdits" {{#unless canEditCombatants}}disabled{{/unless}}>{{localize "SAILSHIPS.ApplyCreatureEdits"}}</button>
+      <button type="button" data-action="switchShipyardTab" data-tab="creatureLibrary">{{localize "SAILSHIPS.CreatureLibrary"}}</button>
+    </div>
+  </div>
+
+  <fieldset class="ssc-editor-fieldset" {{#unless canEditCombatants}}disabled{{/unless}}>
+    <div class="ssc-editor-grid">
+      <label>{{localize "SAILSHIPS.Name"}}<input type="text" data-creature-edit="name" value="{{selectedShip.name}}"></label>
+      <label>Тип существа<input type="text" data-creature-edit="creatureType" value="{{selectedShip.creatureType}}"></label>
+      <label>Размер<select data-creature-edit="size">
+        <option value="tiny" {{#if (sscEq selectedShip.size 'tiny')}}selected{{/if}}>Крошечное</option>
+        <option value="small" {{#if (sscEq selectedShip.size 'small')}}selected{{/if}}>Малое</option>
+        <option value="medium" {{#if (sscEq selectedShip.size 'medium')}}selected{{/if}}>Среднее</option>
+        <option value="large" {{#if (sscEq selectedShip.size 'large')}}selected{{/if}}>Крупное</option>
+        <option value="huge" {{#if (sscEq selectedShip.size 'huge')}}selected{{/if}}>Огромное</option>
+        <option value="swarm" {{#if (sscEq selectedShip.size 'swarm')}}selected{{/if}}>Стая</option>
+      </select></label>
+      <label>{{localize "SAILSHIPS.MaxSpeed"}}<input type="number" data-creature-edit="maxSpeed" value="{{selectedShip.maxSpeed}}" min="0" max="20" step="1"></label>
+      <label>{{localize "SAILSHIPS.Altitude"}}<input type="number" data-creature-edit="altitude" value="{{selectedShip.altitude}}" min="0" max="{{altitudeMax}}" step="1"></label>
+      <label>{{localize "SAILSHIPS.Vitality"}}<input type="number" data-creature-edit="vitalityCurrent" value="{{selectedShip.vitality.current}}" min="0" max="10000" step="1"></label>
+      <label>{{localize "SAILSHIPS.VitalityMax"}}<input type="number" data-creature-edit="vitalityMax" value="{{selectedShip.vitality.max}}" min="1" max="10000" step="1"></label>
+      <label>{{localize "SAILSHIPS.Morale"}}<input type="number" data-creature-edit="morale" value="{{selectedShip.vitality.morale}}" min="0" max="10" step="1"></label>
+      <label>SM<input type="number" data-creature-edit="sm" value="{{selectedShip.stats.sm}}" min="0" max="30" step="1"></label>
+      <label>HT<input type="number" data-creature-edit="ht" value="{{selectedShip.stats.ht}}" min="1" max="30" step="1"></label>
+      <label>Hnd<input type="number" data-creature-edit="handling" value="{{selectedShip.stats.handling}}" min="-10" max="10" step="1"></label>
+      <label>SR<input type="number" data-creature-edit="stability" value="{{selectedShip.stats.stability}}" min="0" max="20" step="1"></label>
+      <label>{{localize "SAILSHIPS.Armor"}}<input type="number" data-creature-edit="armor" value="{{selectedShip.stats.armor}}" min="0" max="100" step="1"></label>
+      <label>Профиль полета<select data-creature-edit="movementProfile">
+        <option value="flier" {{#if (sscEq selectedShip.movement.profile 'flier')}}selected{{/if}}>Активный полет</option>
+        <option value="glider" {{#if (sscEq selectedShip.movement.profile 'glider')}}selected{{/if}}>Планирование</option>
+        <option value="hover" {{#if (sscEq selectedShip.movement.profile 'hover')}}selected{{/if}}>Зависание</option>
+        <option value="stormborn" {{#if (sscEq selectedShip.movement.profile 'stormborn')}}selected{{/if}}>Штормовой</option>
+        <option value="swarm" {{#if (sscEq selectedShip.movement.profile 'swarm')}}selected{{/if}}>Стая</option>
+        <option value="levitating" {{#if (sscEq selectedShip.movement.profile 'levitating')}}selected{{/if}}>Левитация</option>
+      </select></label>
+      <label>Реакция на ветер<select data-creature-edit="windResponse">
+        <option value="none" {{#if (sscEq selectedShip.movement.windResponse 'none')}}selected{{/if}}>Игнорирует</option>
+        <option value="light" {{#if (sscEq selectedShip.movement.windResponse 'light')}}selected{{/if}}>Слабая</option>
+        <option value="strong" {{#if (sscEq selectedShip.movement.windResponse 'strong')}}selected{{/if}}>Сильная</option>
+        <option value="resistant" {{#if (sscEq selectedShip.movement.windResponse 'resistant')}}selected{{/if}}>Устойчивое</option>
+        <option value="drifting" {{#if (sscEq selectedShip.movement.windResponse 'drifting')}}selected{{/if}}>Дрейфующее</option>
+      </select></label>
+      <label>Лимит поворота<input type="number" data-creature-edit="turnLimit" value="{{selectedShip.movement.turnLimit}}" min="0" max="6" step="1"></label>
+      <label>Подъем<input type="number" data-creature-edit="climb" value="{{selectedShip.movement.climb}}" min="0" max="4" step="1"></label>
+      <label>Пикирование<input type="number" data-creature-edit="dive" value="{{selectedShip.movement.dive}}" min="0" max="4" step="1"></label>
+      <label class="ssc-checkbox-field"><input type="checkbox" data-creature-edit="canHover" {{#if selectedShip.movement.canHover}}checked{{/if}}>Может зависать</label>
+    </div>
+
+    <section class="ssc-creature-behavior-editor">
+      <h4>Поведение и ИИ</h4>
+      <div class="ssc-editor-grid">
+        <label>Режим<select data-creature-edit="behaviorMode">
+          <option value="manual" {{#if (sscEq selectedShip.behavior.mode 'manual')}}selected{{/if}}>Ручное управление</option>
+          <option value="predator" {{#if (sscEq selectedShip.behavior.mode 'predator')}}selected{{/if}}>Хищник</option>
+          <option value="guardian" {{#if (sscEq selectedShip.behavior.mode 'guardian')}}selected{{/if}}>Страж</option>
+          <option value="skirmisher" {{#if (sscEq selectedShip.behavior.mode 'skirmisher')}}selected{{/if}}>Налётчик</option>
+          <option value="coward" {{#if (sscEq selectedShip.behavior.mode 'coward')}}selected{{/if}}>Осторожный</option>
+        </select></label>
+        <label>Предпочтительная дистанция<input type="number" data-creature-edit="preferredRange" value="{{selectedShip.behavior.preferredRange}}" min="1" max="20"></label>
+        <label>Агрессия<input type="number" data-creature-edit="aggression" value="{{selectedShip.behavior.aggression}}" min="0" max="10"></label>
+        <label>Выбор цели<select data-creature-edit="targetPolicy">
+          <option value="nearest" {{#if (sscEq selectedShip.behavior.targetPolicy 'nearest')}}selected{{/if}}>Ближайшая</option>
+          <option value="weakest" {{#if (sscEq selectedShip.behavior.targetPolicy 'weakest')}}selected{{/if}}>Самая слабая</option>
+          <option value="largest" {{#if (sscEq selectedShip.behavior.targetPolicy 'largest')}}selected{{/if}}>Самая крупная</option>
+        </select></label>
+        <label class="ssc-checkbox-field"><input type="checkbox" data-creature-edit="controlledByAI" {{#if selectedShip.behavior.controlledByAI}}checked{{/if}}>Разрешить кнопку «Ход ИИ»</label>
+      </div>
+      <p class="ssc-hint">ИИ не действует самопроизвольно. Кнопка «Ход ИИ» выполняет текущую фазу выбранного существа и сразу завершает его активацию.</p>
+    </section>
+
+    <section class="ssc-creature-token-editor">
+      <h4>{{localize "SAILSHIPS.CreatureToken"}}</h4>
+      <div class="ssc-editor-grid">
+        <label class="ssc-wide-field">Путь к изображению<input type="text" data-creature-edit="tokenImg" value="{{selectedShip.token.img}}"></label>
+        <button type="button" data-action="chooseCreatureToken"><i class="fa-solid fa-image"></i> Выбрать изображение</button>
+        <label>Масштаб<input type="number" data-creature-edit="tokenScale" value="{{selectedShip.token.scale}}" min="0.35" max="3" step="0.05"></label>
+        <label>Цвет силуэта<input type="text" data-creature-edit="tokenTint" value="{{selectedShip.token.tint}}"></label>
+        <label>Силуэт<select data-creature-edit="silhouette">
+          <option value="beast" {{#if (sscEq selectedShip.token.silhouette 'beast')}}selected{{/if}}>Зверь</option>
+          <option value="bird" {{#if (sscEq selectedShip.token.silhouette 'bird')}}selected{{/if}}>Птица</option>
+          <option value="ray" {{#if (sscEq selectedShip.token.silhouette 'ray')}}selected{{/if}}>Скат</option>
+          <option value="jelly" {{#if (sscEq selectedShip.token.silhouette 'jelly')}}selected{{/if}}>Медуза</option>
+          <option value="swarm" {{#if (sscEq selectedShip.token.silhouette 'swarm')}}selected{{/if}}>Стая</option>
+        </select></label>
+        <label class="ssc-checkbox-field"><input type="checkbox" data-creature-edit="showName" {{#if selectedShip.token.showName}}checked{{/if}}>Показывать имя</label>
+      </div>
+    </section>
+
+    <section class="ssc-creature-anatomy-editor">
+      <div class="ssc-section-edit-head">
+        <h4>{{localize "SAILSHIPS.AnatomySections"}}</h4>
+        <button type="button" data-action="addCreatureSection">Добавить секцию</button>
+      </div>
+      {{#each selectedShip.sections as |section sectionId|}}
+        <div class="ssc-section-edit-card ssc-creature-section-edit-card">
+          <div class="ssc-section-edit-head">
+            <strong>{{section.label}}</strong>
+            <button type="button" data-action="removeCreatureSection" data-section-id="{{sectionId}}">Удалить</button>
+          </div>
+          <div class="ssc-section-edit-grid">
+            <label>Название<input type="text" data-creature-section-edit="label" data-section-id="{{sectionId}}" value="{{section.label}}"></label>
+            <label>HP<input type="number" data-creature-section-edit="hpValue" data-section-id="{{sectionId}}" value="{{section.hp.value}}" min="0" max="10000"></label>
+            <label>HP макс.<input type="number" data-creature-section-edit="hpMax" data-section-id="{{sectionId}}" value="{{section.hp.max}}" min="1" max="10000"></label>
+            <label>{{localize "SAILSHIPS.Armor"}}<input type="number" data-creature-section-edit="armor" data-section-id="{{sectionId}}" value="{{section.armor}}" min="0" max="100"></label>
+            <label>Состояние<select data-creature-section-edit="status" data-section-id="{{sectionId}}">
+              <option value="intact" {{#if (sscEq section.status 'intact')}}selected{{/if}}>Цела</option>
+              <option value="damaged" {{#if (sscEq section.status 'damaged')}}selected{{/if}}>Повреждена</option>
+              <option value="destroyed" {{#if (sscEq section.status 'destroyed')}}selected{{/if}}>Уничтожена</option>
+              <option value="disabled" {{#if (sscEq section.status 'disabled')}}selected{{/if}}>Выведена</option>
+            </select></label>
+            <label class="ssc-wide-field">Теги<input type="text" data-creature-section-edit="tags" data-section-id="{{sectionId}}" value="{{#each section.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"></label>
+            <label class="ssc-checkbox-field"><input type="checkbox" data-creature-section-edit="enabled" data-section-id="{{sectionId}}" {{#if section.enabled}}checked{{/if}}>Активна</label>
+          </div>
+        </div>
+      {{/each}}
+    </section>
+
+    <section class="ssc-creature-attacks-editor">
+      <div class="ssc-section-edit-head">
+        <h4>{{localize "SAILSHIPS.NaturalAttacks"}}</h4>
+        <button type="button" data-action="addCreatureAttack">Добавить атаку</button>
+      </div>
+      {{#each selectedShip.attacks as |attack|}}
+        <div class="ssc-weapon-edit-row ssc-creature-attack-edit-row">
+          <label>Название<input type="text" data-creature-attack-edit="label" data-attack-id="{{attack.id}}" value="{{attack.label}}"></label>
+          <label>Тип<select data-creature-attack-edit="type" data-attack-id="{{attack.id}}">
+            <option value="natural" {{#if (sscEq attack.type 'natural')}}selected{{/if}}>Естественная</option>
+            <option value="breath" {{#if (sscEq attack.type 'breath')}}selected{{/if}}>Дыхание</option>
+            <option value="spit" {{#if (sscEq attack.type 'spit')}}selected{{/if}}>Плевок</option>
+            <option value="sonic" {{#if (sscEq attack.type 'sonic')}}selected{{/if}}>Звуковая</option>
+            <option value="magic" {{#if (sscEq attack.type 'magic')}}selected{{/if}}>Магическая</option>
+            <option value="ram" {{#if (sscEq attack.type 'ram')}}selected{{/if}}>Таран</option>
+            <option value="other" {{#if (sscEq attack.type 'other')}}selected{{/if}}>Другая</option>
+          </select></label>
+          <label>Дуга<select data-creature-attack-edit="arc" data-attack-id="{{attack.id}}">
+            <option value="bow" {{#if (sscEq attack.arc 'bow')}}selected{{/if}}>Передняя</option>
+            <option value="stern" {{#if (sscEq attack.arc 'stern')}}selected{{/if}}>Задняя</option>
+            <option value="port" {{#if (sscEq attack.arc 'port')}}selected{{/if}}>Левая</option>
+            <option value="starboard" {{#if (sscEq attack.arc 'starboard')}}selected{{/if}}>Правая</option>
+            <option value="all" {{#if (sscEq attack.arc 'all')}}selected{{/if}}>Круговая</option>
+          </select></label>
+          <label>Дистанция<input type="number" data-creature-attack-edit="range" data-attack-id="{{attack.id}}" value="{{attack.range}}" min="1" max="100"></label>
+          <label>Радиус<input type="number" data-creature-attack-edit="radius" data-attack-id="{{attack.id}}" value="{{attack.radius}}" min="0" max="20"></label>
+          <label>Урон<input type="number" data-creature-attack-edit="damage" data-attack-id="{{attack.id}}" value="{{attack.damage}}" min="1" max="1000"></label>
+          <label>Перезарядка<input type="number" data-creature-attack-edit="cooldownMax" data-attack-id="{{attack.id}}" value="{{attack.cooldownMax}}" min="0" max="100"></label>
+          <label class="ssc-wide-field">Теги<input type="text" data-creature-attack-edit="tags" data-attack-id="{{attack.id}}" value="{{#each attack.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"></label>
+          <button type="button" data-action="removeCreatureAttack" data-attack-id="{{attack.id}}">Удалить</button>
+        </div>
+      {{/each}}
+    </section>
+
+    <section class="ssc-creature-abilities-editor">
+      <div class="ssc-section-edit-head">
+        <h4>{{localize "SAILSHIPS.CreatureAbilities"}}</h4>
+        <button type="button" data-action="addCreatureAbility">Добавить способность</button>
+      </div>
+      {{#each selectedShip.abilities as |ability|}}
+        <div class="ssc-system-edit-row ssc-creature-ability-edit-row">
+          <label>Название<input type="text" data-creature-ability-edit="label" data-ability-id="{{ability.id}}" value="{{ability.label}}"></label>
+          <label>Тип<select data-creature-ability-edit="type" data-ability-id="{{ability.id}}">
+            <option value="active" {{#if (sscEq ability.type 'active')}}selected{{/if}}>Активная</option>
+            <option value="passive" {{#if (sscEq ability.type 'passive')}}selected{{/if}}>Пассивная</option>
+            <option value="reaction" {{#if (sscEq ability.type 'reaction')}}selected{{/if}}>Реакция</option>
+          </select></label>
+          <label>Эффект<select data-creature-ability-edit="effect" data-ability-id="{{ability.id}}">
+            <option value="none" {{#if (sscEq ability.effect 'none')}}selected{{/if}}>Только описание</option>
+            <option value="heal" {{#if (sscEq ability.effect 'heal')}}selected{{/if}}>Исцеление</option>
+            <option value="rally" {{#if (sscEq ability.effect 'rally')}}selected{{/if}}>Мораль</option>
+            <option value="dash" {{#if (sscEq ability.effect 'dash')}}selected{{/if}}>Рывок</option>
+            <option value="cloak" {{#if (sscEq ability.effect 'cloak')}}selected{{/if}}>Маскировка</option>
+            <option value="shockwave" {{#if (sscEq ability.effect 'shockwave')}}selected{{/if}}>Площадной удар</option>
+            <option value="regenerate" {{#if (sscEq ability.effect 'regenerate')}}selected{{/if}}>Регенерация</option>
+            <option value="breakaway" {{#if (sscEq ability.effect 'breakaway')}}selected{{/if}}>Отцепление</option>
+          </select></label>
+          <label>Фаза<select data-creature-ability-edit="phase" data-ability-id="{{ability.id}}">
+            <option value="any" {{#if (sscEq ability.phase 'any')}}selected{{/if}}>Любая</option>
+            <option value="movement" {{#if (sscEq ability.phase 'movement')}}selected{{/if}}>Маневр</option>
+            <option value="gunnery" {{#if (sscEq ability.phase 'gunnery')}}selected{{/if}}>Атаки</option>
+            <option value="crew" {{#if (sscEq ability.phase 'crew')}}selected{{/if}}>Восстановление</option>
+          </select></label>
+          <label>Цель<select data-creature-ability-edit="target" data-ability-id="{{ability.id}}">
+            <option value="self" {{#if (sscEq ability.target 'self')}}selected{{/if}}>Себя</option>
+            <option value="enemy" {{#if (sscEq ability.target 'enemy')}}selected{{/if}}>Враг</option>
+            <option value="area" {{#if (sscEq ability.target 'area')}}selected{{/if}}>Область</option>
+          </select></label>
+          <label>Мощь<input type="number" data-creature-ability-edit="power" data-ability-id="{{ability.id}}" value="{{ability.power}}" min="0" max="1000"></label>
+          <label>Дальность<input type="number" data-creature-ability-edit="range" data-ability-id="{{ability.id}}" value="{{ability.range}}" min="0" max="100"></label>
+          <label>Радиус<input type="number" data-creature-ability-edit="radius" data-ability-id="{{ability.id}}" value="{{ability.radius}}" min="0" max="20"></label>
+          <label>Перезарядка<input type="number" data-creature-ability-edit="cooldownMax" data-ability-id="{{ability.id}}" value="{{ability.cooldownMax}}" min="0" max="100"></label>
+          <label>Использований<input type="number" data-creature-ability-edit="usesMax" data-ability-id="{{ability.id}}" value="{{ability.usesMax}}" min="0" max="100"></label>
+          <label class="ssc-wide-field">Описание<textarea data-creature-ability-edit="description" data-ability-id="{{ability.id}}">{{ability.description}}</textarea></label>
+          <label>Теги<input type="text" data-creature-ability-edit="tags" data-ability-id="{{ability.id}}" value="{{#each ability.tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"></label>
+          <button type="button" data-action="removeCreatureAbility" data-ability-id="{{ability.id}}">Удалить</button>
+        </div>
+      {{/each}}
+    </section>
+  </fieldset>
+</section>

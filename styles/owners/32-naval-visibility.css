@@ -1,0 +1,27 @@
+/* Player projection contacts and last-known-position presentation. */
+
+.ssc-ship-token.contact .ssc-ship-shape {
+  fill-opacity: 0.48;
+  stroke-dasharray: 4 3;
+}
+
+.ssc-ship-token.contact-detected .ssc-ship-shape {
+  fill: #777f87;
+}
+
+.ssc-ship-token.contact-lost {
+  opacity: 0.42;
+}
+
+.ssc-ship-token.contact-lost .ssc-ship-halo {
+  stroke: rgba(220, 220, 220, 0.56);
+  stroke-dasharray: 3 4;
+}
+
+.ssc-ship-list-item.contact {
+  border-style: dashed;
+}
+
+.ssc-ship-list-item.contact-lost {
+  opacity: 0.55;
+}

@@ -1,0 +1,39 @@
+    {{#if isBestiaryTab}}
+      <section class="ssc-shipyard-tab-panel">
+        <div class="ssc-yard-section-head">
+          <div>
+            <h3>{{localize "SAILSHIPS.BestiaryTemplates"}}</h3>
+            <p class="ssc-hint">Встроенные заготовки создают отдельные боевые единицы типа creature. На этом этапе они отображаются и редактируются, но еще не участвуют в фазах движения и атак.</p>
+          </div>
+          {{#if setupLocked}}<p class="ssc-hint danger">Бой подтвержден: добавление существ заблокировано.</p>{{/if}}
+        </div>
+
+        <div class="ssc-template-groups">
+          {{#each creatureTemplateGroups as |group|}}
+            <section class="ssc-template-group">
+              <h4>{{group.category}}</h4>
+              <div class="ssc-template-grid">
+                {{#each group.templates as |template|}}
+                  <article class="ssc-template-card ssc-creature-template-card">
+                    <div class="ssc-template-title">
+                      <strong>{{template.label}}</strong>
+                      <span>{{template.creatureType}}</span>
+                    </div>
+                    <p>{{template.description}}</p>
+                    <div class="ssc-template-stats">
+                      <span>Размер {{template.size}}</span>
+                      <span>{{localize "SAILSHIPS.Speed"}} {{template.maxSpeed}}</span>
+                      <span>{{localize "SAILSHIPS.Vitality"}} {{template.vitality}}</span>
+                      <span>{{localize "SAILSHIPS.Armor"}} {{template.armor}}</span>
+                      <span>{{localize "SAILSHIPS.AnatomySections"}} {{template.sections}}</span>
+                      <span>{{localize "SAILSHIPS.NaturalAttacks"}} {{template.attacks}}</span>
+                    </div>
+                    <button type="button" data-action="addTemplateCreature" data-template="{{template.id}}" {{#unless ../../canEditCombatants}}disabled{{/unless}}>Добавить в бой</button>
+                  </article>
+                {{/each}}
+              </div>
+            </section>
+          {{/each}}
+        </div>
+      </section>
+    {{/if}}

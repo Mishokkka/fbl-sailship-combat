@@ -1,0 +1,94 @@
+<div class="ssc-summary-head ssc-creature-summary-head">
+  <div class="ssc-summary-title-wrap">
+    <div class="ssc-summary-title-line">
+      <h2>{{selectedShip.name}}</h2>
+      <div class="ssc-summary-subline">
+        <span class="ssc-summary-chip creature">{{localize "SAILSHIPS.Creature"}}</span>
+        <span class="ssc-summary-chip">{{selectedShip.creatureType}}</span>
+        <span class="ssc-summary-chip">{{selectedShip.size}}</span>
+        {{#if selectedStatus.attachedTo}}<span class="ssc-summary-chip danger">На корпусе корабля</span>{{/if}}
+        {{#if selectedStatus.camouflaged}}<span class="ssc-summary-chip">Маскировка {{selectedStatus.camouflaged}}</span>{{/if}}
+        {{#if selectedShip.flags.struck}}<span class="ssc-summary-chip danger">{{localize "SAILSHIPS.Struck"}}</span>{{/if}}
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#if canViewSelectedShipDetails}}
+<div class="ssc-summary-grid ssc-creature-summary-grid">
+  <article class="ssc-summary-card">
+    <h3>{{localize "SAILSHIPS.Vitality"}}</h3>
+    <div class="ssc-summary-card-grid compact">
+      <span><b>HP</b><strong>{{selectedShip.vitality.current}} / {{selectedShip.vitality.max}}</strong></span>
+      <span><b>{{localize "SAILSHIPS.Morale"}}</b><strong>{{selectedShip.vitality.morale}} / 10</strong></span>
+      <span><b>HT</b><strong>{{selectedShip.stats.ht}}</strong></span>
+      <span><b>{{localize "SAILSHIPS.Armor"}}</b><strong>{{selectedShip.stats.armor}}</strong></span>
+    </div>
+  </article>
+
+  <article class="ssc-summary-card">
+    <h3>Положение</h3>
+    <div class="ssc-summary-card-grid compact">
+      <span><b>Курс</b><strong>{{sscHeading selectedShip.heading}}</strong></span>
+      <span><b>{{localize "SAILSHIPS.Speed"}}</b><strong>{{selectedShip.speed}} / {{selectedInfo.effectiveMaxSpeed}}</strong></span>
+      <span><b>{{localize "SAILSHIPS.Altitude"}}</b><strong>H{{selectedStatus.altitude}} · ≈{{selectedStatus.altitudeMeters}} м</strong></span>
+      <span><b>Hnd / SR</b><strong>{{sscSign selectedShip.stats.handling}} / {{selectedShip.stats.stability}}</strong></span>
+    </div>
+  </article>
+
+  <article class="ssc-summary-card">
+    <h3>Полет</h3>
+    <div class="ssc-summary-card-grid compact">
+      <span><b>Профиль</b><strong>{{selectedShip.movement.profile}}</strong></span>
+      <span><b>Ветер</b><strong>{{selectedShip.movement.windResponse}}</strong></span>
+      <span><b>Поворот</b><strong>{{selectedShip.movement.turnLimit}}</strong></span>
+      <span><b>↑ / ↓</b><strong>{{selectedShip.movement.climb}} / {{selectedShip.movement.dive}}</strong></span>
+    </div>
+  </article>
+
+  <article class="ssc-summary-card">
+    <h3>Состояния</h3>
+    <div class="ssc-summary-card-grid compact">
+      <span><b>Кровотечение</b><strong>{{selectedStatus.bleeding}}</strong></span>
+      <span><b>Оглушение</b><strong>{{selectedStatus.stunned}}</strong></span>
+      <span><b>Горит</b><strong>{{#if selectedStatus.burning}}да{{else}}нет{{/if}}</strong></span>
+      <span><b>Падает</b><strong>{{#if selectedStatus.falling}}да{{else}}нет{{/if}}</strong></span>
+      <span><b>Маскировка</b><strong>{{selectedStatus.camouflaged}}</strong></span>
+      <span><b>Сцепление</b><strong>{{#if creatureGrappleInfo.attached}}{{creatureGrappleInfo.hostName}}{{else}}нет{{/if}}</strong></span>
+    </div>
+  </article>
+</div>
+
+<div class="ssc-creature-detail-strip">
+  <section>
+    <h3>{{localize "SAILSHIPS.AnatomySections"}}</h3>
+    <div class="ssc-creature-chip-list">
+      {{#each selectedShip.sections as |section sectionId|}}
+        <span class="ssc-summary-chip">{{section.label}} {{section.hp.value}}/{{section.hp.max}} · BR {{section.armor}}</span>
+      {{/each}}
+    </div>
+  </section>
+  <section>
+    <h3>{{localize "SAILSHIPS.NaturalAttacks"}}</h3>
+    <div class="ssc-creature-chip-list">
+      {{#each selectedShip.attacks as |attack|}}
+        <span class="ssc-summary-chip">{{attack.label}} · {{attack.damage}} · {{attack.range}} гекс. · {{#if attack.cooldown}}{{attack.cooldown}} р.{{else}}готова{{/if}}</span>
+      {{else}}
+        <span class="ssc-hint">Атак нет.</span>
+      {{/each}}
+    </div>
+  </section>
+</div>
+{{else}}
+<div class="ssc-summary-grid public">
+  <article class="ssc-summary-card">
+    <h3>Открытые данные</h3>
+    <div class="ssc-summary-card-grid compact">
+      <span><b>Сторона</b><strong>{{selectedSide.name}}</strong></span>
+      <span><b>Курс</b><strong>{{sscHeading selectedShip.heading}}</strong></span>
+      <span><b>{{localize "SAILSHIPS.Speed"}}</b><strong>{{selectedShip.speed}}</strong></span>
+      <span><b>{{localize "SAILSHIPS.Altitude"}}</b><strong>H{{selectedShip.altitude}}</strong></span>
+    </div>
+  </article>
+</div>
+{{/if}}

@@ -1,0 +1,184 @@
+      <section class="ssc-board-panel {{#if terrainMode}}terrain-mode{{/if}}">
+        <svg class="ssc-board-svg" viewBox="{{board.viewBox}}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Тактическое поле боя" data-pixel-width="{{board.pixelWidth}}" data-pixel-height="{{board.pixelHeight}}" data-lod="{{board.lod}}">
+          <defs>
+            <marker id="ssc-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L6,3 z"></path>
+            </marker>
+            <pattern id="{{board.background.pattern.id}}" patternUnits="userSpaceOnUse" width="{{board.background.pattern.width}}" height="{{board.background.pattern.height}}">
+              <path class="ssc-infinite-grid-pattern-line" d="{{board.background.pattern.path}}"></path>
+            </pattern>
+            {{#if board.background.image.enabled}}
+            <pattern id="{{board.background.image.id}}" patternUnits="userSpaceOnUse" width="{{board.background.image.tileSize}}" height="{{board.background.image.tileSize}}">
+              <image class="ssc-board-image-pattern" href="{{board.background.image.href}}" x="0" y="0" width="{{board.background.image.tileSize}}" height="{{board.background.image.tileSize}}" preserveAspectRatio="xMidYMid slice"></image>
+            </pattern>
+            {{/if}}
+          </defs>
+
+          <rect class="ssc-board-bg {{#if board.terrainPaintable}}terrain-paintable{{/if}}" x="{{board.background.backdrop.x}}" y="{{board.background.backdrop.y}}" width="{{board.background.backdrop.width}}" height="{{board.background.backdrop.height}}"></rect>
+          {{#if board.background.image.enabled}}
+          <rect class="ssc-board-image-fill" x="{{board.background.backdrop.x}}" y="{{board.background.backdrop.y}}" width="{{board.background.backdrop.width}}" height="{{board.background.backdrop.height}}" fill="url(#{{board.background.image.id}})" opacity="{{board.background.image.opacity}}"></rect>
+          {{/if}}
+          <rect class="ssc-infinite-grid-lines" x="{{board.background.backdrop.x}}" y="{{board.background.backdrop.y}}" width="{{board.background.backdrop.width}}" height="{{board.background.backdrop.height}}" fill="url(#{{board.background.pattern.id}})"></rect>
+          <path class="ssc-grid-lines" d="{{board.gridPath}}"></path>
+          <rect class="ssc-board-bounds" x="{{board.background.bounds.x}}" y="{{board.background.bounds.y}}" width="{{board.background.bounds.width}}" height="{{board.background.bounds.height}}"></rect>
+
+          <g class="ssc-terrain-layer">
+            {{#each board.terrainClusters as |cluster|}}
+              <g class="ssc-terrain-stack {{cluster.terrainClass}} {{#if cluster.blockedByTerrain}}blocked-terrain{{/if}}" data-terrain-cluster="{{cluster.id}}" data-terrain-cells="{{cluster.cellCount}}">
+                <path class="ssc-terrain-cell {{cluster.terrainClass}}" d="{{cluster.path}}"></path>
+                <path class="ssc-terrain-boundary-shadow" d="{{cluster.boundaryPath}}"></path>
+                <path class="ssc-terrain-boundary {{cluster.terrainClass}}" d="{{cluster.boundaryPath}}"></path>
+                <text class="ssc-terrain-icon {{cluster.terrainClass}}" x="{{cluster.cx}}" y="{{cluster.cy}}" text-anchor="middle" dominant-baseline="middle">{{cluster.terrainIcon}}</text>
+              </g>
+            {{/each}}
+          </g>
+
+          <g class="ssc-setup-zone-layer">
+            {{#each board.setupZones as |zone|}}
+              <g class="ssc-setup-zone side-{{zone.id}}" style="--ssc-side-color: {{zone.color}};">
+                {{#each zone.cells as |cell|}}
+                  <path d="{{cell.path}}"></path>
+                {{/each}}
+                <text x="{{zone.labelX}}" y="{{zone.labelY}}">{{zone.name}}</text>
+              </g>
+            {{/each}}
+          </g>
+
+          <g class="ssc-deploy-layer">
+            {{#each board.deployable as |cell|}}
+              <path class="ssc-cell deployable" d="{{cell.path}}"></path>
+            {{/each}}
+          </g>
+
+          <g class="ssc-reachable-layer">
+            {{#each board.reachable as |cell|}}
+              <path class="ssc-cell reachable{{#if cell.collision}} collision-risk{{/if}}" d="{{cell.path}}"{{#if cell.collision}} aria-label="{{cell.collision.title}}"{{/if}}></path>
+              <text class="ssc-reachable-step{{#if cell.collision}} collision-risk{{/if}}" x="{{cell.cx}}" y="{{cell.cy}}" text-anchor="middle" dominant-baseline="middle">{{#if cell.collision}}⚠{{else}}{{cell.steps}}{{/if}}</text>
+            {{/each}}
+          </g>
+
+          <path class="ssc-hover-cell hidden" d=""></path>
+
+          <g class="ssc-arc-overlays">
+            {{#each board.arcs as |arc|}}
+              <g class="ssc-fire-arc arc-{{arc.arc}}">
+                <path class="ssc-fire-arc-sector" d="{{arc.path}}"></path>
+              </g>
+            {{/each}}
+          </g>
+
+          {{#if board.targetLine}}
+            <line class="ssc-target-line" x1="{{board.targetLine.x1}}" y1="{{board.targetLine.y1}}" x2="{{board.targetLine.x2}}" y2="{{board.targetLine.y2}}"></line>
+          {{/if}}
+
+          {{#each board.ships as |ship|}}
+            <g class="ssc-ship-token {{#if ship.isCreature}}ssc-creature-token{{/if}} {{#if ship.attached}}attached{{/if}} {{#if ship.camouflaged}}camouflaged{{/if}} side-{{ship.side}} {{#if ship.contactState}}contact contact-{{ship.contactState}}{{/if}} {{#if ship.selected}}selected{{/if}} {{#if ship.active}}active-turn{{/if}} {{#if ship.phaseDone}}phase-done{{/if}} {{#if ship.targetable}}targetable{{/if}} {{#if ship.isTarget}}target-selected{{/if}}" style="--ssc-side-color: {{ship.sideColor}}; --ssc-creature-tint: {{ship.tokenTint}};" data-ship-id="{{ship.id}}" data-unit-type="{{ship.unitType}}" transform="translate({{ship.cx}} {{ship.cy}}) rotate({{ship.renderHeading}})">
+              <ellipse class="ssc-ship-halo" cx="0" cy="0" rx="34" ry="24"></ellipse>
+              {{#if ship.isCreature}}
+                {{#if ship.hasTokenImage}}
+                  <image class="ssc-creature-token-image" href="{{ship.tokenImage}}" x="-27" y="-27" width="54" height="54" preserveAspectRatio="xMidYMid meet" transform="scale({{ship.tokenScale}})"></image>
+                {{else}}
+                  <g class="ssc-creature-silhouette" transform="scale({{ship.tokenScale}})">
+                    {{#if ship.silhouetteBird}}<path d="M-28 7 Q-12 -15 0 -4 Q12 -15 28 7 Q12 2 5 13 L0 22 L-5 13 Q-12 2 -28 7 Z"></path>{{/if}}
+                    {{#if ship.silhouetteRay}}<path d="M-30 0 Q-14 -20 0 -8 Q14 -20 30 0 Q14 18 0 9 Q-14 18 -30 0 Z M0 8 L-4 28 L4 28 Z"></path>{{/if}}
+                    {{#if ship.silhouetteJelly}}<path d="M-20 3 Q-18 -20 0 -23 Q18 -20 20 3 Q10 15 0 14 Q-10 15 -20 3 Z M-12 11 Q-16 24 -10 30 M0 13 Q-4 25 0 32 M12 11 Q16 24 10 30"></path>{{/if}}
+                    {{#if ship.silhouetteSwarm}}<circle cx="-14" cy="-5" r="6"></circle><circle cx="0" cy="-13" r="5"></circle><circle cx="13" cy="-2" r="7"></circle><circle cx="-4" cy="9" r="7"></circle><circle cx="14" cy="12" r="4"></circle>{{/if}}
+                    {{#if ship.silhouetteBeast}}<path d="M-25 6 L-13 -11 L-4 -8 L5 -18 L15 -8 L27 1 L17 14 L2 18 L-12 14 Z"></path>{{/if}}
+                  </g>
+                {{/if}}
+                <line class="ssc-creature-heading" x1="0" y1="0" x2="29" y2="0"></line>
+                {{#if ship.attached}}<circle class="ssc-creature-attached-mark" cx="-22" cy="-22" r="7"></circle>{{/if}}
+              {{else}}
+                <path class="ssc-ship-shape" d="M 28 0 L 10 -14 L -25 -10 L -33 0 L -25 10 L 10 14 Z"></path>
+                <line class="ssc-ship-keel" x1="-24" y1="0" x2="24" y2="0"></line>
+                <line class="ssc-ship-mast" x1="-6" y1="-11" x2="-6" y2="11"></line>
+                <line class="ssc-ship-mast" x1="9" y1="-10" x2="9" y2="10"></line>
+              {{/if}}
+              <g class="ssc-token-ui" transform="rotate({{ship.counterHeading}})">
+                {{#if ship.isCreature}}
+                  {{#if ship.tokenShowName}}<text class="ssc-ship-label" x="0" y="-34" text-anchor="middle">{{ship.name}}</text>{{/if}}
+                {{else}}
+                  <text class="ssc-ship-label" x="0" y="-31" text-anchor="middle">{{ship.name}}</text>
+                {{/if}}
+                {{#if ship.canViewDetails}}
+                <rect class="ssc-token-hp-bg" x="-26" y="22" width="52" height="4" rx="2"></rect>
+                <rect class="ssc-token-hp-fill" x="-26" y="22" width="{{ship.hpWidth}}" height="4" rx="2"></rect>
+                {{/if}}
+                {{#if ship.isCreature}}
+                  <text class="ssc-token-badge crystal" x="-6" y="-44">H{{ship.status.altitude}}</text>
+                  {{#if ship.status.bleeding}}<text class="ssc-token-badge breach" x="-24" y="38">К{{ship.status.bleeding}}</text>{{/if}}
+                  {{#if ship.status.stunned}}<text class="ssc-token-badge grapple" x="8" y="38">О{{ship.status.stunned}}</text>{{/if}}
+                  {{#if ship.status.burning}}<text class="ssc-token-badge fire" x="-6" y="50">F</text>{{/if}}
+                  {{#if ship.status.camouflaged}}<text class="ssc-token-badge camouflage" x="10" y="50">М{{ship.status.camouflaged}}</text>{{/if}}
+                  {{#if ship.attached}}<text class="ssc-token-badge grapple" x="-24" y="-44">⚓</text>{{/if}}
+                  {{#if ship.rulesPending}}<text class="ssc-token-badge pending-rules" x="10" y="-44">◇</text>{{/if}}
+                {{else}}
+                  {{#if ship.status.fire}}<text class="ssc-token-badge fire" x="-24" y="37">F{{ship.status.fire}}</text>{{/if}}
+                  {{#if ship.status.flooding}}<text class="ssc-token-badge water" x="8" y="37">W{{ship.status.flooding}}</text>{{/if}}
+                  {{#if ship.status.breaches}}<text class="ssc-token-badge breach" x="-6" y="49">B{{ship.status.breaches}}</text>{{/if}}
+                  {{#if ship.showAltitudeCore}}<text class="ssc-token-badge crystal" x="-6" y="-42">H{{ship.status.altitude}} Я{{ship.status.coreHeat}}</text>{{/if}}
+                  {{#if ship.showAltitudeCore}}{{#if ship.status.falling}}<text class="ssc-token-badge falling" x="-24" y="-54">↓</text>{{/if}}{{/if}}
+                  {{#if ship.grappled}}<text class="ssc-token-badge grapple" x="-24" y="-42">⚓</text>{{/if}}
+                {{/if}}
+                {{#if ship.withdrawn}}<text class="ssc-token-badge withdrawn" x="8" y="-42">↗</text>{{else}}{{#if ship.struck}}<text class="ssc-token-badge struck" x="8" y="-42">⚑</text>{{/if}}{{/if}}
+              </g>
+            </g>
+          {{/each}}
+        <g class="ssc-wind-particles" opacity="{{board.windParticleOpacity}}" transform="rotate({{board.windParticleAngle}} {{board.windParticleCenterX}} {{board.windParticleCenterY}})">
+          {{#each board.windParticles as |p|}}
+            <line x1="{{p.x1}}" y1="{{p.y}}" x2="{{p.x2}}" y2="{{p.y}}" stroke-width="{{p.width}}">
+              <animateTransform attributeName="transform" type="translate" from="0 0" to="{{../board.windParticleTravel}} 0" dur="{{p.duration}}s" begin="{{p.delay}}s" repeatCount="indefinite"></animateTransform>
+            </line>
+          {{/each}}
+        </g></svg>
+
+        <div class="ssc-terrain-tooltip hidden" role="tooltip" aria-live="polite"></div>
+
+        <div class="ssc-board-phase-strip" aria-label="Этапы раунда">
+          {{#each phases as |phase|}}
+            <span class="ssc-phase-pill {{#if phase.active}}active{{/if}}">{{sscPhase phase.id}}</span>
+          {{/each}}
+        </div>
+
+        {{#if battleOutcome}}
+        <section class="ssc-battle-outcome" role="status" aria-live="polite">
+          <span>Бой завершён · раунд {{battleOutcome.round}}</span>
+          <h3>{{battleOutcome.title}}</h3>
+          <p>{{battleOutcome.summary}}</p>
+          {{#if battleOutcome.scoreRows}}<div class="ssc-outcome-scores">
+            {{#each battleOutcome.scoreRows as |side|}}<span class="{{#if side.winner}}winner{{/if}}">{{side.name}}: {{side.score}}%</span>{{/each}}
+          </div>{{/if}}
+          {{#if battleOutcome.canContinue}}<button type="button" data-action="continueBattle"><i class="fa-solid fa-forward"></i> Продолжить на 5 раундов</button>{{/if}}
+        </section>
+        {{/if}}
+
+        <div class="ssc-board-status-stack">
+          {{#if battleMode.usesWater}}
+          <div class="ssc-board-status-card" title="Состояние моря. Бурное море и шторм ухудшают стрельбу и устойчивость.">
+            <span>Море</span>
+            <strong>{{sscSeaState battle.sea.state}}</strong>
+          </div>
+          {{/if}}
+          <div class="ssc-board-status-card" title="Видимость. Дымка, туман и ночь дают штрафы к попаданию и целеуказанию.">
+            <span>Видимость</span>
+            <strong>{{sscVisibility battle.sea.visibility}}</strong>
+          </div>
+          <div class="ssc-wind-widget" style="--ssc-wind-angle: {{battle.wind.direction}}deg" title="Ветер: {{sscHeading battle.wind.direction}} · {{sscWindStrengthTitle battle.wind.strength}}">
+            <span class="ssc-wind-widget-label">Ветер</span>
+            <span class="ssc-wind-widget-compass">
+              <span class="ssc-wind-widget-arrow"></span>
+            </span>
+            <span class="ssc-wind-widget-heading">{{sscHeading battle.wind.direction}} · {{sscWindStrength battle.wind.strength}}</span>
+          </div>
+        </div>
+
+        <div class="ssc-board-control-dock">
+          <button type="button" class="ssc-overlay-action" data-action="passTurn" title="{{passTurnTitle}}" {{#unless canPassTurn}}disabled{{/unless}}>
+            <i class="fa-solid fa-check"></i>
+          </button>
+          <button type="button" class="ssc-overlay-action primary" data-action="nextPhase" title="Переход к следующей фазе боя. Доступен после подтверждения подготовки." {{#unless canNextPhase}}disabled{{/unless}}>
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
+      </section>
+      <div class="ssc-board-hint"><span>Колесико — масштаб · СКМ — камера · Alt — сведения о террейне</span><span class="ssc-board-cursor">—</span></div>

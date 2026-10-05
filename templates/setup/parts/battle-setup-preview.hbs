@@ -1,0 +1,72 @@
+<section class="ssc-setup-card ssc-setup-preview-card">
+  <div class="ssc-yard-section-head">
+    <div>
+      <h3>Предпросмотр</h3>
+      <p class="ssc-hint">Поле, террейн, зоны расстановки и корабли активного боя.</p>
+    </div>
+    <b class="ssc-preview-size">{{preview.width}}×{{preview.height}}</b>
+  </div>
+
+  <div class="ssc-preview-meta">
+    <span title="{{preview.modeTitle}}">Режим: <b>{{preview.modeLabel}}</b></span>
+    <span title="{{preview.windTitle}}">Ветер: <b>{{preview.windLabel}}</b></span>
+    <span>Море: <b>{{preview.seaLabel}}</b></span>
+    <span>Видимость: <b>{{preview.visibilityLabel}}</b></span>
+  </div>
+
+  <div class="ssc-preview-board-wrap">
+    <svg class="ssc-setup-preview-svg" viewBox="{{preview.viewBox}}" preserveAspectRatio="xMidYMid meet" role="img">
+      <defs>
+        <marker id="ssc-setup-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L6,3 z"></path>
+        </marker>
+      </defs>
+      <rect class="ssc-preview-bg" x="0" y="0" width="{{preview.pixelWidth}}" height="{{preview.pixelHeight}}"></rect>
+      <path class="ssc-preview-grid-lines" d="{{preview.gridPath}}"></path>
+
+      <g class="ssc-preview-terrain-layer">
+        {{#each preview.terrainEntries as |cell|}}
+          <g class="ssc-preview-terrain {{cell.terrainClass}}">
+            <title>{{cell.terrainLabel}}</title>
+            <path class="ssc-terrain-cell {{cell.terrainClass}}" d="{{cell.path}}"></path>
+            <text class="ssc-preview-terrain-icon {{cell.terrainClass}}" x="{{cell.cx}}" y="{{cell.cy}}" text-anchor="middle" dominant-baseline="middle">{{cell.terrainIcon}}</text>
+          </g>
+        {{/each}}
+      </g>
+
+      <g class="ssc-preview-zone-layer">
+        {{#each preview.zones as |zone|}}
+          <g class="ssc-preview-zone side-{{zone.id}}" style="--ssc-side-color: {{zone.color}};">
+            {{#each zone.cells as |cell|}}
+              <path d="{{cell.path}}"></path>
+            {{/each}}
+            <text x="{{zone.labelX}}" y="{{zone.labelY}}">{{zone.name}}</text>
+            <line x1="{{zone.arrowX1}}" y1="{{zone.arrowY1}}" x2="{{zone.arrowX2}}" y2="{{zone.arrowY2}}"></line>
+          </g>
+        {{/each}}
+      </g>
+
+      <g class="ssc-preview-ship-layer">
+        {{#each preview.ships as |ship|}}
+          <g class="ssc-preview-ship {{#if ship.isCreature}}creature{{/if}} side-{{ship.side}}" style="--ssc-side-color: {{ship.sideColor}};" transform="translate({{ship.cx}} {{ship.cy}}) rotate({{ship.renderHeading}})">
+            <ellipse cx="0" cy="0" rx="8" ry="5"></ellipse>
+            {{#if ship.isCreature}}
+              <path d="M-8 0 Q-4 -6 0 -3 Q4 -6 8 0 Q4 5 0 3 Q-4 5 -8 0 Z"></path>
+            {{else}}
+              <path d="M 7 0 L 2 -4 L -7 -3 L -9 0 L -7 3 L 2 4 Z"></path>
+            {{/if}}
+          </g>
+        {{/each}}
+      </g>
+    </svg>
+  </div>
+
+  <div class="ssc-preview-legend">
+    <span>Террейн: <b>{{preview.terrainCount}}</b> кл.</span>
+    {{#each preview.terrainSummary as |item|}}
+      <span>{{item.label}} ×{{item.count}}</span>
+    {{else}}
+      <span>террейна нет</span>
+    {{/each}}
+  </div>
+</section>

@@ -1,0 +1,143 @@
+/* Terrain cells, merged-area boundaries, icons and inspection tooltip. */
+
+.ssc-terrain-stack,
+.ssc-terrain-cell {
+  pointer-events: none;
+}
+
+.ssc-terrain-cell {
+  fill: rgba(255,255,255,0.05);
+  stroke: rgba(255,255,255,0.08);
+  stroke-width: 1.4px;
+}
+
+.ssc-terrain-cell.terrain-reef, .ssc-cell.terrain-reef { fill: rgba(98, 70, 42, 0.72); stroke: rgba(238, 179, 93, 0.86); stroke-width: 1.8px; }
+.ssc-terrain-cell.terrain-shoal, .ssc-cell.terrain-shoal { fill: rgba(194, 151, 55, 0.44); stroke: rgba(248, 211, 112, 0.78); stroke-width: 1.5px; }
+.ssc-terrain-cell.terrain-smoke, .ssc-cell.terrain-smoke { fill: rgba(205, 216, 225, 0.34); stroke: rgba(240, 245, 250, 0.62); stroke-width: 1.5px; }
+.ssc-terrain-cell.terrain-wreck, .ssc-cell.terrain-wreck { fill: rgba(114, 69, 39, 0.68); stroke: rgba(238, 136, 82, 0.84); stroke-width: 1.7px; }
+.ssc-terrain-cell.terrain-rockHigh, .ssc-cell.terrain-rockHigh { fill: rgba(61, 64, 68, 0.86); stroke: rgba(232, 232, 225, 0.9); stroke-width: 2px; }
+.ssc-terrain-cell.terrain-rockLow, .ssc-cell.terrain-rockLow { fill: rgba(79, 87, 88, 0.58); stroke: rgba(208, 213, 202, 0.76); stroke-width: 1.6px; }
+.ssc-terrain-cell.terrain-cloud, .ssc-cell.terrain-cloud { fill: rgba(187, 219, 235, 0.30); stroke: rgba(226, 242, 250, 0.66); stroke-width: 1.5px; }
+.ssc-terrain-cell.terrain-stormCloud, .ssc-cell.terrain-stormCloud { fill: rgba(86, 72, 130, 0.46); stroke: rgba(178, 160, 235, 0.82); stroke-width: 1.7px; }
+.ssc-terrain-cell.terrain-updraft, .ssc-cell.terrain-updraft { fill: rgba(87, 174, 150, 0.28); stroke: rgba(126, 226, 190, 0.74); stroke-width: 1.45px; }
+.ssc-terrain-cell.terrain-downdraft, .ssc-cell.terrain-downdraft { fill: rgba(71, 119, 183, 0.30); stroke: rgba(126, 178, 238, 0.76); stroke-width: 1.45px; }
+.ssc-terrain-cell.terrain-turbulence, .ssc-cell.terrain-turbulence { fill: rgba(201, 151, 63, 0.30); stroke: rgba(245, 201, 105, 0.82); stroke-width: 1.55px; }
+.ssc-terrain-cell.terrain-skyIsland, .ssc-cell.terrain-skyIsland { fill: rgba(83, 91, 80, 0.78); stroke: rgba(219, 226, 198, 0.88); stroke-width: 1.9px; }
+
+.ssc-terrain-stack .ssc-terrain-cell {
+  stroke: rgba(255,255,255,0.055); stroke-width: 0.55px; vector-effect: non-scaling-stroke;
+}
+
+.ssc-terrain-boundary-shadow,
+.ssc-terrain-boundary {
+  fill: none; vector-effect: non-scaling-stroke; pointer-events: none;
+}
+
+.ssc-terrain-boundary-shadow {
+  stroke: rgba(0,0,0,0.58); stroke-width: 5px; opacity: 0.48;
+}
+
+.ssc-terrain-boundary {
+  stroke: rgba(242, 226, 188, 0.96); stroke-width: 2.25px;
+}
+
+.ssc-terrain-stack.terrain-reef .ssc-terrain-boundary { stroke: rgba(255, 189, 92, 0.98); }
+.ssc-terrain-stack.terrain-shoal .ssc-terrain-boundary { stroke: rgba(255, 223, 120, 0.96); }
+.ssc-terrain-stack.terrain-smoke .ssc-terrain-boundary { stroke: rgba(242, 248, 252, 0.90); }
+.ssc-terrain-stack.terrain-wreck .ssc-terrain-boundary { stroke: rgba(255, 139, 80, 0.98); }
+.ssc-terrain-stack.terrain-rockHigh .ssc-terrain-boundary { stroke: rgba(250, 248, 230, 0.98); }
+.ssc-terrain-stack.terrain-rockLow .ssc-terrain-boundary { stroke: rgba(219, 226, 211, 0.94); }
+.ssc-terrain-stack.terrain-cloud .ssc-terrain-boundary { stroke: rgba(230, 247, 255, 0.92); }
+.ssc-terrain-stack.terrain-stormCloud .ssc-terrain-boundary { stroke: rgba(203, 178, 255, 0.98); }
+.ssc-terrain-stack.terrain-updraft .ssc-terrain-boundary { stroke: rgba(134, 240, 197, 0.96); }
+.ssc-terrain-stack.terrain-downdraft .ssc-terrain-boundary { stroke: rgba(140, 194, 255, 0.96); }
+.ssc-terrain-stack.terrain-turbulence .ssc-terrain-boundary { stroke: rgba(255, 210, 107, 0.98); }
+.ssc-terrain-stack.terrain-skyIsland .ssc-terrain-boundary { stroke: rgba(233, 239, 207, 0.98); }
+
+.ssc-cell.blocked-terrain,
+.ssc-terrain-stack.blocked-terrain .ssc-terrain-boundary {
+  stroke-width: 2.8px;
+  stroke-dasharray: 4 2;
+}
+
+.ssc-cell.terrain-paintable:hover {
+  fill: rgba(199, 163, 93, 0.32);
+  stroke: rgba(199, 163, 93, 0.86);
+}
+
+.ssc-terrain-cell.terrain-smoke.terrain-shoal,
+.ssc-terrain-cell.terrain-smoke.terrain-rockLow,
+.ssc-terrain-cell.terrain-smoke.terrain-rockHigh,
+.ssc-terrain-cell.terrain-smoke.terrain-reef,
+.ssc-terrain-cell.terrain-smoke.terrain-wreck,
+.ssc-terrain-cell.terrain-cloud.terrain-rockLow,
+.ssc-terrain-cell.terrain-cloud.terrain-reef,
+.ssc-terrain-cell.terrain-stormCloud.terrain-rockLow {
+  filter: brightness(1.15);
+  opacity: 0.88;
+}
+
+.ssc-terrain-icon {
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(0,0,0,0.86);
+  text-transform: uppercase;
+  fill: #f6ead2;
+  font-size: 22px;
+  font-weight: 900;
+  stroke-width: 4px;
+  opacity: 0.92;
+}
+
+.ssc-terrain-icon:empty { opacity: 0; }
+.ssc-terrain-icon.terrain-smoke, .ssc-terrain-icon.terrain-cloud { fill: #e7edf2; }
+.ssc-terrain-icon.terrain-stormCloud { fill: #f1ddff; }
+.ssc-terrain-icon.terrain-updraft { fill: #c8ffe7; }
+.ssc-terrain-icon.terrain-downdraft { fill: #d4e8ff; }
+.ssc-terrain-icon.terrain-turbulence { fill: #ffe0a3; }
+.ssc-terrain-icon.terrain-rockHigh, .ssc-terrain-icon.terrain-rockLow, .ssc-terrain-icon.terrain-skyIsland { fill: #f3f0e5; }
+
+.ssc-terrain-tooltip {
+  position: absolute;
+  z-index: 8;
+  width: min(260px, calc(100% - 16px));
+  padding: 7px 9px;
+  border: 1px solid rgba(242, 207, 123, 0.72);
+  border-radius: 5px;
+  background: rgba(8, 10, 13, 0.94);
+  color: var(--ssc-text);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.42);
+  font-size: 11px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.ssc-terrain-tooltip-entry {
+  display: grid; gap: 3px; padding: 7px 0;
+  border-top: 1px solid rgba(255,255,255,0.13);
+}
+
+.ssc-terrain-tooltip-entry:first-child { padding-top: 0; border-top: 0; }
+.ssc-terrain-tooltip-entry:last-child { padding-bottom: 0; }
+.ssc-terrain-tooltip-title, .ssc-terrain-tooltip-description, .ssc-terrain-tooltip-altitude { margin: 0; }
+.ssc-terrain-tooltip-title { color: var(--ssc-accent); font-size: 12px; text-align: center; text-transform: uppercase; }
+.ssc-terrain-tooltip-description, .ssc-terrain-tooltip-altitude { text-align: left; }
+.ssc-terrain-tooltip-altitude { color: rgba(226, 233, 240, 0.76); font-weight: 700; }
+.ssc-terrain-tooltip.hidden { display: none; }
+
+.ssc-terrain-paint-preview {
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+.ssc-terrain-paint-preview-cell {
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssc-terrain-paint-preview-cell.clear-mode {
+  fill: rgba(183, 62, 52, 0.22);
+  stroke: rgba(255, 135, 116, 0.96);
+  stroke-width: 2px;
+  stroke-dasharray: 5 3;
+}

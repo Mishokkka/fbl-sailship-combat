@@ -1,0 +1,78 @@
+<section class="ssc-setup-card">
+  <header class="ssc-card-header">
+    <div><h3>Основные параметры</h3><p>Название, режим и физический размер тактического поля.</p></div>
+  </header>
+
+  <label class="ssc-field full">Название боя
+    <input type="text" data-setup-name data-setup-field="battle.name" value="{{battle.name}}" placeholder="Название боя">
+  </label>
+
+  <div class="ssc-form-grid cols-3">
+    <label class="ssc-field">Ширина<input type="number" data-setup-field="board.width" value="{{battle.board.width}}" min="8" max="80"></label>
+    <label class="ssc-field">Высота<input type="number" data-setup-field="board.height" value="{{battle.board.height}}" min="8" max="80"></label>
+    <label class="ssc-field">Клетка, px<input type="number" data-setup-field="board.cellSize" value="{{battle.board.cellSize}}" min="32" max="80"></label>
+  </div>
+
+  <label class="ssc-field full">Режим боя
+    <select data-setup-field="mode">
+      <option value="sea" {{#if (sscEq battle.setup.mode "sea")}}selected{{/if}}>Морской</option>
+      <option value="air" {{#if (sscEq battle.setup.mode "air")}}selected{{/if}}>Воздушный</option>
+      <option value="mixed" {{#if (sscEq battle.setup.mode "mixed")}}selected{{/if}}>Смешанный</option>
+    </select>
+  </label>
+
+  <div class="ssc-inline-actions">
+    <button type="button" class="primary grow" data-action="applySideSetup" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-floppy-disk"></i> Применить параметры</button>
+    <button type="button" data-action="createBlankBattle" {{#unless isGM}}disabled{{/unless}} title="Заменить активный бой пустым"><i class="fa-solid fa-file-circle-plus"></i></button>
+  </div>
+</section>
+
+<section class="ssc-setup-card">
+  <header class="ssc-card-header"><div><h3>Поле и окружение</h3><p>Пресеты применяются отдельно и не затрагивают библиотеку кораблей.</p></div></header>
+
+  <label class="ssc-field full">Пресет поля
+    <select data-preset-select="board">
+      {{#each boardPresets as |preset|}}<option value="{{preset.id}}" {{#if preset.selected}}selected{{/if}}>{{preset.label}} · {{preset.width}}×{{preset.height}}</option>{{/each}}
+    </select>
+  </label>
+  <button type="button" class="full-width" data-action="applyBoardPreset" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-table-cells-large"></i> Применить поле и очистить террейн</button>
+
+  <label class="ssc-field full">Окружение
+    <select data-preset-select="environment">
+      {{#each environmentPresets as |preset|}}<option value="{{preset.id}}" {{#if preset.selected}}selected{{/if}}>{{preset.label}}</option>{{/each}}
+    </select>
+  </label>
+  <button type="button" class="full-width" data-action="applyEnvironmentPreset" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-cloud-sun"></i> Применить окружение</button>
+</section>
+
+<section class="ssc-setup-card ssc-victory-card">
+  <header class="ssc-card-header"><div><h3>Условие победы</h3><p>Автоматическое завершение можно отключить для сюжетного боя.</p></div></header>
+
+  <label class="ssc-switch-row">
+    <input type="checkbox" data-setup-field="victory.enabled" {{#if battle.setup.victory.enabled}}checked{{/if}}>
+    <span><b>Автоматический исход</b><small>Проверять победу и лимит раундов</small></span>
+  </label>
+
+  <div class="ssc-form-grid cols-2">
+    <label class="ssc-field">Тип исхода
+      <select data-setup-field="victory.mode">
+        <option value="decision" {{#if (sscEq battle.setup.victory.mode "decision")}}selected{{/if}}>Бой до решения</option>
+        <option value="escape" {{#if (sscEq battle.setup.victory.mode "escape")}}selected{{/if}}>Прорыв через край</option>
+      </select>
+    </label>
+    <label class="ssc-field">Лимит раундов<input type="number" data-setup-field="victory.roundLimit" value="{{battle.setup.victory.roundLimit}}" min="1" max="200"></label>
+    <label class="ssc-field">Перевес, %<input type="number" data-setup-field="victory.decisionMarginPercent" value="{{victoryDecisionMarginPercent}}" min="0" max="100"></label>
+    <label class="ssc-field">Нужно вывести<input type="number" data-setup-field="victory.requiredShips" value="{{battle.setup.victory.requiredShips}}" min="1" max="200"></label>
+    <label class="ssc-field">Прорывается
+      <select data-setup-field="victory.objectiveSideId">{{#each sides as |side|}}<option value="{{side.id}}" {{#if side.victoryObjective}}selected{{/if}}>{{side.name}}</option>{{/each}}</select>
+    </label>
+    <label class="ssc-field">Край выхода
+      <select data-setup-field="victory.exitEdge">
+        <option value="left" {{#if (sscEq battle.setup.victory.exitEdge "left")}}selected{{/if}}>Левый</option>
+        <option value="right" {{#if (sscEq battle.setup.victory.exitEdge "right")}}selected{{/if}}>Правый</option>
+        <option value="top" {{#if (sscEq battle.setup.victory.exitEdge "top")}}selected{{/if}}>Верхний</option>
+        <option value="bottom" {{#if (sscEq battle.setup.victory.exitEdge "bottom")}}selected{{/if}}>Нижний</option>
+      </select>
+    </label>
+  </div>
+</section>

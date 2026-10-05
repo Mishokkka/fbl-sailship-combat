@@ -1,0 +1,25 @@
+  <header class="ssc-shipyard-header">
+    <div>
+      <h2>{{localize "SAILSHIPS.ShipyardTitle"}}</h2>
+      <p>{{#if setupLocked}}{{localize "SAILSHIPS.ShipyardLockedHint"}}{{else}}{{localize "SAILSHIPS.ShipyardHint"}}{{/if}}</p>
+    </div>
+    <div class="ssc-top-actions ssc-shipyard-global-actions">
+      <label class="ssc-shipyard-active-side">
+        <span>Новые участники</span>
+        <select data-shipyard-side-select="active" {{#unless canEditCombatants}}disabled{{/unless}} title="Команда, в которую будут добавлены новые корабли и существа">
+          {{#each sideOptions as |side|}}<option value="{{side.id}}" {{#if side.active}}selected{{/if}}>{{side.name}}</option>{{/each}}
+        </select>
+      </label>
+      <button type="button" data-action="openBattleSetup" title="Настроить названия, цвета и зоны команд"><i class="fa-solid fa-sliders"></i></button>
+      <button type="button" data-action="refreshShipyard">{{localize "SAILSHIPS.Refresh"}}</button>
+    </div>
+  </header>
+
+  <nav class="ssc-shipyard-tabs" aria-label="Вкладки редактора боевых единиц">
+    <button type="button" data-action="switchShipyardTab" data-tab="battle" class="{{#if isBattleTab}}active{{/if}}">{{localize "SAILSHIPS.CurrentBattleUnits"}}</button>
+    <button type="button" data-action="switchShipyardTab" data-tab="templates" class="{{#if isTemplatesTab}}active{{/if}}">{{localize "SAILSHIPS.BuiltInTemplates"}}</button>
+    <button type="button" data-action="switchShipyardTab" data-tab="bestiary" class="{{#if isBestiaryTab}}active{{/if}}">{{localize "SAILSHIPS.BestiaryTemplates"}}</button>
+    <button type="button" data-action="switchShipyardTab" data-tab="library" class="{{#if isLibraryTab}}active{{/if}}">{{localize "SAILSHIPS.ShipLibrary"}} ({{shipLibraryCount}})</button>
+    <button type="button" data-action="switchShipyardTab" data-tab="creatureLibrary" class="{{#if isCreatureLibraryTab}}active{{/if}}">{{localize "SAILSHIPS.CreatureLibrary"}} ({{creatureLibraryCount}})</button>
+    <button type="button" data-action="switchShipyardTab" data-tab="editor" class="{{#if isEditorTab}}active{{/if}}">{{localize "SAILSHIPS.CombatantEditor"}}</button>
+  </nav>

@@ -1,0 +1,90 @@
+    {{#if isBattleTab}}
+      <section class="ssc-shipyard-tab-panel">
+        <div class="ssc-yard-section-head ssc-yard-team-head">
+          <div>
+            <h3>Команды и участники боя</h3>
+            <p class="ssc-hint">Каждая команда считается самостоятельной стороной и враждебна всем остальным. Новые корабли и существа добавляются в выбранную ниже команду.</p>
+          </div>
+          <div class="ssc-action-grid compact-actions">
+            <button type="button" data-action="addBattleSide" {{#unless canEditCombatants}}disabled{{/unless}}><i class="fa-solid fa-plus"></i> Команда</button>
+            <button type="button" data-action="openBattleSetup"><i class="fa-solid fa-sliders"></i> Названия, цвета и зоны</button>
+          </div>
+        </div>
+
+        <section class="ssc-yard-team-toolbar">
+          <label>
+            <span>Команда выбранной единицы</span>
+            <select data-shipyard-side-select="selected" {{#unless canEditCombatants}}disabled{{/unless}} {{#unless selectedShip}}disabled{{/unless}}>
+              {{#each sideOptions as |side|}}<option value="{{side.id}}" {{#if side.selected}}selected{{/if}}>{{side.name}}</option>{{/each}}
+            </select>
+            <small>При смене команды единица переносится в её зону расстановки.</small>
+          </label>
+
+          <div class="ssc-yard-selected-actions">
+            <button type="button" data-action="duplicateShip" {{#unless canEditCombatants}}disabled{{/unless}} {{#unless selectedShip}}disabled{{/unless}}>{{localize "SAILSHIPS.DuplicateCombatant"}}</button>
+            <button type="button" class="danger" data-action="removeShip" {{#unless canEditCombatants}}disabled{{/unless}} {{#unless selectedShip}}disabled{{/unless}}>{{localize "SAILSHIPS.RemoveCombatant"}}</button>
+          </div>
+        </section>
+
+        <div class="ssc-yard-team-grid">
+          {{#each teamGroups as |team|}}
+            <section class="ssc-yard-team-card {{#if team.selected}}active{{/if}}" style="--ssc-side-color: {{team.color}};">
+              <header>
+                <div class="ssc-yard-team-title">
+                  <span class="ssc-yard-team-swatch"></span>
+                  <div><strong>{{team.name}}</strong><small>{{team.summary}}</small></div>
+                </div>
+                <button type="button" class="ssc-yard-team-target {{#if team.selected}}active{{/if}}" data-action="setActiveSide" data-side="{{team.id}}" {{#unless ../canEditCombatants}}disabled{{/unless}} title="Добавлять новые единицы в эту команду">
+                  {{#if team.selected}}Выбрана{{else}}Добавлять сюда{{/if}}
+                </button>
+              </header>
+
+              {{#if team.units.length}}
+                <div class="ssc-yard-battle-list">
+                  {{#each team.units as |ship|}}
+                    <button type="button" class="ssc-yard-ship-row {{#if ship.isCreature}}creature{{/if}} {{#if ship.selected}}selected{{/if}}" style="--ssc-side-color: {{ship.sideColor}};" data-ship-id="{{ship.id}}">
+                      <strong>{{ship.name}}</strong>
+                      <span>{{ship.typeLabel}} · {{localize "SAILSHIPS.Speed"}} {{ship.speed}}/{{ship.maxSpeed}} · H{{ship.altitude}}</span>
+                      {{#if ship.isCreature}}
+                        <span>{{localize "SAILSHIPS.Vitality"}} {{ship.vitality}}/{{ship.vitalityMax}} · {{localize "SAILSHIPS.Morale"}} {{ship.morale}}/10</span>
+                        <span>{{localize "SAILSHIPS.AnatomySections"}} {{ship.sectionCount}} · {{localize "SAILSHIPS.NaturalAttacks"}} {{ship.attackCount}}</span>
+                      {{else}}
+                        <span>HP {{ship.hp.value}}/{{ship.hp.max}} · {{localize "SAILSHIPS.Crew"}} {{ship.crew.current}}/{{ship.crew.required}} · {{localize "SAILSHIPS.Morale"}} {{ship.morale}}/10</span>
+                        <span>{{localize "SAILSHIPS.CrystalIntegrity"}} {{ship.coreIntegrity}}/{{ship.coreMaxIntegrity}}</span>
+                      {{/if}}
+                      {{#if ship.struck}}<em>{{localize "SAILSHIPS.Struck"}}</em>{{/if}}
+                    </button>
+                  {{/each}}
+                </div>
+              {{else}}
+                <div class="ssc-yard-team-empty">В команде пока нет кораблей или существ.</div>
+              {{/if}}
+            </section>
+          {{/each}}
+        </div>
+
+        {{#if selectedShip}}
+          <section class="ssc-yard-quick-card">
+            <h4>{{selectedTypeLabel}}: {{selectedShip.name}}</h4>
+            <div class="ssc-yard-stat-grid">
+              <span>Команда <strong>{{selectedSideName}}</strong></span>
+              <span>{{localize "SAILSHIPS.MaxSpeed"}} <strong>{{selectedShip.maxSpeed}}</strong></span>
+              <span>{{localize "SAILSHIPS.Altitude"}} <strong>{{selectedShip.altitude}}</strong></span>
+              {{#if selectedIsCreature}}
+                <span>{{localize "SAILSHIPS.Vitality"}} <strong>{{selectedShip.vitality.current}}/{{selectedShip.vitality.max}}</strong></span>
+                <span>{{localize "SAILSHIPS.NaturalAttacks"}} <strong>{{selectedShip.attacks.length}}</strong></span>
+              {{else}}
+                <span>{{localize "SAILSHIPS.Crew"}} <strong>{{selectedShip.crew.current}}/{{selectedShip.crew.required}}</strong></span>
+                <span>{{localize "SAILSHIPS.CrystalHeat"}} <strong>{{selectedShip.crystal.heat}}/{{selectedShip.crystal.maxHeat}}</strong></span>
+              {{/if}}
+            </div>
+            <div class="ssc-action-grid compact-actions">
+              <button type="button" data-action="switchShipyardTab" data-tab="editor">{{localize "SAILSHIPS.CombatantEditor"}}</button>
+              <button type="button" data-action="resetSelectedShip" {{#unless canEditCombatants}}disabled{{/unless}}>{{localize "SAILSHIPS.ResetSelectedCombatant"}}</button>
+              <button type="button" data-action="strikeShip" {{#unless canEditCombatants}}disabled{{/unless}}>{{localize "SAILSHIPS.StrikeShip"}}</button>
+              <button type="button" data-action="unstrikeShip" {{#unless canEditCombatants}}disabled{{/unless}}>{{localize "SAILSHIPS.UnstrikeShip"}}</button>
+            </div>
+          </section>
+        {{/if}}
+      </section>
+    {{/if}}

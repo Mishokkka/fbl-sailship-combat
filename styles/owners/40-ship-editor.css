@@ -1,0 +1,148 @@
+/* Shared ship editor: ship fields, weapons, sections and systems. */
+
+.ssc-editor-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ssc-editor-fieldset:disabled {
+  opacity: 0.72;
+}
+
+.ssc-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+
+.ssc-editor-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ssc-weapon-editor,
+.ssc-section-editor {
+  margin: 8px 0 10px;
+  border-top: 1px solid rgba(208, 168, 83, 0.18);
+  padding-top: 8px;
+}
+
+.ssc-weapon-editor h4,
+.ssc-section-editor h4 {
+  margin: 0 0 8px;
+  color: #d0a853;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.ssc-weapon-edit-row {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(3, .8fr);
+  gap: 6px;
+  align-items: end;
+  margin-bottom: 6px;
+}
+
+.ssc-weapon-edit-row strong,
+.ssc-section-edit-head strong {
+  color: #f0e6cf;
+  font-size: 12px;
+}
+
+.ssc-weapon-edit-row label,
+.ssc-section-edit-grid label,
+.ssc-system-edit-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #c9bfa6;
+  font-size: 11px;
+}
+
+.ssc-weapon-edit-row input,
+.ssc-section-edit-grid input,
+.ssc-system-edit-row input,
+.ssc-system-edit-row select {
+  min-width: 0;
+  width: 100%;
+  height: 25px;
+  padding: 2px 5px;
+  border: 1px solid rgba(208, 168, 83, 0.35);
+  border-radius: 4px;
+  background: rgba(8, 10, 12, 0.62);
+  color: #f0e6cf;
+  font-family: inherit;
+}
+
+.ssc-weapon-edit-row input {
+  height: 26px;
+}
+
+.ssc-section-edit-card {
+  margin: 8px 0 10px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.035);
+}
+
+.ssc-section-edit-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.ssc-section-edit-head span {
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-section-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.ssc-system-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ssc-system-edit-row {
+  display: grid;
+  grid-template-columns: 44px minmax(120px, 1fr) 92px 62px 62px;
+  gap: 6px;
+  align-items: end;
+  padding: 5px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  background: rgba(0,0,0,0.15);
+}
+
+.ssc-system-edit-row.status-damaged {
+  border-color: rgba(224, 186, 101, 0.45);
+}
+
+.ssc-system-edit-row.status-destroyed,
+.ssc-system-edit-row.status-disabled {
+  border-color: rgba(224, 120, 120, 0.45);
+}
+
+@media (max-width: 1320px) {
+  .ssc-section-edit-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ssc-system-edit-row {
+    grid-template-columns: 44px minmax(100px, 1fr) 86px 58px 58px;
+  }
+}

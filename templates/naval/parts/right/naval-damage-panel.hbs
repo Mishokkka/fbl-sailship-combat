@@ -1,0 +1,10 @@
+        {{#if phaseFlags.damage}}
+          <section class="ssc-action-box">
+            <h3>{{localize "SAILSHIPS.GMIntervention"}}</h3>
+            <div class="ssc-action-grid">
+              <button type="button" data-action="manualDamage" {{#unless actionState.canManual}}disabled{{/unless}}>{{localize "SAILSHIPS.ManualDamage"}}</button>
+              <button type="button" data-action="manualFire" {{#unless actionState.canManual}}disabled{{/unless}}>{{localize "SAILSHIPS.ManualFire"}}</button>
+              <button type="button" data-action="manualFlooding" {{#unless actionState.canManual}}disabled{{/unless}}>{{localize "SAILSHIPS.ManualFlooding"}}</button>
+            </div>
+          </section>
+        {{/if}}

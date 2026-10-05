@@ -1,0 +1,104 @@
+    {{#if isEditorTab}}
+      <section class="ssc-shipyard-tab-panel ssc-shipyard-editor-tab">
+        {{#if selectedShip}}
+          {{#if selectedIsCreature}}
+            {{> "modules/sailships-combat/templates/shipyard/parts/shipyard-creature-editor.hbs"}}
+          {{else}}
+          <section class="ssc-setup-box ssc-ship-editor-box">
+            <div class="ssc-yard-section-head">
+              <div>
+                <h3 title="Подробная правка выбранного корабля. Доступна только до подтверждения боя.">{{localize "SAILSHIPS.ShipEditor"}}: {{selectedShip.name}}</h3>
+                {{#if setupLocked}}<p class="ssc-hint danger">{{localize "SAILSHIPS.ShipyardLockedEditorHint"}}</p>{{/if}}
+              </div>
+              <div class="ssc-action-grid compact-actions">
+                <button type="button" data-action="applyShipEdits" {{#unless canEditBattleShips}}disabled{{/unless}} title="Применить все изменения из полей редактора к выбранному кораблю.">{{localize "SAILSHIPS.ApplyShipEdits"}}</button>
+                <button type="button" data-action="switchShipyardTab" data-tab="library" title="Перейти к сохранению выбранного корабля в библиотеку.">{{localize "SAILSHIPS.ShipLibrary"}}</button>
+              </div>
+            </div>
+
+            <fieldset class="ssc-editor-fieldset" {{#unless canEditBattleShips}}disabled{{/unless}}>
+              <div class="ssc-editor-grid">
+                <label title="Название корабля в текущем бою. Дублирование имен допустимо, но не рекомендуется.">{{localize "SAILSHIPS.Name"}}<input type="text" data-ship-edit="name" value="{{selectedShip.name}}"></label>
+                <label title="Максимальный ход корабля до модификаторов ветра и повреждений.">{{localize "SAILSHIPS.MaxSpeed"}}<input type="number" data-ship-edit="maxSpeed" value="{{selectedShip.maxSpeed}}" min="0" max="12" step="1"></label>
+                <label title="Тип парусного вооружения. Меняет скорость на разных курсах к ветру и сложность лавировки.">Паруса<select data-ship-edit="sailingProfile">
+                  <option value="foreAft" {{#if (sscEq selectedShip.sailing.profile 'foreAft')}}selected{{/if}}>Косое</option>
+                  <option value="mixed" {{#if (sscEq selectedShip.sailing.profile 'mixed')}}selected{{/if}}>Смешанное</option>
+                  <option value="square" {{#if (sscEq selectedShip.sailing.profile 'square')}}selected{{/if}}>Прямое</option>
+                  <option value="heavySquare" {{#if (sscEq selectedShip.sailing.profile 'heavySquare')}}selected{{/if}}>Тяжелое прямое</option>
+                  <option value="lateen" {{#if (sscEq selectedShip.sailing.profile 'lateen')}}selected{{/if}}>Латинское</option>
+                  <option value="bomb" {{#if (sscEq selectedShip.sailing.profile 'bomb')}}selected{{/if}}>Кеч/платформа</option>
+                </select></label>
+                <label title="Сколько людей сейчас способно работать на корабле.">{{localize "SAILSHIPS.CrewCurrent"}}<input type="number" data-ship-edit="crewCurrent" value="{{selectedShip.crew.current}}" min="0" max="2000" step="1"></label>
+                <label title="Штатная численность экипажа для полного хода, стрельбы и ремонта.">{{localize "SAILSHIPS.CrewRequired"}}<input type="number" data-ship-edit="crewRequired" value="{{selectedShip.crew.required}}" min="0" max="2000" step="1"></label>
+                <label title="Текущая мораль экипажа от 0 до 10.">{{localize "SAILSHIPS.Morale"}}<input type="number" data-ship-edit="morale" value="{{selectedShip.crew.morale}}" min="0" max="10" step="1"></label>
+                <label title="Качество экипажа. Прямой модификатор к стрельбе, инициативе и ряду проверок.">{{localize "SAILSHIPS.CrewQuality"}}<input type="number" data-ship-edit="crewQuality" value="{{selectedShip.stats.crewQuality}}" min="-5" max="5" step="1"></label>
+                <label title="Живучесть корабля. Чем выше, тем лучше держит пожары, течи и критические эффекты.">HT<input type="number" data-ship-edit="ht" value="{{selectedShip.stats.ht}}" min="3" max="18" step="1"></label>
+                <label title="Управляемость. Влияет на инициативу и маневренность.">Hnd<input type="number" data-ship-edit="handling" value="{{selectedShip.stats.handling}}" min="-5" max="5" step="1"></label>
+                <label title="Устойчивость. Влияет на стабильность корабля при опасных условиях.">SR<input type="number" data-ship-edit="stability" value="{{selectedShip.stats.stability}}" min="0" max="10" step="1"></label>
+                <label title="Текущий уровень высоты корабля над водной зоной острова.">{{localize "SAILSHIPS.Altitude"}}<input type="number" data-ship-edit="altitude" value="{{selectedShip.altitude}}" min="0" max="{{altitudeMax}}" step="1"></label>
+                <label title="Текущий нагрев ядра. При достижении максимума ядро начинает повреждаться.">{{localize "SAILSHIPS.CrystalHeat"}}<input type="number" data-ship-edit="crystalHeat" value="{{selectedShip.crystal.heat}}" min="0" max="25" step="1"></label>
+                <label title="Порог безопасного нагрева ядра.">{{localize "SAILSHIPS.CrystalMaxHeat"}}<input type="number" data-ship-edit="crystalMaxHeat" value="{{selectedShip.crystal.maxHeat}}" min="4" max="20" step="1"></label>
+                <label title="Текущая целостность ядра кристалла и бронекапсулы.">{{localize "SAILSHIPS.CrystalIntegrity"}}<input type="number" data-ship-edit="crystalIntegrity" value="{{selectedShip.crystal.integrity}}" min="0" max="99" step="1"></label>
+                <label title="Максимальная целостность ядра.">{{localize "SAILSHIPS.CrystalMaxIntegrity"}}<input type="number" data-ship-edit="crystalMaxIntegrity" value="{{selectedShip.crystal.maxIntegrity}}" min="1" max="99" step="1"></label>
+                <label title="Дополнительная броня ядра после брони кормовой секции.">{{localize "SAILSHIPS.CrystalArmor"}}<input type="number" data-ship-edit="crystalArmor" value="{{selectedShip.crystal.armor}}" min="0" max="30" step="1"></label>
+                <label class="ssc-checkbox-field" title="Защищённая печь и процедуры позволяют кораблю использовать каленые ядра без отдельного разрешения сценария."><input type="checkbox" data-ship-edit="heatedShotFurnace" {{#if selectedShip.equipment.heatedShotFurnace}}checked{{/if}}>Нагревательная печь для ядер</label>
+              </div>
+
+              <div class="ssc-weapon-editor">
+                <h4 title="Редактор батарей выбранного корабля. Изменения применяются кнопкой сверху.">{{localize "SAILSHIPS.WeaponEditor"}}</h4>
+                {{#each selectedShip.weapons as |weapon|}}
+                  <div class="ssc-weapon-edit-row" data-weapon-edit-row="{{weapon.id}}">
+                    <strong>{{weapon.label}}</strong>
+                    {{#if weapon.caliber}}<span class="ssc-hint">{{weapon.guns}} ор. · {{weapon.caliber}}{{#if weapon.closeDamageBonus}} · ближн. +{{weapon.closeDamageBonus}} до {{weapon.closeDamageRange}} гекс.{{/if}}</span>{{/if}}
+                    <label title="Базовый урон батареи при попадании.">{{localize "SAILSHIPS.Damage"}}<input type="number" data-weapon-edit="damage" data-weapon-id="{{weapon.id}}" value="{{weapon.damage}}" min="0" max="99" step="1"></label>
+                    <label title="Максимальная дистанция батареи в клетках.">{{localize "SAILSHIPS.Range"}}<input type="number" data-weapon-edit="range" data-weapon-id="{{weapon.id}}" value="{{weapon.range}}" min="1" max="99" step="1"></label>
+                    <label title="Сколько раундов требуется на полную перезарядку.">{{localize "SAILSHIPS.ReloadMax"}}<input type="number" data-weapon-edit="reloadMax" data-weapon-id="{{weapon.id}}" value="{{weapon.reloadMax}}" min="0" max="10" step="1"></label>
+                  </div>
+                {{/each}}
+              </div>
+
+              <div class="ssc-section-editor">
+                <h4 title="Подробная правка секций и систем выбранного корабля. Слоты [1]-[6] используются при попадании по системе внутри секции.">{{localize "SAILSHIPS.SectionSystemEditor"}}</h4>
+                {{#each selectedShip.sections as |section sectionId|}}
+                  <div class="ssc-section-edit-card" data-section-edit-card="{{sectionId}}">
+                    <div class="ssc-section-edit-head">
+                      <strong>{{sscSection sectionId}}</strong>
+                      <span title="HP секции, броня, пожары и течи. Эти значения сохраняются прямо в выбранном корабле.">{{localize "SAILSHIPS.SectionStats"}}</span>
+                    </div>
+                    <div class="ssc-section-edit-grid">
+                      <label title="Текущие HP секции.">{{localize "SAILSHIPS.HP"}}<input type="number" data-section-edit="hpValue" data-section-id="{{sectionId}}" value="{{section.hp.value}}" min="0" max="999" step="1"></label>
+                      <label title="Максимальные HP секции.">{{localize "SAILSHIPS.HPMax"}}<input type="number" data-section-edit="hpMax" data-section-id="{{sectionId}}" value="{{section.hp.max}}" min="1" max="999" step="1"></label>
+                      <label title="Броня секции. Вычитается из урона ядер и части других попаданий.">DR<input type="number" data-section-edit="dr" data-section-id="{{sectionId}}" value="{{section.dr}}" min="0" max="99" step="1"></label>
+                      <label title="Уровень пожара в секции.">{{localize "SAILSHIPS.Fire"}}<input type="number" data-section-edit="fire" data-section-id="{{sectionId}}" value="{{section.fire}}" min="0" max="12" step="1"></label>
+                      <label title="Уровень воды в секции. В воздухе вода не набирается.">{{localize "SAILSHIPS.Flooding"}}<input type="number" data-section-edit="flooding" data-section-id="{{sectionId}}" value="{{section.flooding}}" min="0" max="12" step="1"></label>
+                      <label title="Сухие пробоины. Они начинают давать воду только на H0 при приводнении или нахождении на воде.">Пробоины<input type="number" data-section-edit="breaches" data-section-id="{{sectionId}}" value="{{section.breaches}}" min="0" max="12" step="1"></label>
+                    </div>
+                    <div class="ssc-system-edit-list">
+                      {{#each section.systems as |system systemIndex|}}
+                        <div class="ssc-system-edit-row status-{{system.status}}">
+                          <label title="Слот системы. При повреждении секции кидается слот [1]-[6].">№<input type="number" data-system-edit="slot" data-section-id="{{sectionId}}" data-system-index="{{systemIndex}}" value="{{system.slot}}" min="1" max="6" step="1"></label>
+                          <label title="Название системы. Важные слова вроде мачта, руль, батарея, чэйзеры, погреб и ядро используются механикой.">{{localize "SAILSHIPS.SystemName"}}<input type="text" data-system-edit="name" data-section-id="{{sectionId}}" data-system-index="{{systemIndex}}" value="{{system.name}}"></label>
+                          <label title="Состояние системы. Уничтоженные системы могут отключать батареи, руль, мачты и ядро.">{{localize "SAILSHIPS.Status"}}
+                            <select data-system-edit="status" data-section-id="{{sectionId}}" data-system-index="{{systemIndex}}">
+                              <option value="intact" {{#if (sscEq system.status 'intact')}}selected{{/if}}>{{localize "SAILSHIPS.StatusIntact"}}</option>
+                              <option value="damaged" {{#if (sscEq system.status 'damaged')}}selected{{/if}}>{{localize "SAILSHIPS.StatusDamaged"}}</option>
+                              <option value="destroyed" {{#if (sscEq system.status 'destroyed')}}selected{{/if}}>{{localize "SAILSHIPS.StatusDestroyed"}}</option>
+                              <option value="disabled" {{#if (sscEq system.status 'disabled')}}selected{{/if}}>{{localize "SAILSHIPS.StatusDisabled"}}</option>
+                            </select>
+                          </label>
+                          <label title="Текущие HP системы.">{{localize "SAILSHIPS.HP"}}<input type="number" data-system-edit="hpValue" data-section-id="{{sectionId}}" data-system-index="{{systemIndex}}" value="{{system.hp.value}}" min="0" max="99" step="1"></label>
+                          <label title="Максимальные HP системы.">{{localize "SAILSHIPS.HPMax"}}<input type="number" data-system-edit="hpMax" data-section-id="{{sectionId}}" data-system-index="{{systemIndex}}" value="{{system.hp.max}}" min="1" max="99" step="1"></label>
+                        </div>
+                      {{/each}}
+                    </div>
+                  </div>
+                {{/each}}
+              </div>
+            </fieldset>
+          </section>
+          {{/if}}
+        {{else}}
+          <section class="ssc-setup-box"><h3>{{localize "SAILSHIPS.NoCombatantSelected"}}</h3></section>
+        {{/if}}
+      </section>
+    {{/if}}

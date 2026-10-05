@@ -1,0 +1,36 @@
+{{#if phaseFlags.showSections}}
+  <section class="ssc-sections">
+    <h3>{{#if selectedIsCreature}}Анатомия{{else}}{{localize "SAILSHIPS.Sections"}}{{/if}}</h3>
+    {{#each selectedShip.sections as |section sectionId|}}
+      <div class="ssc-section-card">
+        <div class="ssc-section-head">
+          <strong>{{#if ../selectedIsCreature}}{{section.label}}{{else}}{{sscSection sectionId}}{{/if}}</strong>
+          <span>{{section.hp.value}} / {{section.hp.max}}</span>
+        </div>
+        <div class="ssc-hp-bar"><i style="width: {{sscPercent section.hp.value section.hp.max}}%"></i></div>
+        {{#if ../selectedIsCreature}}
+          <div class="ssc-section-tags">
+            <span>Броня {{section.armor}}</span>
+            <span>{{sscStatus section.status}}</span>
+            {{#each section.tags as |tag|}}<span>{{tag}}</span>{{/each}}
+          </div>
+        {{else}}
+          <div class="ssc-section-tags">
+            <span>DR {{section.dr}}</span>
+            <span>{{localize "SAILSHIPS.Fire"}} {{section.fire}}</span>
+            <span>{{localize "SAILSHIPS.Flooding"}} {{section.flooding}}</span>
+            <span>Пробоины {{section.breaches}}</span>
+          </div>
+          <div class="ssc-system-list">
+            {{#each section.systems as |system|}}
+              <div class="ssc-system-row status-{{system.status}}">
+                <span>[{{system.slot}}] {{system.name}}</span>
+                <span>{{sscStatus system.status}}</span>
+              </div>
+            {{/each}}
+          </div>
+        {{/if}}
+      </div>
+    {{/each}}
+  </section>
+{{/if}}

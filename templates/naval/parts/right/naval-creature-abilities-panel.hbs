@@ -1,0 +1,35 @@
+{{#if creatureAbilities.length}}
+  {{#if actionState.isActive}}
+    <section class="ssc-action-box">
+      <div class="ssc-section-edit-head">
+        <h3>Способности</h3>
+        {{#if actionState.canCreatureAI}}
+          <button type="button" data-action="creatureAI" title="Выполнить всю текущую фазу согласно настройкам поведения существа."><i class="fa-solid fa-brain"></i> Ход ИИ</button>
+        {{/if}}
+      </div>
+      <div class="ssc-shot-preview-list">
+        {{#each creatureAbilities as |ability|}}
+          <article class="ssc-shot-preview-card" title="{{ability.description}}">
+            <header class="ssc-shot-preview-header">
+              <div class="ssc-shot-preview-title">
+                <strong>{{ability.label}}</strong>
+                <span>{{ability.type}} · {{ability.effectLabel}} · фаза {{ability.phaseLabel}}</span>
+              </div>
+              {{#if (sscEq ability.type 'active')}}
+                <button type="button" class="ssc-shot-fire-button" data-action="creatureAbility" data-ability-id="{{ability.id}}" {{#unless ability.canUse}}disabled{{/unless}}>Применить</button>
+              {{/if}}
+            </header>
+            <div class="ssc-shot-preview-meta">
+              <span>Мощь: <strong>{{ability.power}}</strong></span>
+              <span>Дальность: <strong>{{ability.range}}</strong></span>
+              <span>Радиус: <strong>{{ability.radius}}</strong></span>
+              <span>Восстановление: <strong>{{ability.cooldownLabel}}</strong></span>
+              <span>Использования: <strong>{{ability.usesLabel}}</strong></span>
+            </div>
+            {{#if ability.description}}<p class="ssc-hint">{{ability.description}}</p>{{/if}}
+          </article>
+        {{/each}}
+      </div>
+    </section>
+  {{/if}}
+{{/if}}

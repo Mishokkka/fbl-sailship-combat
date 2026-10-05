@@ -1,0 +1,273 @@
+/* Shared application tokens, controls and utilities for Sailships Combat. */
+
+.sailships-battle-app *,
+.sailships-shipyard-app *,
+.sailships-battle-setup-app * {
+  box-sizing: border-box;
+}
+
+.sailships-battle-app,
+.sailships-shipyard-app,
+.sailships-battle-setup-app {
+  --ssc-bg: #111419;
+  --ssc-panel: #171b20;
+  --ssc-panel-2: #20262d;
+  --ssc-border: #4b5663;
+  --ssc-text: #e8e2d5;
+  --ssc-muted: #a9a292;
+  --ssc-accent: #c7a35d;
+  --ssc-blue: #5d91c7;
+  --ssc-red: #c75d5d;
+  --ssc-green: #79a86f;
+  --ssc-focus: #f2cf7b;
+  --ssc-water: var(--ssc-bg);
+  color: var(--ssc-text);
+}
+
+.sailships-battle-app .window-content,
+.sailships-shipyard-app .window-content,
+.sailships-battle-setup-app .window-content {
+  padding: 0;
+  overflow: hidden;
+  background: var(--ssc-bg);
+  color: var(--ssc-text);
+}
+
+.sailships-battle-app button,
+.sailships-shipyard-app button,
+.sailships-battle-setup-app button {
+  min-height: 28px;
+  padding: 5px 8px;
+  border: 1px solid #6d644f;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #3a3328, #211d18);
+  color: var(--ssc-text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.sailships-battle-app button:hover:not(:disabled),
+.sailships-shipyard-app button:hover:not(:disabled),
+.sailships-battle-setup-app button:hover:not(:disabled) {
+  border-color: var(--ssc-accent);
+  box-shadow: 0 0 0 1px rgba(199, 163, 93, 0.28) inset;
+}
+
+.sailships-battle-app button:disabled,
+.sailships-shipyard-app button:disabled,
+.sailships-battle-setup-app button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sailships-battle-app :is(button, input, select, textarea):focus-visible,
+.sailships-shipyard-app :is(button, input, select, textarea):focus-visible,
+.sailships-battle-setup-app :is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--ssc-focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px rgba(17, 20, 25, 0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sailships-battle-app *,
+  .sailships-shipyard-app *,
+  .sailships-battle-setup-app * {
+    scroll-behavior: auto;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+  }
+}
+
+.sailships-battle-app button.active,
+.sailships-shipyard-app button.active,
+.sailships-battle-setup-app button.active,
+.ssc-action-grid button.active,
+.ssc-top-actions button.active {
+  border-color: var(--ssc-accent);
+  background: linear-gradient(180deg, #5a4729, #2d2418);
+  box-shadow: 0 0 0 1px rgba(199, 163, 93, 0.36) inset;
+}
+
+.sailships-battle-app button.primary,
+.sailships-shipyard-app button.primary,
+.sailships-battle-setup-app button.primary {
+  border-color: rgba(121, 168, 111, 0.95);
+  background: linear-gradient(180deg, #31432c, #1f2a1b);
+}
+
+.sailships-battle-app input,
+.sailships-battle-app select,
+.sailships-shipyard-app input,
+.sailships-shipyard-app select,
+.sailships-battle-setup-app input,
+.sailships-battle-setup-app select {
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  padding: 3px 6px;
+  border: 1px solid rgba(208, 168, 83, 0.35);
+  border-radius: 4px;
+  background: rgba(8, 10, 12, 0.58);
+  color: #f0e6cf;
+  font-family: inherit;
+  color-scheme: dark;
+}
+
+.sailships-battle-app input:is([type="checkbox"], [type="radio"]),
+.sailships-shipyard-app input:is([type="checkbox"], [type="radio"]),
+.sailships-battle-setup-app input:is([type="checkbox"], [type="radio"]) {
+  display: inline-block;
+  width: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.sailships-battle-app select option,
+.sailships-shipyard-app select option,
+.sailships-battle-setup-app select option {
+  background: #171b20;
+  color: #f0e6cf;
+}
+
+.sailships-battle-app select option:disabled,
+.sailships-shipyard-app select option:disabled,
+.sailships-battle-setup-app select option:disabled {
+  background: #171b20;
+  color: #817d74;
+}
+
+.sailships-battle-app label,
+.sailships-shipyard-app label,
+.sailships-battle-setup-app label {
+  color: #c9bfa6;
+  font-size: 12px;
+}
+
+.sailships-battle-app label input,
+.sailships-battle-app label select,
+.sailships-shipyard-app label input,
+.sailships-shipyard-app label select,
+.sailships-battle-setup-app label input,
+.sailships-battle-setup-app label select {
+  display: block;
+  margin-top: 2px;
+}
+
+.ssc-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ssc-action-grid.compact-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ssc-hint {
+  margin: 6px 0 0;
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-hint.danger {
+  color: #ffb7a3;
+}
+
+.ssc-muted {
+  color: var(--ssc-muted);
+}
+
+.ssc-dialog-form {
+  display: grid;
+  gap: 8px;
+  min-width: min(520px, 70vw);
+}
+
+.ssc-dialog-form p {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.ssc-dialog-form label {
+  display: grid;
+  gap: 5px;
+}
+
+.ssc-dialog-form :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+}
+
+.ssc-dialog-form textarea {
+  resize: vertical;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+}
+
+
+/* Stable ApplicationV2 chrome. Use a plain multiplication sign instead of a
+   Font Awesome codepoint so the close control works with every Foundry font bundle. */
+.sailships-combat .window-header button[data-action="close"] {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 0;
+}
+.sailships-combat .window-header button[data-action="close"] > i,
+.sailships-combat .window-header button[data-action="close"] > svg {
+  display: none;
+}
+.sailships-combat .window-header button[data-action="close"]::before {
+  content: "×";
+  display: block;
+  font-family: system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  color: currentColor;
+  transform: translateY(-1px);
+}
+
+.ssc-header-controls-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  margin-left: auto;
+  min-width: 0;
+}
+.ssc-header-controls-inline .ssc-header-control {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+.ssc-header-controls-inline .ssc-header-control:hover {
+  background: rgba(255,255,255,0.10);
+  box-shadow: none;
+}
+.ssc-header-controls-inline .ssc-header-control.ssc-header-primary {
+  color: #b8dba9;
+}
+.ssc-header-controls-inline .ssc-header-control.ssc-header-danger {
+  color: #e4a58f;
+}
+.ssc-header-controls-inline .ssc-header-control i {
+  pointer-events: none;
+}

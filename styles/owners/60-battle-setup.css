@@ -1,0 +1,587 @@
+/* Battle setup: compact three-column workspace. */
+
+.sailships-battle-setup-app {
+  min-width: 980px;
+}
+
+.sailships-battle-setup-app .window-content {
+  overflow: hidden;
+}
+
+.ssc-setup-shell {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at 50% -20%, rgba(83,104,126,0.18), transparent 45%),
+    var(--ssc-bg);
+}
+
+.ssc-setup-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 62px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  background: rgba(8,10,13,0.78);
+}
+
+.ssc-setup-title-block {
+  min-width: 0;
+}
+
+.ssc-setup-title-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ssc-setup-title-row h2 {
+  margin: 0;
+  color: #f0e6cf;
+  font-size: 17px;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+
+.ssc-setup-header p {
+  margin: 3px 0 0;
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ssc-status-pill.ready {
+  color: #b8dba9;
+  border-color: rgba(121,168,111,0.42);
+  background: rgba(75,118,66,0.14);
+}
+
+.ssc-status-pill.locked {
+  color: #f2c69e;
+  border-color: rgba(199,138,93,0.46);
+  background: rgba(113,64,39,0.16);
+}
+
+.ssc-setup-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ssc-setup-header-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+}
+
+.sailships-battle-setup-app button.primary {
+  border-color: rgba(199,163,93,0.78);
+  background: linear-gradient(180deg, #5a4830, #302619);
+}
+
+.sailships-battle-setup-app button.danger,
+.sailships-battle-setup-app .danger button {
+  border-color: rgba(199,93,93,0.55);
+  color: #ffc0ae;
+}
+
+.ssc-setup-workspace {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(330px, 360px) minmax(0, 1fr) minmax(300px, 330px);
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.ssc-setup-column {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  padding-right: 2px;
+}
+
+.ssc-setup-column-center {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ssc-setup-card {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(29,34,40,0.92), rgba(19,23,28,0.92));
+  box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+}
+
+.ssc-card-header {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.ssc-card-header.horizontal {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ssc-card-header h3 {
+  margin: 0;
+  color: var(--ssc-accent);
+  font-size: 13px;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+
+.ssc-card-header p {
+  margin: 3px 0 0;
+  color: var(--ssc-muted);
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.ssc-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: var(--ssc-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ssc-field input,
+.ssc-field select {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  padding: 4px 7px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 4px;
+  background: rgba(5,7,9,0.72);
+  color: var(--ssc-text);
+}
+
+.ssc-field input[type="color"] {
+  padding: 2px;
+}
+
+.ssc-field select {
+  color-scheme: dark;
+  text-overflow: ellipsis;
+}
+
+.ssc-field select option {
+  background: #171b20;
+  color: #f0e6cf;
+}
+
+.ssc-field select option:disabled {
+  color: #817d74;
+}
+
+.ssc-form-grid > *,
+.ssc-inline-actions > *,
+.ssc-action-stack > *,
+.ssc-card-header > *,
+.ssc-side-card > * {
+  min-width: 0;
+}
+
+.ssc-field.full,
+.full-width {
+  width: 100%;
+}
+
+.ssc-form-grid {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 9px;
+}
+
+.ssc-form-grid.cols-2 {
+  grid-template-columns: repeat(2, minmax(0,1fr));
+}
+
+.ssc-form-grid.cols-3 {
+  grid-template-columns: repeat(3, minmax(0,1fr));
+}
+
+.ssc-inline-actions,
+.ssc-action-stack {
+  display: flex;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.ssc-action-stack {
+  flex-direction: column;
+}
+
+.ssc-inline-actions.end {
+  justify-content: flex-end;
+}
+
+.ssc-inline-actions .grow {
+  flex: 1 1 0;
+}
+
+.ssc-setup-card button {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.15;
+}
+
+.ssc-switch-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.025);
+}
+
+.ssc-switch-row input {
+  width: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.ssc-switch-row span {
+  display: grid;
+  gap: 1px;
+}
+
+.ssc-switch-row b {
+  color: var(--ssc-text);
+  font-size: 11px;
+}
+
+.ssc-switch-row small {
+  color: var(--ssc-muted);
+  font-size: 9px;
+}
+
+
+.ssc-victory-card {
+  overflow: visible;
+}
+
+.ssc-victory-card .ssc-switch-row span {
+  min-width: 0;
+  overflow: visible;
+}
+
+.ssc-victory-card .ssc-switch-row b,
+.ssc-victory-card .ssc-switch-row small {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.ssc-victory-card .ssc-form-grid {
+  align-items: start;
+}
+
+.ssc-setup-preview-card {
+  overflow: hidden;
+}
+
+.ssc-preview-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 5px 12px;
+  margin-bottom: 8px;
+  color: var(--ssc-muted);
+  font-size: 10px;
+}
+
+.ssc-preview-meta b {
+  color: var(--ssc-text);
+}
+
+.ssc-preview-board-wrap {
+  width: 100%;
+  min-height: 320px;
+  max-height: 470px;
+  aspect-ratio: 1.58 / 1;
+  overflow: hidden;
+  border: 1px solid rgba(93,145,199,0.30);
+  border-radius: 7px;
+  background: #0f1d25;
+}
+
+.ssc-setup-preview-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ssc-preview-bg { fill: #10202a; }
+.ssc-preview-grid-lines { fill: none; stroke: rgba(255,255,255,0.075); stroke-width: 1; }
+.ssc-preview-terrain-icon { pointer-events: none; font-size: 11px; font-weight: 700; fill: #f4ead8; opacity: .92; }
+.ssc-preview-zone path { fill: var(--ssc-side-color,var(--ssc-blue)); fill-opacity: .10; stroke: var(--ssc-side-color,var(--ssc-blue)); stroke-opacity: .9; stroke-width: 2; stroke-dasharray: 5 3; }
+.ssc-preview-zone text { fill: #f0e6cf; paint-order: stroke; stroke: rgba(0,0,0,.85); stroke-width: 3; font-size: 11px; font-weight: 700; }
+.ssc-preview-zone line { stroke: rgba(240,230,207,.8); stroke-width: 2; marker-end: url(#ssc-setup-arrow); }
+.ssc-preview-ship ellipse { fill: rgba(0,0,0,.45); stroke: rgba(255,255,255,.45); stroke-width: 1.2; }
+.ssc-preview-ship path { fill: var(--ssc-side-color,#7d4a3f); stroke: #f0e6cf; stroke-width: 1; }
+
+.ssc-preview-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.ssc-preview-legend span {
+  padding: 3px 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 999px;
+  color: var(--ssc-muted);
+  background: rgba(255,255,255,0.025);
+  font-size: 9px;
+}
+
+.ssc-side-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 8px;
+}
+
+.ssc-side-card {
+  min-width: 0;
+  max-width: 100%;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-left: 3px solid var(--ssc-side-color);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.025);
+}
+
+.ssc-side-card > header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ssc-side-card > header strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ssc-text);
+  font-size: 11px;
+}
+
+.ssc-side-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ssc-side-color);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.10);
+}
+
+.ssc-side-card button.icon,
+.ssc-card-header button.icon,
+.ssc-scenario-actions button {
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+}
+
+.side-fields {
+  grid-template-columns: repeat(4, minmax(0,1fr));
+}
+
+.side-fields .span-2 {
+  grid-column: span 2;
+}
+
+.ssc-side-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 5px 0 8px;
+  color: var(--ssc-muted);
+  font-size: 9px;
+}
+
+.ssc-side-card footer {
+  display: flex;
+  gap: 6px;
+}
+
+.ssc-side-card footer button {
+  flex: 1;
+}
+
+.ssc-saved-scenario-list {
+  display: grid;
+  gap: 6px;
+  max-height: 310px;
+  overflow: auto;
+  margin-top: 8px;
+}
+
+.ssc-saved-scenario-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.022);
+}
+
+.ssc-saved-scenario-card > div:first-child {
+  display: grid;
+  min-width: 0;
+}
+
+.ssc-saved-scenario-card strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ssc-text);
+  font-size: 10px;
+}
+
+.ssc-saved-scenario-card span {
+  color: var(--ssc-muted);
+  font-size: 8px;
+}
+
+.ssc-scenario-actions {
+  display: flex;
+  gap: 3px;
+}
+
+.ssc-empty-state {
+  padding: 14px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 5px;
+  color: var(--ssc-muted);
+  text-align: center;
+  font-size: 10px;
+}
+
+.ssc-danger-zone {
+  border-color: rgba(199,93,93,0.25);
+  background: linear-gradient(180deg, rgba(65,24,19,0.34), rgba(28,16,15,0.72));
+}
+
+@media (max-width: 1280px) {
+  .sailships-battle-setup-app {
+    min-width: 760px;
+  }
+
+  .ssc-setup-workspace {
+    grid-template-columns: minmax(330px, 360px) minmax(0, 1fr);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .ssc-setup-column {
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .ssc-setup-column-right {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .sailships-battle-setup-app {
+    min-width: 620px;
+  }
+
+  .ssc-setup-header {
+    align-items: flex-start;
+  }
+
+  .ssc-setup-header-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .ssc-setup-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ssc-setup-column-right {
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ssc-side-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ssc-preview-size {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border: 1px solid rgba(199,163,93,0.34);
+  border-radius: 999px;
+  color: #f1d18a;
+  font-size: 9px;
+}
+
+/* Kept as a compatibility hook for older themes and static diagnostics. */
+.ssc-preset-card { min-width: 0; }
+
+.ssc-side-card-title {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.ssc-side-card-title strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssc-side-card-title small {
+  color: var(--ssc-muted);
+  font-size: 10px;
+  font-weight: 400;
+}

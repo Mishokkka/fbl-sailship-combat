@@ -1,0 +1,17 @@
+{{#if phaseFlags.damage}}
+  <section class="ssc-action-box">
+    <h3>Анатомический урон</h3>
+    <p class="ssc-hint">Ручное применение урона для ГМа. Броня выбранной части тела учитывается автоматически.</p>
+    <div class="ssc-system-list">
+      {{#each selectedShip.sections as |section sectionId|}}
+        <div class="ssc-system-row status-{{section.status}}">
+          <span><strong>{{section.label}}</strong> · {{section.hp.value}}/{{section.hp.max}} · броня {{section.armor}}</span>
+          <span>
+            <button type="button" class="ssc-choice-chip" data-action="creatureManualDamage" data-section-id="{{sectionId}}" data-damage="5" {{#unless ../isGM}}disabled{{/unless}}>−5</button>
+            <button type="button" class="ssc-choice-chip danger" data-action="creatureManualDamage" data-section-id="{{sectionId}}" data-damage="10" {{#unless ../isGM}}disabled{{/unless}}>−10</button>
+          </span>
+        </div>
+      {{/each}}
+    </div>
+  </section>
+{{/if}}

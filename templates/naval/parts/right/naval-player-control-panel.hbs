@@ -1,0 +1,66 @@
+        {{#if playerControl.showPanel}}
+          <section class="ssc-action-box ssc-player-control-box">
+            <h3>Игроки</h3>
+
+            {{#if isGM}}
+              <div class="ssc-player-control-summary">
+                <strong>Приказы: {{playerControl.readyText}}</strong>
+                <span>Pending: {{playerControl.pendingOrderCount}}</span>
+              </div>
+              <p class="ssc-hint" title="Foundry core module sockets не передают модулю проверяемую личность отправителя.">Сетевая модель: доверенный стол. Изменённый клиент может подставить ID другого игрока.</p>
+
+              {{#if playerControl.selectedAssignable}}
+                <div class="ssc-player-assignment">
+                  <span class="ssc-order-ref-label">Назначение: {{selectedShip.name}}</span>
+                  <div class="ssc-choice-strip">
+                    {{#each playerControl.assignableUsers as |user|}}
+                      <button type="button" class="ssc-choice-chip {{#if user.assignedToSelected}}active{{/if}}" data-action="assignSelectedShipToPlayer" data-user-id="{{user.id}}" title="{{user.title}}">{{user.name}}</button>
+                    {{/each}}
+                    <button type="button" class="ssc-choice-chip danger" data-action="unassignSelectedShip" {{#unless playerControl.selectedAssignedUserId}}disabled{{/unless}}>Снять</button>
+                  </div>
+                </div>
+              {{else}}
+                <p class="ssc-hint">Управление игроком станет доступно после подключения боевых правил этого типа.</p>
+              {{/if}}
+
+              {{#if playerControl.hasAssignments}}
+                <div class="ssc-assignment-list">
+                  {{#each playerControl.assignmentRows as |row|}}
+                    <div style="--ssc-side-color: {{row.sideColor}};">
+                      <strong>{{row.userName}}</strong>
+                      <em>{{row.sideName}}</em>
+                      <span>{{row.shipText}}</span>
+                    </div>
+                  {{/each}}
+                </div>
+              {{/if}}
+
+              {{#if playerControl.hasPendingOrders}}
+                <div class="ssc-pending-order-list">
+                  {{#each playerControl.pendingOrders as |pending|}}
+                    <div class="ssc-pending-order-row {{#if pending.active}}active{{/if}}">
+                      <span><strong>{{pending.shipName}}</strong> · {{pending.userName}} · {{pending.orderLabel}}</span>
+                      <div>
+                        <button type="button" class="ssc-choice-chip" data-action="approvePendingOrder" data-ship-id="{{pending.shipId}}" {{#unless pending.canApprove}}disabled{{/unless}}>Принять</button>
+                        <button type="button" class="ssc-choice-chip danger" data-action="rejectPendingOrder" data-ship-id="{{pending.shipId}}">Отклонить</button>
+                      </div>
+                    </div>
+                  {{/each}}
+                </div>
+              {{/if}}
+            {{else}}
+              {{#if playerControl.currentUserShipText}}
+                <div class="ssc-player-control-summary">
+                  <strong>Ваши корабли</strong>
+                  <span>{{playerControl.currentUserShipText}}</span>
+                </div>
+              {{/if}}
+              {{#if playerControl.selectedShipIsAssignedToCurrentUser}}
+                <p class="ssc-hint">Вы управляете выбранным кораблем.</p>
+              {{/if}}
+              {{#if playerControl.selectedPendingOrder}}
+                <p class="ssc-hint">Приказ отправлен: {{playerControl.selectedPendingOrderLabel}}.</p>
+              {{/if}}
+            {{/if}}
+          </section>
+        {{/if}}

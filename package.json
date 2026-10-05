@@ -1,0 +1,15 @@
+{
+  "name": "sailships-combat-development",
+  "version": "0.14.2",
+  "private": true,
+  "type": "module",
+  "description": "Development checks and regression tests for the Sailships Combat Foundry VTT module.",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check:module": "node tools/check-module.mjs",
+    "check": "npm run check:module && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

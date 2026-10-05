@@ -1,0 +1,48 @@
+    {{#if isLibraryTab}}
+      <section class="ssc-shipyard-tab-panel">
+        <div class="ssc-yard-section-head">
+          <div>
+            <h3 title="Библиотека хранит очищенные шаблоны кораблей: без пожаров, течей, перезарядки и текущих боевых флагов.">{{localize "SAILSHIPS.ShipLibrary"}} <span class="ssc-muted">({{shipLibraryCount}})</span></h3>
+            <p class="ssc-hint">Пользовательская библиотека хранится в мире Foundry. Сохранение теперь выполняется без всплывающего prompt.</p>
+          </div>
+        </div>
+
+        <section class="ssc-library-save-box">
+          <label title="Имя, под которым выбранный корабль будет сохранен в библиотеку.">Название шаблона
+            <input type="text" data-library-name value="{{defaultLibraryName}}">
+          </label>
+          <div class="ssc-action-grid compact-actions">
+            <button type="button" data-action="saveShipToLibrary" title="Сохранить выбранный корабль как очищенный шаблон в библиотеку мира." {{#unless canManageLibrary}}disabled{{/unless}}>{{localize "SAILSHIPS.SaveShipToLibrary"}}</button>
+            <button type="button" data-action="exportShip" title="Скопировать выбранный корабль в JSON.">{{localize "SAILSHIPS.ExportShip"}}</button>
+            <button type="button" data-action="importShip" title="Вставить JSON корабля и добавить его в текущий бой." {{#unless canEditBattleShips}}disabled{{/unless}}>{{localize "SAILSHIPS.ImportShip"}}</button>
+          </div>
+        </section>
+
+        {{#if shipLibrary.length}}
+          <div class="ssc-library-grid">
+            {{#each shipLibrary as |entry|}}
+              <article class="ssc-library-card">
+                <div class="ssc-template-title">
+                  <strong>{{entry.name}}</strong>
+                  <span>#{{entry.index}}</span>
+                </div>
+                <p>{{entry.shipName}} · {{entry.shipType}}</p>
+                <div class="ssc-template-stats">
+                  <span title="Максимальный ход.">{{localize "SAILSHIPS.Speed"}} {{entry.maxSpeed}}</span>
+                  <span title="Штатный экипаж.">{{localize "SAILSHIPS.Crew"}} {{entry.crew}}</span>
+                  <span title="Суммарные HP корпуса.">HP {{entry.hp}}</span>
+                  <span title="Урон сильнейшего борта.">{{localize "SAILSHIPS.Damage"}} {{entry.broadsideDamage}}</span>
+                  <span title="Целостность ядра.">{{localize "SAILSHIPS.CrystalIntegrity"}} {{entry.core}}</span>
+                </div>
+                <div class="ssc-action-grid compact-actions">
+                  <button type="button" data-action="addShipFromLibrary" data-library-id="{{entry.id}}" {{#unless ../canEditBattleShips}}disabled{{/unless}} title="Добавить этот сохраненный шаблон в текущий бой.">{{localize "SAILSHIPS.AddShipFromLibrary"}}</button>
+                  <button type="button" data-action="deleteShipFromLibrary" data-library-id="{{entry.id}}" {{#unless ../canManageLibrary}}disabled{{/unless}} title="Удалить этот шаблон из библиотеки.">{{localize "SAILSHIPS.DeleteShipFromLibrary"}}</button>
+                </div>
+              </article>
+            {{/each}}
+          </div>
+        {{else}}
+          <p class="ssc-hint">{{localize "SAILSHIPS.EmptyShipLibrary"}}</p>
+        {{/if}}
+      </section>
+    {{/if}}

@@ -1,0 +1,13 @@
+<header class="ssc-setup-header">
+  <div class="ssc-setup-title-block">
+    <div class="ssc-setup-title-row">
+      <h2>{{localize "SAILSHIPS.BattleSetupTitle"}}</h2>
+      {{#if setupLocked}}<span class="ssc-status-pill locked">Бой запущен</span>{{else}}<span class="ssc-status-pill ready">Редактирование</span>{{/if}}
+    </div>
+    <p>Поле, окружение, условия победы, стороны и расстановка в одном рабочем пространстве.</p>
+  </div>
+  <nav class="ssc-setup-header-actions" aria-label="Переходы">
+    <button type="button" data-action="openShipyard" {{#unless isGM}}disabled{{/unless}}><i class="fa-solid fa-warehouse"></i><span>Верфь</span></button>
+    <button type="button" class="primary" data-action="openBattle"><i class="fa-solid fa-anchor"></i><span>Открыть бой</span></button>
+  </nav>
+</header>

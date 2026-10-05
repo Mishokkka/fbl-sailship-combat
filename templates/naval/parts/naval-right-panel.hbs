@@ -1,0 +1,32 @@
+<aside class="ssc-right-panel">
+  {{#if selectedShip}}
+    <h2>{{sscPhase battle.phase}}</h2>
+    {{> "modules/sailships-combat/templates/naval/parts/right/naval-turn-box.hbs"}}
+    {{#if selectedIsCreature}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-creature-movement-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-player-control-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-creature-attacks-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-creature-abilities-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-creature-recovery-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-creature-damage-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-setup-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-storage-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-targets-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-sections-panel.hbs"}}
+    {{else}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-orders-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-movement-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-player-control-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-gunnery-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-crew-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-damage-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-setup-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-storage-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-targets-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-sections-panel.hbs"}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-weapons-panel.hbs"}}
+    {{/if}}
+  {{else}}
+    <h2>{{localize "SAILSHIPS.NoShipSelected"}}</h2>
+  {{/if}}
+</aside>

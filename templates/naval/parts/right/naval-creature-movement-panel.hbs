@@ -1,0 +1,29 @@
+{{#if phaseFlags.movement}}
+  <section class="ssc-action-box">
+    <h3>Полет</h3>
+    {{#if selectedShip.flags.falling}}
+      <div class="ssc-maneuver-advice danger">
+        <div class="ssc-maneuver-advice-head">
+          <strong>Существо падает</strong>
+          <span>{{#if actionState.fallRecovery.automatic}}автоматическое восстановление{{else}}проверка {{actionState.fallRecovery.skill}}{{/if}}</span>
+        </div>
+        <p>{{#if actionState.fallRecovery.canAttempt}}Можно попытаться восстановить подъёмную силу. Неудача отнимет высоту.{{else}}{{actionState.fallRecovery.reason}}{{/if}}</p>
+        <button type="button" data-action="creatureRecoverFall" {{#unless actionState.canCreatureRecoverFall}}disabled{{/unless}}>Выйти из падения</button>
+      </div>
+    {{/if}}
+    <div class="ssc-action-grid">
+      <button type="button" data-action="fullSail" title="Увеличить воздушную скорость на величину ускорения профиля." {{#unless actionState.canIncreaseSpeed}}disabled{{/unless}}>Ускориться</button>
+      <button type="button" data-action="reduceSail" title="Снизить воздушную скорость на величину торможения профиля." {{#unless actionState.canReduceSpeed}}disabled{{/unless}}>Затормозить</button>
+      <button type="button" data-action="turnLeft" {{#unless actionState.canTurn}}disabled{{/unless}}>Поворот влево</button>
+      <button type="button" data-action="turnRight" {{#unless actionState.canTurn}}disabled{{/unless}}>Поворот вправо</button>
+      <button type="button" data-action="creatureClimb" {{#unless actionState.canCreatureClimb}}disabled{{/unless}}>Набрать высоту</button>
+      <button type="button" data-action="creatureDive" {{#unless actionState.canCreatureDive}}disabled{{/unless}}>Снизиться</button>
+      {{#if creatureGrappleInfo.attached}}<button type="button" data-action="creatureDetach" {{#unless actionState.canCreatureDetach}}disabled{{/unless}}>Отцепиться</button>{{/if}}
+      {{#if actionState.canCreatureAI}}<button type="button" data-action="creatureAI"><i class="fa-solid fa-brain"></i> Ход ИИ</button>{{/if}}
+    </div>
+    {{#if creatureGrappleInfo.attached}}<p class="ssc-hint danger">Существо держится за <strong>{{creatureGrappleInfo.hostName}}</strong> и перемещается вместе с кораблем.</p>{{/if}}
+    {{#if actionState.movementState.mustMove}}<p class="ssc-hint danger"><strong>Инерция:</strong> до завершения активации существо обязано пройти не менее {{actionState.movementState.requiredAdvance}} гекс.</p>{{/if}}
+    <p class="ssc-hint">Профиль: {{selectedInfo.sailingProfileLabel}}. Эффективный максимум: {{selectedInfo.effectiveMaxSpeed}}. Перемещение выполняется выбором подсвеченной клетки поля.</p>
+    {{#if selectedInfo.maneuverAdvice.notice}}<p class="ssc-hint">{{selectedInfo.maneuverAdvice.notice}}</p>{{/if}}
+  </section>
+{{/if}}

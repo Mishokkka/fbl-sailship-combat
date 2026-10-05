@@ -1,0 +1,38 @@
+        {{#if phaseFlags.showWeapons}}
+          <section class="ssc-weapons ssc-gunnery-control-box">
+            <h3 title="Здесь задаются боеприпас и режим залпа. Кнопки выбирают конкретное значение, без циклического перебора.">{{localize "SAILSHIPS.Weapons"}}</h3>
+            <p class="ssc-hint">1 гекс ≈ 50 м. «Бой» — эффективная дистанция, «предел» — практический максимум.</p>
+            <div class="ssc-gunnery-control-list">
+              {{#each weaponControls as |weapon|}}
+                <article class="ssc-gunnery-control-card" data-weapon-id="{{weapon.id}}">
+                  <header class="ssc-gunnery-control-head">
+                    <strong title="{{weapon.notes}} {{weapon.roleText}} {{weapon.arcText}}">{{weapon.label}}</strong>
+                    <div class="ssc-gunnery-range">
+                      <div title="Эффективная игровая дальность этой батареи."><b>Бой:</b> {{weapon.minRange}}-{{weapon.maxRange}} гекс.</div>
+                      <div title="Исторический практический максимум этого типа орудий."><b>Предел:</b> до {{weapon.extremeMax}} гекс.</div>
+                    </div>
+                  </header>
+
+                  <div class="ssc-gunnery-choice-row">
+                    <span>Боеприпас</span>
+                    <div class="ssc-choice-strip">
+                      {{#each weapon.ammoOptions as |ammo|}}
+                        <button type="button" class="ssc-choice-chip {{#if ammo.active}}active{{/if}}" data-action="setAmmo" data-weapon-id="{{../id}}" data-ammo="{{ammo.id}}" title="{{ammo.title}}" {{#unless ../../isGM}}disabled{{/unless}}>{{ammo.label}}</button>
+                      {{/each}}
+                    </div>
+                  </div>
+                  {{#if weapon.ammoUnavailable}}<p class="ssc-hint danger">Текущий боеприпас недоступен в этом сценарии. Выберите разрешённый перед залпом.</p>{{/if}}
+
+                  <div class="ssc-gunnery-choice-row">
+                    <span>Залп</span>
+                    <div class="ssc-choice-strip">
+                      {{#each weapon.fireModeOptions as |mode|}}
+                        <button type="button" class="ssc-choice-chip {{#if mode.active}}active{{/if}}" data-action="setFireMode" data-weapon-id="{{../id}}" data-fire-mode="{{mode.id}}" title="{{mode.title}}" {{#unless ../../isGM}}disabled{{/unless}}>{{mode.label}}</button>
+                      {{/each}}
+                    </div>
+                  </div>
+                </article>
+              {{/each}}
+            </div>
+          </section>
+        {{/if}}

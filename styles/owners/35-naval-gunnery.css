@@ -1,0 +1,241 @@
+/* Naval gunnery panels: aim strip, shot previews, weapon controls and fire choice rows. */
+
+.ssc-aim-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.ssc-aim-strip button {
+  min-width: 0;
+  padding-left: 6px;
+  padding-right: 6px;
+  white-space: nowrap;
+}
+
+.ssc-aim-strip button.active {
+  border-color: #d1a648;
+  color: #f0d99b;
+  box-shadow: inset 0 0 0 1px rgba(209, 166, 72, 0.35);
+}
+
+.ssc-aim-strip button[data-action="aimCrystalCore"] {
+  border-color: rgba(165, 120, 255, 0.45);
+}
+
+.ssc-aim-strip button.danger:not(:disabled) {
+  color: #ffd2d2;
+}
+
+.ssc-shot-preview-box {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid rgba(209, 166, 72, 0.28);
+  border-radius: 6px;
+  background: rgba(10, 13, 16, 0.36);
+}
+
+.ssc-shot-preview-box h3 {
+  margin: 0 0 8px;
+}
+
+.ssc-shot-preview-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ssc-shot-preview-card {
+  display: grid;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018));
+}
+
+.ssc-shot-preview-header,
+.ssc-shot-preview-meta,
+.ssc-hit-chance,
+.ssc-shot-effect {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ssc-shot-preview-header {
+  justify-content: space-between;
+}
+
+.ssc-shot-preview-title {
+  display: grid;
+  gap: 1px;
+}
+
+.ssc-shot-preview-title strong,
+.ssc-shot-preview-meta strong,
+.ssc-hit-chance strong,
+.ssc-shot-effect strong {
+  color: var(--ssc-text);
+}
+
+.ssc-shot-preview-title span,
+.ssc-shot-preview-meta {
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-shot-fire-button {
+  min-height: 26px;
+  padding: 3px 10px;
+}
+
+.ssc-shot-preview-meta {
+  flex-wrap: wrap;
+}
+
+.ssc-shot-preview-meta em {
+  color: var(--ssc-muted);
+  font-style: normal;
+}
+
+.ssc-hit-chance {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-hit-chance-bar {
+  grid-column: 1 / -1;
+  height: 7px;
+  overflow: hidden;
+  border: 1px solid rgba(209, 166, 72, 0.25);
+  border-radius: 999px;
+  background: rgba(0,0,0,0.35);
+}
+
+.ssc-hit-chance-bar b {
+  display: block;
+  width: var(--ssc-hit-chance, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(157, 196, 112, 0.35), rgba(209, 166, 72, 0.75));
+}
+
+.ssc-shot-effect {
+  justify-content: space-between;
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-shot-mods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ssc-shot-mod {
+  padding: 2px 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  color: rgba(206, 211, 211, 0.55);
+  font-size: 11px;
+}
+
+.ssc-shot-mod.active {
+  border-color: rgba(209, 166, 72, 0.33);
+  background: rgba(209, 166, 72, 0.09);
+  color: var(--ssc-text);
+}
+
+.ssc-shot-empty {
+  margin: 0;
+  padding: 8px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 5px;
+  color: var(--ssc-muted);
+}
+
+.ssc-shot-role-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ssc-shot-role-row {
+  margin-top: -2px;
+  margin-bottom: 2px;
+}
+
+.ssc-gunnery-control-box {
+  border-top: 1px solid rgba(199,163,93,0.18);
+  padding-top: 4px;
+}
+
+.ssc-gunnery-control-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ssc-gunnery-control-card {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 6px;
+  background: rgba(0,0,0,0.18);
+}
+
+.ssc-gunnery-control-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: start;
+  margin-bottom: 2px;
+}
+
+.ssc-gunnery-control-head strong {
+  display: block;
+  color: var(--ssc-text);
+  font-size: 13px;
+}
+
+.ssc-gunnery-control-head span,
+.ssc-gunnery-range em,
+.ssc-gunnery-choice-row > span {
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-gunnery-range {
+  min-width: 118px;
+  text-align: right;
+  color: #dec17b;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.ssc-gunnery-range b {
+  color: var(--ssc-text);
+  font-weight: 700;
+}
+
+.ssc-gunnery-range em {
+  display: block;
+  font-style: normal;
+}
+
+.ssc-gunnery-choice-row {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  margin-top: 4px;
+}
+
+.ssc-gunnery-choice-row > span {
+  padding-top: 4px;
+  font-weight: 600;
+  letter-spacing: 0;
+}

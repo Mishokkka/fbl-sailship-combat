@@ -1,0 +1,96 @@
+      <section class="ssc-bottom-info">
+        {{#if selectedShip}}
+          {{#if selectedIsCreature}}
+            {{> "modules/sailships-combat/templates/naval/parts/naval-creature-summary.hbs"}}
+          {{else}}
+          <div class="ssc-summary-head">
+            <div class="ssc-summary-title-wrap">
+              <div class="ssc-summary-title-line">
+                <h2>{{selectedShip.name}}</h2>
+                <div class="ssc-summary-subline">
+                  {{#if canViewSelectedShipDetails}}
+                  <span class="ssc-summary-chip">{{sscSailingProfile selectedShip.sailing.profile}}</span>
+                  <span class="ssc-summary-chip" title="{{sscOrderTooltip selectedShip.selectedOrder}}">{{sscOrder selectedShip.selectedOrder}}</span>
+                  {{#if selectedInfo}}<span class="ssc-summary-chip">{{sscPointOfSail selectedInfo.pointOfSail}}</span>{{/if}}
+                  {{#if battleMode.usesCrystal}}{{#if selectedStatus.falling}}<span class="ssc-summary-chip danger" title="Корабль теряет левитацию из-за отказа ядра и будет снижаться каждый конец раунда.">{{localize "SAILSHIPS.Falling"}}</span>{{/if}}{{/if}}
+                  {{#if selectedShip.flags.immobilized}}<span class="ssc-summary-chip danger" title="Ход заблокирован аварией корпуса или рангоута.">Обездвижен</span>{{/if}}
+                  {{#if selectedShip.flags.uncontrolledFire}}<span class="ssc-summary-chip danger" title="Пожар вышел из-под контроля и быстрее распространяется.">Пожар!</span>{{/if}}
+                  {{#if selectedShip.flags.abandoned}}<span class="ssc-summary-chip danger" title="Команда покинула корабль.">Оставлен</span>{{/if}}
+                  {{else}}
+                  <span class="ssc-summary-chip">Открытые данные</span>
+                  {{/if}}
+                  {{#if selectedShip.flags.struck}}<span class="ssc-summary-chip danger">{{localize "SAILSHIPS.Struck"}}</span>{{/if}}
+                </div>
+              </div>
+            </div>
+            {{#if selectedTarget}}
+              <div class="ssc-target-box compact">
+                {{localize "SAILSHIPS.Target"}}: <strong>{{selectedTarget.name}}</strong>
+                <button type="button" data-action="clearTarget" title="Снять выбранную цель" aria-label="Снять выбранную цель">×</button>
+              </div>
+            {{/if}}
+          </div>
+
+          {{#if canViewSelectedShipDetails}}
+          <div class="ssc-summary-grid">
+            <article class="ssc-summary-card">
+              <h3>Положение</h3>
+              <div class="ssc-summary-card-grid compact">
+                <span title="Курс корабля на тактическом поле."><b>Курс</b><strong>{{sscHeading selectedShip.heading}}</strong></span>
+                <span title="Фактическая скорость и эффективный максимум в гексах за раунд. Без смены парусов минимальный путь: {{selectedInfo.maneuverAdvice.inertia.requiredAdvance}}."><b>Ход</b><strong>{{selectedShip.speed}}/{{selectedInfo.effectiveMaxSpeed}}</strong></span>
+                {{#if battleMode.usesAltitude}}<span title="H — тактическая полоса примерно в 50 м. H0 означает контакт с водой или поверхностью; H8 — верх карты, а не потолок мира."><b>{{localize "SAILSHIPS.Altitude"}}</b><strong>H{{selectedStatus.altitude}} · ≈{{selectedStatus.altitudeMeters}} м</strong></span>{{/if}}
+                <span title="Hnd — управляемость, SR — устойчивость. Влияют на инициативу, повороты и сложные маневры."><b>Hnd / SR</b><strong>{{sscSign selectedShip.stats.handling}} / {{selectedShip.stats.stability}}</strong></span>
+              </div>
+            </article>
+
+            <article class="ssc-summary-card">
+              <h3>{{#if battleMode.usesCrystal}}Ядро{{else}}Состояние{{/if}}</h3>
+              <div class="ssc-summary-card-grid compact">
+                {{#if battleMode.usesCrystal}}
+                <span title="Режим ядра: штатный, форсированный, аварийный или заглушенный."><b>Режим</b><strong>{{selectedInfo.coreAdvice.modeLabel}}</strong></span>
+                <span title="Нагрев ядра кристалла. При перегреве ядро повреждается и может привести к падению или взрыву."><b>{{localize "SAILSHIPS.CrystalHeat"}}</b><strong>{{selectedShip.crystal.heat}} / {{selectedShip.crystal.maxHeat}}</strong></span>
+                <span title="Целостность ядра кристалла. При физическом разрушении ядра корабль взрывается и сразу выбывает из боя."><b>{{localize "SAILSHIPS.CrystalIntegrity"}}</b><strong>{{selectedShip.crystal.integrity}} / {{selectedShip.crystal.maxIntegrity}}</strong></span>
+                {{else}}
+                <span title="{{battleMode.title}}"><b>Режим</b><strong>{{battleMode.label}}</strong></span>
+                {{/if}}
+                {{#if actionState.phaseBudget}}<span title="Очки действия активного корабля в текущей фазе."><b>{{localize "SAILSHIPS.ActionPoints"}}</b><strong>{{actionState.remainingAP}} / {{actionState.phaseBudget}}</strong></span>{{else}}<span title="Живучесть корабля. Используется для пожаров, затоплений и аварийных проверок."><b>HT</b><strong>{{selectedShip.stats.ht}}</strong></span>{{/if}}
+              </div>
+            </article>
+
+            <article class="ssc-summary-card">
+              <h3>Экипаж</h3>
+              <div class="ssc-summary-card-grid compact">
+                <span title="Текущий и штатный экипаж. Потери ухудшают ход, стрельбу и ремонт."><b>{{localize "SAILSHIPS.Crew"}}</b><strong>{{selectedShip.crew.current}} / {{selectedShip.crew.required}}</strong></span>
+                <span title="Мораль экипажа. При падении морали корабль хуже действует и может выйти из боя."><b>{{localize "SAILSHIPS.Morale"}}</b><strong>{{selectedShip.crew.morale}} / 10</strong></span>
+                {{#if selectedShip.flags.grappledWith}}<span title="Корабль сцеплен с другой целью."><b>{{localize "SAILSHIPS.Grappled"}}</b><strong>{{boardingInfo.grappledTarget.name}}</strong></span>{{else}}<span title="Текущий приказ с числовыми эффектами."><b>Приказ</b><strong title="{{sscOrderTooltip selectedShip.selectedOrder}}">{{sscOrder selectedShip.selectedOrder}}</strong></span>{{/if}}
+              </div>
+            </article>
+
+            <article class="ssc-summary-card">
+              <h3>Повреждения</h3>
+              <div class="ssc-summary-card-grid compact">
+                <span><b>{{localize "SAILSHIPS.Fire"}}</b><strong>{{selectedStatus.fire}}</strong></span>
+                <span title="Вода влияет на ход только на H0. В воздухе пробоины остаются сухими."><b>Вода/проб.</b><strong>{{selectedStatus.flooding}} / {{selectedStatus.breaches}}</strong></span>
+                <span title="Поврежденные / уничтоженные системы."><b>Сист.</b><strong>{{selectedStatus.damagedSystems}} / {{selectedStatus.destroyedSystems}}</strong></span>
+              </div>
+            </article>
+          </div>
+          {{else}}
+          <div class="ssc-summary-grid public">
+            <article class="ssc-summary-card">
+              <h3>Открытые данные</h3>
+              <div class="ssc-summary-card-grid compact">
+                <span><b>Сторона</b><strong>{{#if selectedSide}}{{selectedSide.name}}{{else}}{{selectedShip.side}}{{/if}}</strong></span>
+                <span><b>Курс</b><strong>{{sscHeading selectedShip.heading}}</strong></span>
+                <span><b>Ход</b><strong>{{selectedShip.speed}}</strong></span>
+                {{#if battleMode.usesAltitude}}<span><b>{{localize "SAILSHIPS.Altitude"}}</b><strong>{{selectedShip.altitude}}</strong></span>{{/if}}
+                {{#if selectedShip.flags.struck}}<span><b>{{localize "SAILSHIPS.Struck"}}</b><strong>!</strong></span>{{/if}}
+              </div>
+            </article>
+          </div>
+          {{/if}}
+          {{/if}}
+        {{else}}
+          <h2>{{localize "SAILSHIPS.NoCombatantSelected"}}</h2>
+        {{/if}}
+      </section>

@@ -1,0 +1,39 @@
+<section class="ssc-setup-card ssc-sides-section">
+  <header class="ssc-card-header horizontal">
+    <div><h3>Команды и зоны расстановки</h3><p>Координаты отсчитываются от нуля. Предпросмотр обновляется после применения.</p></div>
+    <button type="button" data-action="addSide" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-plus"></i> Команда</button>
+  </header>
+
+  <div class="ssc-side-grid">
+    {{#each sides as |side|}}
+      <article class="ssc-side-card" style="--ssc-side-color: {{side.color}};">
+        <header>
+          <span class="ssc-side-swatch"></span>
+          <div class="ssc-side-card-title"><strong>{{side.name}}</strong><small>Участников: {{side.unitCount}} · кораблей: {{side.shipCount}} · существ: {{side.creatureCount}}</small></div>
+          {{#if side.showRemove}}<button type="button" class="icon danger" data-action="removeSide" data-side="{{side.id}}" {{#unless side.canRemove}}disabled{{/unless}} {{#unless ../canEditSetup}}disabled{{/unless}} title="{{side.removeTitle}}"><i class="fa-solid fa-trash"></i></button>{{/if}}
+        </header>
+        <div class="ssc-form-grid side-fields">
+          <label class="ssc-field span-2">Название<input type="text" data-setup-field="{{side.id}}.name" value="{{side.name}}"></label>
+          <label class="ssc-field">Цвет<input type="color" data-setup-field="{{side.id}}.color" value="{{side.color}}"></label>
+          <label class="ssc-field">Курс<input type="number" data-setup-field="{{side.id}}.heading" value="{{side.zone.heading}}" min="0" max="300" step="60"></label>
+          <label class="ssc-field">X1<input type="number" data-setup-field="{{side.id}}.x1" value="{{side.zone.x1}}" min="0"></label>
+          <label class="ssc-field">Y1<input type="number" data-setup-field="{{side.id}}.y1" value="{{side.zone.y1}}" min="0"></label>
+          <label class="ssc-field">X2<input type="number" data-setup-field="{{side.id}}.x2" value="{{side.zone.x2}}" min="0"></label>
+          <label class="ssc-field">Y2<input type="number" data-setup-field="{{side.id}}.y2" value="{{side.zone.y2}}" min="0"></label>
+        </div>
+        <div class="ssc-side-toggles">
+          <label><input type="checkbox" data-setup-field="{{side.id}}.coreTargeting" {{#if side.coreTargeting}}checked{{/if}}> Огонь по ядру</label>
+          <label><input type="checkbox" data-setup-field="{{side.id}}.heatedShot" {{#if side.heatedShot}}checked{{/if}}> Калёные ядра</label>
+        </div>
+        <footer>
+          <button type="button" data-action="deploySide" data-side="{{side.id}}" {{#unless ../canEditSetup}}disabled{{/unless}}>Расставить</button>
+          <button type="button" data-action="randomDeploySide" data-side="{{side.id}}" {{#unless ../canEditSetup}}disabled{{/unless}}>Случайно</button>
+        </footer>
+      </article>
+    {{/each}}
+  </div>
+
+  <div class="ssc-inline-actions end">
+    <button type="button" class="primary" data-action="applySideSetup" {{#unless canEditSetup}}disabled{{/unless}}><i class="fa-solid fa-check"></i> Применить команды и условия</button>
+  </div>
+</section>

@@ -1,0 +1,40 @@
+    {{#if isTemplatesTab}}
+      <section class="ssc-shipyard-tab-panel">
+        <div class="ssc-yard-section-head">
+          <div>
+            <h3 title="Расширенный набор встроенных кораблей. Они не хранятся в пользовательской библиотеке и доступны всегда.">{{localize "SAILSHIPS.BuiltInTemplates"}}</h3>
+            <p class="ssc-hint">Добавление шаблона создает новый корабль в текущем бою и сразу выбирает его для редактирования.</p>
+          </div>
+          {{#if setupLocked}}<p class="ssc-hint danger">Бой подтвержден: добавление кораблей из шаблонов заблокировано.</p>{{/if}}
+        </div>
+
+        <div class="ssc-template-groups">
+          {{#each templateGroups as |group|}}
+            <section class="ssc-template-group">
+              <h4>{{group.category}}</h4>
+              <div class="ssc-template-grid">
+                {{#each group.templates as |template|}}
+                  <article class="ssc-template-card">
+                    <div class="ssc-template-title">
+                      <strong>{{template.label}}</strong>
+                      <span>{{template.id}}</span>
+                    </div>
+                    <p>{{template.description}}</p>
+                    <p class="ssc-hint">{{template.armament}}</p>
+                    <div class="ssc-template-stats">
+                      <span title="Максимальный ход.">{{localize "SAILSHIPS.Speed"}} {{template.maxSpeed}}</span>
+                      <span title="Штатный экипаж.">{{localize "SAILSHIPS.Crew"}} {{template.crew}}</span>
+                      <span title="Суммарные HP корпуса.">HP {{template.hp}}</span>
+                      <span title="Средняя броня центральной секции.">DR {{template.dr}}</span>
+                      <span title="Урон бортового залпа.">{{localize "SAILSHIPS.Damage"}} {{template.broadsideDamage}}</span>
+                      <span title="Целостность ядра.">{{localize "SAILSHIPS.CrystalIntegrity"}} {{template.crystalIntegrity}}</span>
+                    </div>
+                    <button type="button" data-action="addTemplateShip" data-template="{{template.id}}" {{#unless ../../canEditBattleShips}}disabled{{/unless}} title="Добавить этот тип корабля в текущий бой.">Добавить</button>
+                  </article>
+                {{/each}}
+              </div>
+            </section>
+          {{/each}}
+        </div>
+      </section>
+    {{/if}}

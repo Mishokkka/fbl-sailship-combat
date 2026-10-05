@@ -1,0 +1,24 @@
+        {{#if phaseFlags.showTurnBox}}
+          <section class="ssc-turn-box">
+            <h3>{{localize "SAILSHIPS.TurnOrder"}}</h3>
+            {{#if activeShip}}
+              <div class="ssc-active-ship">{{localize "SAILSHIPS.ActiveShip"}}: <strong>{{activeShip.name}}</strong></div>
+            {{else}}
+              <div class="ssc-active-ship muted">{{localize "SAILSHIPS.AllShipsDone"}}</div>
+            {{/if}}
+            {{#if actionState.phaseBudget}}
+              <div class="ssc-ap-box">
+                {{localize "SAILSHIPS.ActionPoints"}}: <strong>{{actionState.remainingAP}}/{{actionState.phaseBudget}}</strong>
+                <span>{{localize "SAILSHIPS.SpentActions"}}: {{actionState.spentAP}}</span>
+              </div>
+            {{/if}}
+            <div class="ssc-turn-list">
+              {{#each turnOrder as |turnShip|}}
+                <span class="ssc-turn-pill side-{{turnShip.side}} {{#if turnShip.active}}active{{/if}} {{#if turnShip.done}}done{{/if}}" style="--ssc-side-color: {{turnShip.sideColor}};">{{turnShip.name}}{{#if turnShip.initiative}} <em>{{turnShip.initiative}}</em>{{/if}}</span>
+              {{/each}}
+            </div>
+            {{#unless actionState.isActive}}
+              <p class="ssc-hint">{{localize "SAILSHIPS.NotActiveShipHint"}}</p>
+            {{/unless}}
+          </section>
+        {{/if}}

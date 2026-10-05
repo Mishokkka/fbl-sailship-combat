@@ -1,0 +1,91 @@
+        {{#if phaseFlags.movement}}
+          <section class="ssc-action-box">
+            <h3>{{localize "SAILSHIPS.MovementActions"}}</h3>
+            {{#if selectedInfo.maneuverAdvice}}
+              <div class="ssc-maneuver-advice {{#if selectedInfo.maneuverAdvice.inIrons}}danger{{/if}}">
+                <div class="ssc-maneuver-advice-head">
+                  <strong>Ветер и маневр</strong>
+                  <span title="Безопасный ход для поворота без проверки.">Безопасный поворот: ход ≤ {{selectedInfo.maneuverAdvice.safeTurnSpeed}}</span>
+                </div>
+                <p>{{selectedInfo.maneuverAdvice.notice}}</p>
+                <div class="ssc-inertia-summary" title="Скорость задаёт фактическое продвижение за раунд. Короткий допустимый путь уменьшает скорость до реально пройденной дистанции.">
+                  <span><b>Обязательный путь</b><strong>{{selectedInfo.maneuverAdvice.inertia.requiredAdvance}}–{{selectedInfo.maneuverAdvice.inertia.speed}} гекс.</strong></span>
+                  <span><b>Ускорение</b><strong>+{{selectedInfo.maneuverAdvice.inertia.acceleration}}</strong></span>
+                  <span><b>Торможение</b><strong>−{{selectedInfo.maneuverAdvice.inertia.braking}}</strong></span>
+                  <span><b>Конус курса</b><strong>{{selectedInfo.maneuverAdvice.inertia.turnText}}</strong></span>
+                </div>
+                {{#if selectedInfo.maneuverAdvice.inertia.modifiersText}}<p class="ssc-inertia-modifiers">{{selectedInfo.maneuverAdvice.inertia.modifiersText}}</p>{{/if}}
+                <div class="ssc-turn-preview-grid">
+                  {{#if selectedInfo.maneuverAdvice.left}}
+                    <div class="ssc-turn-preview {{selectedInfo.maneuverAdvice.left.severity}}" title="{{selectedInfo.maneuverAdvice.left.tooltip}}">
+                      <b>Влево</b>
+                      <span>{{selectedInfo.maneuverAdvice.left.requirement}}</span>
+                      {{#if selectedInfo.maneuverAdvice.left.notesText}}<em>{{selectedInfo.maneuverAdvice.left.notesText}}</em>{{/if}}
+                    </div>
+                  {{else}}
+                    <div class="ssc-turn-preview danger"><b>Влево</b><span>руль/штурвал не позволяют</span></div>
+                  {{/if}}
+                  {{#if selectedInfo.maneuverAdvice.right}}
+                    <div class="ssc-turn-preview {{selectedInfo.maneuverAdvice.right.severity}}" title="{{selectedInfo.maneuverAdvice.right.tooltip}}">
+                      <b>Вправо</b>
+                      <span>{{selectedInfo.maneuverAdvice.right.requirement}}</span>
+                      {{#if selectedInfo.maneuverAdvice.right.notesText}}<em>{{selectedInfo.maneuverAdvice.right.notesText}}</em>{{/if}}
+                    </div>
+                  {{else}}
+                    <div class="ssc-turn-preview danger"><b>Вправо</b><span>руль/штурвал не позволяют</span></div>
+                  {{/if}}
+                </div>
+                {{#if selectedInfo.maneuverAdvice.last}}
+                  <div class="ssc-last-check {{#if selectedInfo.maneuverAdvice.last.success}}success{{else}}danger{{/if}}" title="{{selectedInfo.maneuverAdvice.last.reason}}">
+                    Последняя проверка: <strong>{{selectedInfo.maneuverAdvice.last.text}}</strong>
+                  </div>
+                {{/if}}
+              </div>
+            {{/if}}
+            {{#if selectedInfo.coreAdvice}}
+              <div class="ssc-core-advice {{#if selectedInfo.coreAdvice.disabled}}danger{{/if}}">
+                <div class="ssc-maneuver-advice-head">
+                  <strong>Ядро и высота</strong>
+                  <span title="Вертикальная скорость применяется в конце раунда. Один уровень H — примерно 50 м.">Вертикаль: {{selectedInfo.coreAdvice.verticalText}}</span>
+                </div>
+                <p>{{selectedInfo.coreAdvice.notice}}</p>
+                <div class="ssc-core-mode-grid">
+                  <button type="button" data-action="coreModeNormal" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'normal')}}active{{/if}}">Штатный</button>
+                  <button type="button" data-action="coreModeBoosted" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'boosted')}}active{{/if}}">Форсаж</button>
+                  <button type="button" data-action="coreModeEmergency" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'emergency')}}active{{/if}}">Аварийный</button>
+                  <button type="button" data-action="coreModeShutdown" class="{{#if (sscEq selectedInfo.coreAdvice.modeKey 'shutdown')}}active{{/if}}">Заглушить</button>
+                </div>
+              </div>
+            {{/if}}
+            <div class="ssc-action-subgroup">
+              <h4>Паруса и руль</h4>
+              <div class="ssc-action-grid">
+                <button type="button" data-action="fullSail" {{#unless actionState.canIncreaseSpeed}}disabled{{/unless}}>{{localize "SAILSHIPS.FullSail"}}</button>
+                <button type="button" data-action="reduceSail" {{#unless actionState.canReduceSpeed}}disabled{{/unless}}>{{localize "SAILSHIPS.ReduceSail"}}</button>
+                <button type="button" data-action="turnLeft" title="Поворот на 60° влево. Требует исправного руля/штурвала. В блоке выше показано, нужна ли проверка." {{#unless actionState.canTurn}}disabled{{/unless}}>{{localize "SAILSHIPS.TurnLeft"}}</button>
+                <button type="button" data-action="turnRight" title="Поворот на 60° вправо. Требует исправного руля/штурвала. В блоке выше показано, нужна ли проверка." {{#unless actionState.canTurn}}disabled{{/unless}}>{{localize "SAILSHIPS.TurnRight"}}</button>
+              </div>
+            </div>
+            {{#if selectedInfo.coreAdvice}}
+            <div class="ssc-action-subgroup">
+              <h4>Маневры ядра</h4>
+              <div class="ssc-action-grid">
+                <button type="button" data-action="coreClimb" title="Набрать вертикальную инерцию вверх. Высота изменится в конце раунда." {{#unless actionState.canCore}}disabled{{/unless}}>{{localize "SAILSHIPS.CoreClimb"}}</button>
+                <button type="button" data-action="coreDescend" title="Безопасное снижение: уменьшает вертикальную инерцию вниз." {{#unless actionState.canCore}}disabled{{/unless}}>{{localize "SAILSHIPS.CoreDescend"}}</button>
+                <button type="button" data-action="coreEmergencyDescend" title="Аварийное снижение: быстро уводит вниз, но посадка будет жесткой." {{#unless actionState.canCore}}disabled{{/unless}}>Авар. снижение</button>
+                <button type="button" data-action="coreImpulse" title="Короткий гравитационный толчок ядра: прибавляет ход, но быстро перегревает кристалл." {{#unless actionState.canCoreImpulse}}disabled{{/unless}}>{{localize "SAILSHIPS.CoreImpulse"}}</button>
+              </div>
+              <div class="ssc-core-shift-grid" title="Ядерное смещение доступно только в форсированном режиме, выше H0. Курс корабля не меняется.">
+                <button type="button" data-action="coreShift0" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг С</button>
+                <button type="button" data-action="coreShift60" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг СВ</button>
+                <button type="button" data-action="coreShift120" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг ЮВ</button>
+                <button type="button" data-action="coreShift180" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг Ю</button>
+                <button type="button" data-action="coreShift240" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг ЮЗ</button>
+                <button type="button" data-action="coreShift300" {{#unless actionState.canCore}}disabled{{else}}{{#unless selectedInfo.coreAdvice.canShift}}disabled{{/unless}}{{/unless}}>Сдвиг СЗ</button>
+              </div>
+            </div>
+            {{/if}}
+            {{#if actionState.movementState.mustMove}}<p class="ssc-hint danger"><strong>Инерция:</strong> до завершения активации корабль обязан пройти не менее {{actionState.movementState.requiredAdvance}} гекс.</p>{{/if}}
+            <p class="ssc-hint">Клик по подсвеченной клетке тратит действие движения и завершает активацию корабля в фазе маневра. 1 гекс ≈ 50 м. {{#if selectedInfo.coreAdvice}}Подъем/снижение задают вертикальную инерцию; высота меняется в конце раунда вместе с дрейфом.{{/if}}</p>
+          </section>
+        {{/if}}

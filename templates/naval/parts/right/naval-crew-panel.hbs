@@ -1,0 +1,39 @@
+        {{#if phaseFlags.crew}}
+          <section class="ssc-action-box">
+            <h3>{{localize "SAILSHIPS.DamageControl"}}</h3>
+            <div class="ssc-order-reference" aria-label="Справка по приказам">
+              <span class="ssc-order-ref-label">Приказы:</span>
+              <div class="ssc-choice-strip">
+                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'battleSail')}}active{{/if}}" title="{{sscOrderTooltip 'battleSail'}}">{{localize "SAILSHIPS.Orders.battleSail"}}</span>
+                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'pressSail')}}active{{/if}}" title="{{sscOrderTooltip 'pressSail'}}">{{localize "SAILSHIPS.Orders.pressSail"}}</span>
+                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'steadyGunnery')}}active{{/if}}" title="{{sscOrderTooltip 'steadyGunnery'}}">{{localize "SAILSHIPS.Orders.steadyGunnery"}}</span>
+                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'damageControl')}}active{{/if}}" title="{{sscOrderTooltip 'damageControl'}}">{{localize "SAILSHIPS.Orders.damageControl"}}</span>
+                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'boarding')}}active{{/if}}" title="{{sscOrderTooltip 'boarding'}}">{{localize "SAILSHIPS.Orders.boarding"}}</span>
+                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'brace')}}active{{/if}}" title="{{sscOrderTooltip 'brace'}}">{{localize "SAILSHIPS.Orders.brace"}}</span>
+              </div>
+            </div>
+            <div class="ssc-action-grid">
+              <button type="button" data-action="repair" title="{{actionState.repairTitle}}" {{#unless actionState.canRepairAuto}}disabled{{/unless}}>{{localize "SAILSHIPS.Repair"}}</button>
+              <button type="button" data-action="repairFire" title="{{actionState.repairFireTitle}}" {{#unless actionState.canRepairFire}}disabled{{/unless}}>{{localize "SAILSHIPS.ExtinguishFire"}}</button>
+              <button type="button" data-action="repairFlooding" title="{{actionState.repairFloodingTitle}}" {{#unless actionState.canRepairFlooding}}disabled{{/unless}}>{{localize "SAILSHIPS.PumpWater"}}</button>
+              <button type="button" data-action="repairSystem" title="{{actionState.repairSystemTitle}}" {{#unless actionState.canRepairSystem}}disabled{{/unless}}>{{localize "SAILSHIPS.RepairSystem"}}</button>
+              {{#if battleMode.usesCrystal}}<button type="button" data-action="coolCrystalCore" title="{{actionState.coolCrystalTitle}}" {{#unless actionState.canCoolCrystalCore}}disabled{{/unless}}>{{localize "SAILSHIPS.CoolCrystalCore"}}</button>{{/if}}
+              <button type="button" data-action="rallyCrew" title="{{actionState.rallyCrewTitle}}" {{#unless actionState.canRallyCrew}}disabled{{/unless}}>{{localize "SAILSHIPS.RallyCrew"}}</button>
+              <button type="button" data-action="abandonShip" title="{{actionState.abandonShipTitle}}" {{#unless actionState.canAbandonShip}}disabled{{/unless}}>{{localize "SAILSHIPS.AbandonShip"}}</button>
+            </div>
+          </section>
+
+          <section class="ssc-action-box">
+            <h3>{{localize "SAILSHIPS.Boarding"}}</h3>
+            <div class="ssc-action-grid">
+              <button type="button" data-action="grapple" title="{{actionState.grappleTitle}}" {{#unless actionState.canGrappleAction}}disabled{{/unless}}>{{localize "SAILSHIPS.Grapple"}}</button>
+              <button type="button" data-action="boarding" title="{{actionState.boardingTitle}}" {{#unless actionState.canBoardAction}}disabled{{/unless}}>{{localize "SAILSHIPS.BoardingAttack"}}</button>
+              <button type="button" data-action="releaseGrapple" title="{{actionState.releaseGrappleTitle}}" {{#unless actionState.canReleaseGrappleAction}}disabled{{/unless}}>{{localize "SAILSHIPS.ReleaseGrapple"}}</button>
+              <button type="button" data-action="repelCreature" title="{{actionState.repelCreatureTitle}}" {{#unless actionState.canRepelCreature}}disabled{{/unless}}>Отбить чудовище{{#if actionState.attachedCreatureCount}} ({{actionState.attachedCreatureCount}}){{/if}}</button>
+            </div>
+            {{#if selectedTarget}}
+              {{#if boardingInfo.canGrapple}}<p class="ssc-hint">{{localize "SAILSHIPS.CanGrapple"}}</p>{{/if}}
+            {{/if}}
+            {{#if boardingInfo.canBoard}}<p class="ssc-hint">{{localize "SAILSHIPS.CanBoard"}}</p>{{/if}}
+          </section>
+        {{/if}}

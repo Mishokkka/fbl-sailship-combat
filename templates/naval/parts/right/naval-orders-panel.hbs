@@ -1,0 +1,14 @@
+        {{#if phaseFlags.orders}}
+          <section class="ssc-action-box ssc-orders-box">
+            <h3>{{localize "SAILSHIPS.OrdersTitle"}}</h3>
+            <div class="ssc-action-grid ssc-orders-grid">
+              <button type="button" class="{{#if (sscEq selectedShip.selectedOrder 'battleSail')}}active{{/if}} {{#if (sscEq playerControl.selectedPendingOrder.order 'battleSail')}}pending{{/if}}" data-action="orderBattleSail" title="{{sscOrderTooltip 'battleSail'}}" {{#unless orderControls.canUse}}disabled{{/unless}}>{{localize "SAILSHIPS.Orders.battleSail"}}</button>
+              <button type="button" class="{{#if (sscEq selectedShip.selectedOrder 'pressSail')}}active{{/if}} {{#if (sscEq playerControl.selectedPendingOrder.order 'pressSail')}}pending{{/if}}" data-action="orderPressSail" title="{{sscOrderTooltip 'pressSail'}}" {{#unless orderControls.canUse}}disabled{{/unless}}>{{localize "SAILSHIPS.Orders.pressSail"}}</button>
+              <button type="button" class="{{#if (sscEq selectedShip.selectedOrder 'steadyGunnery')}}active{{/if}} {{#if (sscEq playerControl.selectedPendingOrder.order 'steadyGunnery')}}pending{{/if}}" data-action="orderSteadyGunnery" title="{{sscOrderTooltip 'steadyGunnery'}}" {{#unless orderControls.canUse}}disabled{{/unless}}>{{localize "SAILSHIPS.Orders.steadyGunnery"}}</button>
+              <button type="button" class="{{#if (sscEq selectedShip.selectedOrder 'damageControl')}}active{{/if}} {{#if (sscEq playerControl.selectedPendingOrder.order 'damageControl')}}pending{{/if}}" data-action="orderDamageControl" title="{{sscOrderTooltip 'damageControl'}}" {{#unless orderControls.canUse}}disabled{{/unless}}>{{localize "SAILSHIPS.Orders.damageControl"}}</button>
+              <button type="button" class="{{#if (sscEq selectedShip.selectedOrder 'boarding')}}active{{/if}} {{#if (sscEq playerControl.selectedPendingOrder.order 'boarding')}}pending{{/if}}" data-action="orderBoarding" title="{{sscOrderTooltip 'boarding'}}" {{#unless orderControls.canUse}}disabled{{/unless}}>{{localize "SAILSHIPS.Orders.boarding"}}</button>
+              <button type="button" class="{{#if (sscEq selectedShip.selectedOrder 'brace')}}active{{/if}} {{#if (sscEq playerControl.selectedPendingOrder.order 'brace')}}pending{{/if}}" data-action="orderBrace" title="{{sscOrderTooltip 'brace'}}" {{#unless orderControls.canUse}}disabled{{/unless}}>{{localize "SAILSHIPS.Orders.brace"}}</button>
+            </div>
+            <p class="ssc-hint">{{localize "SAILSHIPS.OrdersHint"}}</p>
+          </section>
+        {{/if}}

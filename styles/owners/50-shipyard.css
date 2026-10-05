@@ -1,0 +1,495 @@
+/* Shipyard window: tabs, battle ships, templates, library and editor placement. */
+
+.sailships-shipyard-app {
+  min-width: 940px;
+}
+
+.ssc-shipyard-shell {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #20242a 0%, #111418 72%);
+}
+
+.ssc-shipyard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(208, 168, 83, 0.24);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.ssc-shipyard-header h2 {
+  margin: 0;
+  color: #f0e6cf;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: 16px;
+}
+
+.ssc-shipyard-header p {
+  margin: 4px 0 0;
+  color: var(--ssc-muted);
+  font-size: 12px;
+}
+
+.ssc-shipyard-tabs {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.22);
+}
+
+.ssc-shipyard-tabs button {
+  min-height: 30px;
+  padding-inline: 12px;
+  color: var(--ssc-muted);
+}
+
+.ssc-shipyard-tabs button.active {
+  color: var(--ssc-text);
+  border-color: var(--ssc-accent);
+  background: linear-gradient(180deg, rgba(199,163,93,0.28), rgba(60,45,24,0.65));
+}
+
+.ssc-shipyard-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ssc-shipyard-tab-panel {
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 2px 2px 8px;
+}
+
+.ssc-yard-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid rgba(208,168,83,0.20);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.22);
+}
+
+.ssc-yard-section-head h3,
+.ssc-yard-section-head h4 {
+  margin: 0;
+  color: var(--ssc-accent);
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+
+.ssc-yard-battle-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  gap: 8px;
+}
+
+.ssc-template-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ssc-template-groups {
+  gap: 12px;
+}
+
+.ssc-yard-ship-row,
+.ssc-template-card,
+.ssc-library-card {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(0,0,0,0.18));
+  color: var(--ssc-text);
+}
+
+.ssc-yard-ship-row {
+  min-height: 98px;
+  display: grid;
+  gap: 3px;
+  align-content: start;
+  border-left: 4px solid var(--ssc-side-color, rgba(255,255,255,0.24));
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ssc-yard-ship-row.selected {
+  border-color: rgba(208, 168, 83, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(208, 168, 83, 0.35);
+}
+
+.ssc-yard-ship-row strong,
+.ssc-template-title strong {
+  color: #f0e6cf;
+  font-size: 14px;
+}
+
+.ssc-yard-ship-row span,
+.ssc-template-title span {
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-yard-ship-row em {
+  color: #e27878;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.ssc-yard-quick-card,
+.ssc-library-save-box {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.20);
+}
+
+.ssc-yard-quick-card h4,
+.ssc-library-save-box h4,
+.ssc-template-group h4 {
+  margin: 0 0 8px;
+  color: var(--ssc-accent);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.ssc-yard-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ssc-yard-stat-grid span {
+  display: block;
+  padding: 6px 8px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.035);
+  color: var(--ssc-muted);
+}
+
+.ssc-yard-stat-grid strong {
+  color: var(--ssc-text);
+}
+
+.ssc-template-grid,
+.ssc-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+
+.ssc-template-card,
+.ssc-library-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 170px;
+}
+
+.ssc-template-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ssc-template-title span {
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.ssc-template-card p,
+.ssc-library-card p {
+  min-height: 34px;
+  margin: 0;
+  color: var(--ssc-muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.ssc-template-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: auto;
+}
+
+.ssc-template-stats span {
+  padding: 4px 5px;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 4px;
+  background: rgba(0,0,0,0.18);
+  color: var(--ssc-muted);
+  font-size: 11px;
+}
+
+.ssc-library-save-box {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+.ssc-shipyard-shell.locked .ssc-ship-editor-box {
+  border-color: rgba(224, 186, 101, 0.32);
+}
+
+.ssc-shipyard-editor-tab .ssc-ship-editor-box {
+  margin: 0;
+}
+
+.ssc-shipyard-editor-tab .ssc-editor-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ssc-shipyard-editor-tab .ssc-section-editor {
+  max-height: none;
+}
+
+.ssc-shipyard-editor-tab .ssc-section-edit-card {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1180px) {
+  .ssc-library-save-box,
+  .ssc-yard-section-head {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .ssc-shipyard-editor-tab .ssc-editor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Multi-team battle composition. */
+.ssc-yard-team-head {
+  align-items: center;
+}
+
+.ssc-yard-team-toolbar {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.22);
+}
+
+.ssc-yard-team-toolbar label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ssc-yard-team-toolbar label > span {
+  color: var(--ssc-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ssc-yard-team-toolbar label > small {
+  color: var(--ssc-muted);
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.ssc-yard-team-toolbar select {
+  width: 100%;
+  min-height: 32px;
+}
+
+.ssc-yard-selected-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.ssc-yard-team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+
+.ssc-yard-team-card {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-top: 4px solid var(--ssc-side-color, #777);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.23));
+}
+
+.ssc-yard-team-card.active {
+  border-color: color-mix(in srgb, var(--ssc-side-color, #777) 70%, white 30%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ssc-side-color, #777) 38%, transparent);
+}
+
+.ssc-yard-team-card > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 2px 2px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.ssc-yard-team-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ssc-yard-team-title > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.ssc-yard-team-title strong {
+  color: #f0e6cf;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssc-yard-team-title small {
+  color: var(--ssc-muted);
+  font-size: 10px;
+}
+
+.ssc-yard-team-swatch {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 50%;
+  background: var(--ssc-side-color, #777);
+}
+
+.ssc-yard-team-target {
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+.ssc-yard-team-target.active {
+  border-color: var(--ssc-side-color, var(--ssc-accent));
+  color: #fff;
+  background: color-mix(in srgb, var(--ssc-side-color, #777) 34%, rgba(0,0,0,.45));
+}
+
+.ssc-yard-team-card .ssc-yard-battle-list {
+  grid-template-columns: 1fr;
+}
+
+.ssc-yard-team-card .ssc-yard-ship-row {
+  min-height: 90px;
+}
+
+.ssc-yard-team-empty {
+  display: grid;
+  place-items: center;
+  min-height: 86px;
+  padding: 12px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 6px;
+  color: var(--ssc-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+@media (max-width: 1080px) {
+  .ssc-yard-team-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ssc-yard-selected-actions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .ssc-yard-selected-actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .ssc-yard-team-toolbar,
+  .ssc-yard-team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.ssc-shipyard-global-actions {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+}
+
+.ssc-shipyard-active-side {
+  display: grid;
+  gap: 2px;
+  min-width: 210px;
+}
+
+.ssc-shipyard-active-side > span {
+  color: var(--ssc-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.ssc-shipyard-active-side select {
+  min-height: 30px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .ssc-shipyard-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ssc-shipyard-global-actions {
+    align-items: end;
+  }
+
+  .ssc-shipyard-active-side {
+    flex: 1;
+  }
+}

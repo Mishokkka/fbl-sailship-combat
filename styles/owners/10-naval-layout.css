@@ -1,0 +1,442 @@
+/* Main naval battle window: Foundry header controls, shell, columns and selected summary. */
+
+.ssc-shell {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  background: var(--ssc-bg);
+}
+
+.sailships-battle-app > .window-header {
+  min-width: 0;
+  gap: 4px;
+}
+
+.sailships-battle-app > .window-header .window-title {
+  min-width: 0;
+  font-weight: 700;
+}
+
+.sailships-battle-app > .window-header .controls-dropdown.ssc-header-controls {
+  position: static;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 2px;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  visibility: visible;
+  pointer-events: auto;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition: none;
+}
+
+.sailships-battle-app > .window-header .ssc-header-controls .header-control {
+  margin: 0;
+}
+
+.sailships-battle-app > .window-header button.header-control,
+.sailships-battle-app > .window-header .ssc-header-controls .header-control > button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  flex: 0 0 24px;
+  min-height: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-light-1);
+  box-shadow: none;
+  line-height: 1;
+  text-align: center;
+}
+
+.sailships-battle-app > .window-header button.header-control.hidden {
+  display: none;
+}
+
+.sailships-battle-app > .window-header button.header-control.icon {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro";
+  font-size: 0;
+  font-weight: 900;
+}
+
+.sailships-battle-app > .window-header button.header-control.icon::before {
+  display: block;
+  width: 1em;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1;
+  text-align: center;
+}
+
+.sailships-battle-app > .window-header .ssc-header-controls .control-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1;
+  text-align: center;
+}
+
+.sailships-battle-app > .window-header button.header-control:hover,
+.sailships-battle-app > .window-header .ssc-header-controls .header-control > button:hover {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08);
+  box-shadow: none;
+}
+
+.sailships-battle-app > .window-header button.header-control[data-action="close"] {
+  color: #ffc8b8;
+}
+
+.sailships-battle-app > .window-header .ssc-header-controls .ssc-header-primary > button {
+  color: #dff5c0;
+}
+
+.sailships-battle-app > .window-header .ssc-header-controls .ssc-header-danger > button {
+  color: #ffc8b8;
+}
+
+.sailships-battle-app > .window-header .ssc-header-controls .control-label {
+  display: none;
+}
+
+.ssc-main-grid {
+  --ssc-grid-pad: 8px;
+  --ssc-grid-gap: 6px;
+  --ssc-left-col: 285px;
+  --ssc-right-col: 380px;
+  --ssc-center-min: 680px;
+  --ssc-board-hint-h: 29px;
+  --ssc-bottom-info-h: 138px;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--ssc-left-col) minmax(var(--ssc-center-min), 1fr) var(--ssc-right-col);
+  grid-template-rows: minmax(0, 1fr) var(--ssc-board-hint-h) var(--ssc-bottom-info-h);
+  gap: var(--ssc-grid-gap);
+  padding: var(--ssc-grid-pad);
+  overflow: hidden;
+}
+
+.ssc-narrow-nav {
+  display: none;
+}
+
+.ssc-main-grid[data-layout="compact"] {
+  --ssc-grid-pad: 6px;
+  --ssc-grid-gap: 4px;
+  --ssc-left-col: 190px;
+  --ssc-right-col: 270px;
+  --ssc-center-min: 380px;
+}
+
+.ssc-main-grid[data-layout="compact"] .ssc-left-panel,
+.ssc-main-grid[data-layout="compact"] .ssc-right-panel {
+  padding: 7px;
+}
+
+.ssc-main-grid[data-layout="narrow"] {
+  --ssc-grid-pad: 5px;
+  --ssc-grid-gap: 5px;
+  --ssc-left-col: 0px;
+  --ssc-right-col: 0px;
+  --ssc-center-min: 0px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 34px minmax(0, 1fr) var(--ssc-bottom-info-h);
+}
+
+.ssc-main-grid[data-layout="narrow"] .ssc-narrow-nav {
+  position: relative;
+  z-index: 12;
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.ssc-narrow-nav button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 3px 8px;
+  border-color: rgba(255,255,255,0.14);
+  background: rgba(14,16,20,0.82);
+  color: var(--ssc-muted);
+}
+
+.ssc-narrow-nav button[aria-pressed="true"] {
+  border-color: var(--ssc-accent);
+  color: var(--ssc-text);
+  background: rgba(199,163,93,0.16);
+}
+
+.ssc-narrow-nav button i {
+  margin-right: 5px;
+}
+
+.ssc-main-grid[data-layout="narrow"] > .ssc-left-panel,
+.ssc-main-grid[data-layout="narrow"] > .ssc-center-panel,
+.ssc-main-grid[data-layout="narrow"] > .ssc-right-panel {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.ssc-main-grid[data-layout="narrow"] > .ssc-left-panel,
+.ssc-main-grid[data-layout="narrow"] > .ssc-right-panel { grid-row: 2 / 4; }
+.ssc-main-grid[data-layout="narrow"] > .ssc-center-panel { grid-row: 2; }
+.ssc-main-grid[data-layout="narrow"] > .ssc-bottom-info { grid-column: 1; grid-row: 3; }
+
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="board"] > .ssc-left-panel,
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="board"] > .ssc-right-panel,
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="fleet"] > .ssc-center-panel,
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="fleet"] > .ssc-bottom-info,
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="fleet"] > .ssc-right-panel,
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="controls"] > .ssc-left-panel,
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="controls"] > .ssc-center-panel,
+.ssc-main-grid[data-layout="narrow"][data-narrow-pane="controls"] > .ssc-bottom-info {
+  display: none;
+}
+
+.ssc-left-panel,
+.ssc-right-panel,
+.ssc-bottom-info {
+  position: relative;
+  z-index: 3;
+  min-height: 0;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 6px;
+  background: rgba(14, 16, 20, 0.68);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.24);
+  backdrop-filter: blur(1.4px);
+}
+
+.ssc-left-panel,
+.ssc-right-panel {
+  grid-row: 1 / 4;
+  overflow: auto;
+  padding: 10px;
+}
+
+.ssc-left-panel h2,
+.ssc-right-panel h2,
+.ssc-right-panel h3,
+.ssc-summary-title-wrap h2,
+.ssc-summary-card h3 {
+  margin: 0 0 8px;
+  color: var(--ssc-accent);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ssc-right-panel > h2 {
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.ssc-right-panel h3 {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.ssc-center-panel {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  z-index: 2;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) var(--ssc-board-hint-h);
+  gap: 0;
+}
+
+.ssc-bottom-info {
+  grid-column: 2;
+  grid-row: 3;
+  box-sizing: border-box;
+  width: 100%;
+  justify-self: stretch;
+  min-height: 0;
+  height: var(--ssc-bottom-info-h);
+  max-height: var(--ssc-bottom-info-h);
+  overflow: hidden;
+  margin-top: 8px;
+  padding: 5px 7px;
+  background: rgba(14, 16, 20, 0.70);
+}
+
+.ssc-target-box {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid rgba(199,93,93,0.6);
+  border-radius: 4px;
+  background: rgba(199,93,93,0.12);
+  margin-bottom: 10px;
+}
+
+.ssc-target-box.compact {
+  min-width: 220px;
+  margin: 0;
+  padding: 3px 6px;
+}
+
+.ssc-summary-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.ssc-summary-title-wrap {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ssc-summary-title-wrap h2 {
+  margin: 0;
+}
+
+.ssc-summary-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  row-gap: 3px;
+}
+
+.ssc-summary-title-line h2 {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssc-summary-subline {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ssc-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 132px;
+  min-height: 18px;
+  padding: 1px 5px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  color: var(--ssc-muted);
+  font-size: 9px;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssc-summary-chip.danger {
+  border-color: rgba(224,120,120,0.45);
+  background: rgba(150,40,40,0.14);
+  color: #ffb4b4;
+}
+
+.ssc-summary-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1.1fr 0.95fr 0.95fr;
+  gap: 5px;
+}
+
+.ssc-summary-card {
+  min-width: 0;
+  padding: 4px 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 5px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+}
+
+.ssc-summary-card h3 {
+  margin: 0 0 2px;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.ssc-summary-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 5px;
+}
+
+.ssc-summary-card-grid span {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.ssc-summary-card-grid b {
+  color: var(--ssc-muted);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.05;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssc-summary-card-grid strong {
+  color: var(--ssc-text);
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.ssc-summary-card-grid.compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ssc-summary-card-grid.compact strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ssc-target-box.compact button {
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+}
+
+.ssc-summary-head{min-height:34px;align-items:center}.ssc-target-box.compact{min-height:28px;height:28px;padding:2px 5px;display:flex;align-items:center;gap:6px;align-self:center;white-space:nowrap}.ssc-target-box.compact button{width:24px;height:24px;min-height:24px;padding:0}
+
+.ssc-ship-token.ssc-collision-impact .ssc-ship-shape,
+.ssc-ship-token.ssc-collision-impact .ssc-creature-silhouette,
+.ssc-ship-token.ssc-collision-impact .ssc-creature-token-image {
+  filter: brightness(1.65) drop-shadow(0 0 7px rgba(255,190,120,0.72));
+}

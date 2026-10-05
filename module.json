@@ -1,0 +1,48 @@
+{
+  "id": "sailships-combat",
+  "title": "Sailships Combat",
+  "description": "Тактические морские и воздушные бои кораблей и летающих существ для Foundry VTT.",
+  "version": "0.14.2",
+  "authors": [
+    {
+      "name": "Хозяин"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.351"
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/owners/00-foundation.css",
+    "styles/owners/10-naval-layout.css",
+    "styles/owners/20-naval-board.css",
+    "styles/owners/25-naval-terrain.css",
+    "styles/owners/30-naval-panels.css",
+    "styles/owners/32-naval-visibility.css",
+    "styles/owners/35-naval-gunnery.css",
+    "styles/owners/40-ship-editor.css",
+    "styles/owners/45-creatures.css",
+    "styles/owners/50-shipyard.css",
+    "styles/owners/60-battle-setup.css",
+    "styles/owners/70-sound-settings.css"
+  ],
+  "languages": [
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (Russian module fallback)",
+      "path": "lang/en.json"
+    }
+  ],
+  "socket": true,
+  "packs": [],
+  "manifest": "",
+  "download": ""
+}

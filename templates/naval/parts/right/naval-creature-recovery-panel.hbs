@@ -1,0 +1,13 @@
+{{#if phaseFlags.crew}}
+  <section class="ssc-action-box">
+    <h3>Восстановление</h3>
+    <div class="ssc-action-grid">
+      <button type="button" data-action="creatureStopBleeding" {{#unless actionState.canStopBleeding}}disabled{{/unless}}>Остановить кровь</button>
+      <button type="button" data-action="creatureShakeOff" {{#unless actionState.canShakeOff}}disabled{{/unless}}>Прийти в себя</button>
+      <button type="button" data-action="creatureExtinguish" {{#unless actionState.canExtinguishCreature}}disabled{{/unless}}>Сбить пламя</button>
+      <button type="button" data-action="creatureRally" {{#unless actionState.canRallyCreature}}disabled{{/unless}}>Вернуть волю</button>
+      {{#if actionState.canCreatureAI}}<button type="button" data-action="creatureAI"><i class="fa-solid fa-brain"></i> Ход ИИ</button>{{/if}}
+    </div>
+    <p class="ssc-hint">Каждое действие расходует 1 ОД восстановления. Кровотечение и огонь наносят урон в конце раунда.</p>
+  </section>
+{{/if}}
