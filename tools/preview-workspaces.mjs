@@ -110,6 +110,21 @@ try {
         await page.locator('.ssc-workbench-nav [data-view="templates"]').click();
         await page.locator('.ssc-workbench-nav [data-view="editor"]').click();
         assert.equal(await input.inputValue(), "Несохранённое имя");
+        const scopeKey = await input.evaluate(el => el.closest("[data-draft-scope]").dataset.draftScope);
+        await page.evaluate(({ field }) => {
+          const input = document.querySelector(field);
+          input.closest("[data-draft-scope]").dataset.draftScope = "other-unit";
+          input.value = "Другой участник";
+          window.workbench.bind();
+        }, { field });
+        assert.equal(await page.locator(field).inputValue(), "Другой участник");
+        await page.evaluate(({ field, scopeKey, before }) => {
+          const input = document.querySelector(field);
+          input.closest("[data-draft-scope]").dataset.draftScope = scopeKey;
+          input.value = before;
+          window.workbench.bind();
+        }, { field, scopeKey, before });
+        assert.equal(await page.locator(field).inputValue(), "Несохранённое имя");
         await page.evaluate(() => {
           const root = document.querySelector(".window-content");
           root.innerHTML = root.innerHTML;
@@ -143,7 +158,9 @@ try {
         await page.locator('[data-view="field"]').click();
       } else {
         const range = page.locator('input[type="range"]').first();
-        await range.fill("0.25");
+        await range.focus();
+        await range.press("Home");
+        for (let step = 0; step < 5; step++) await range.press("ArrowRight");
         assert.equal(await range.locator("..").locator("output").textContent(), "25%");
         await page.locator("[data-discard-draft]").click();
         await fit(kind);

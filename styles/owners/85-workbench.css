@@ -150,3 +150,10 @@
   .sailships-combat .ssc-workbench-links button { font-size:11px; }
   .sailships-combat .ssc-settings-body { padding:12px; }
 }
+
+/* Creature records are forms, not the compact rows used for ship systems. */
+.sailships-combat :is(.ssc-creature-ability-edit-row,.ssc-creature-attack-edit-row) { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; padding:14px; border-radius:9px; }
+.sailships-combat :is(.ssc-creature-ability-edit-row,.ssc-creature-attack-edit-row) > label { min-width:0; }
+@container workbench (max-width:960px) {
+  .sailships-combat :is(.ssc-creature-ability-edit-row,.ssc-creature-attack-edit-row) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}

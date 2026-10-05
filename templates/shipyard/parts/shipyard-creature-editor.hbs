@@ -25,10 +25,10 @@
 <label>{{localize "SAILSHIPS.Vitality"}}<input type="number" data-creature-edit="vitalityCurrent" value="{{selectedShip.vitality.current}}" min="0" max="10000" step="1"></label>
 <label>{{localize "SAILSHIPS.VitalityMax"}}<input type="number" data-creature-edit="vitalityMax" value="{{selectedShip.vitality.max}}" min="1" max="10000" step="1"></label>
 <label>{{localize "SAILSHIPS.Morale"}}<input type="number" data-creature-edit="morale" value="{{selectedShip.vitality.morale}}" min="0" max="10" step="1"></label>
-<label>SM<input type="number" data-creature-edit="sm" value="{{selectedShip.stats.sm}}" min="0" max="30" step="1"></label>
-<label>HT<input type="number" data-creature-edit="ht" value="{{selectedShip.stats.ht}}" min="1" max="30" step="1"></label>
-<label>Hnd<input type="number" data-creature-edit="handling" value="{{selectedShip.stats.handling}}" min="-10" max="10" step="1"></label>
-<label>SR<input type="number" data-creature-edit="stability" value="{{selectedShip.stats.stability}}" min="0" max="20" step="1"></label>
+<label>Модификатор размера (SM)<input type="number" data-creature-edit="sm" value="{{selectedShip.stats.sm}}" min="0" max="30" step="1"></label>
+<label>Живучесть (HT)<input type="number" data-creature-edit="ht" value="{{selectedShip.stats.ht}}" min="1" max="30" step="1"></label>
+<label>Управляемость (Hnd)<input type="number" data-creature-edit="handling" value="{{selectedShip.stats.handling}}" min="-10" max="10" step="1"></label>
+<label>Устойчивость (SR)<input type="number" data-creature-edit="stability" value="{{selectedShip.stats.stability}}" min="0" max="20" step="1"></label>
 <label>{{localize "SAILSHIPS.Armor"}}<input type="number" data-creature-edit="armor" value="{{selectedShip.stats.armor}}" min="0" max="100" step="1"></label></div></section><section data-view-panel="flight" hidden><h4>Полёт и манёвры</h4><div class="ssc-editor-grid"><label>{{localize "SAILSHIPS.MaxSpeed"}}<input type="number" data-creature-edit="maxSpeed" value="{{selectedShip.maxSpeed}}" min="0" max="20" step="1"></label>
 <label>{{localize "SAILSHIPS.Altitude"}}<input type="number" data-creature-edit="altitude" value="{{selectedShip.altitude}}" min="0" max="{{altitudeMax}}" step="1"></label>
 <label>Профиль полета<select data-creature-edit="movementProfile">
