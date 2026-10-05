@@ -70,7 +70,8 @@ try {
     await writeFile("artifacts/interface/workspaces/" + kind + ".html", html);
     const widths = ["sound", "background"].includes(kind) ? [720, 560] : [1280, 900, 640];
     for (const width of widths) {
-      const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
+      const height = ["sound", "background"].includes(kind) ? app.constructor.DEFAULT_OPTIONS.position.height + 24 : 900;
+      const page = await browser.newPage({ viewport: { width, height }, reducedMotion: "reduce" });
       const errors = [];
       page.on("pageerror", error => errors.push(error.message));
       await page.setContent(html, { waitUntil: "load" });
@@ -82,7 +83,7 @@ try {
         assert.deepEqual(overflow, [], kind + " " + label + " " + width);
         for (const footer of await page.locator(".ssc-save-bar:visible").all()) {
           const box = await footer.boundingBox();
-          assert.ok(box.y >= 0 && box.y + box.height <= 890, "Apply controls must stay inside the window");
+          assert.ok(box.y >= 0 && box.y + box.height <= height - 10, "Apply controls must stay inside the window");
         }
         assert.deepEqual(errors, []);
         checks++;
@@ -164,12 +165,23 @@ try {
         await page.locator("[data-discard-draft]").click();
         await page.locator('[data-view="field"]').click();
       } else {
-        const range = page.locator('input[type="range"]').first();
-        await range.focus();
-        await range.press("Home");
-        for (let step = 0; step < 5; step++) await range.press("ArrowRight");
-        assert.equal(await range.locator("..").locator("output").textContent(), "25%");
+        for (const range of await page.locator('input[type="range"]').all()) {
+          await range.focus();
+          await range.press("Home");
+          for (let step = 0; step < 5; step++) await range.press("ArrowRight");
+          assert.equal(await range.locator("..").locator("output").textContent(), "25%");
+          const box = await range.boundingBox();
+          const parent = await range.locator("..").boundingBox();
+          assert.ok(box.width >= parent.width - 8, "Volume controls should use the available label width");
+        }
         await page.locator("[data-discard-draft]").click();
+        if (kind === "sound") {
+          const detail = page.locator("details").first();
+          await detail.locator("summary").click();
+          await fit("custom sound");
+          await detail.locator("summary").click();
+          await page.locator(".ssc-settings-body").evaluate(el => { el.scrollTop = 0; });
+        }
         await fit(kind);
       }
       await page.screenshot({ path: "artifacts/interface/workspaces/" + kind + "-" + width + ".png" });

@@ -164,3 +164,8 @@
 .sailships-combat .ssc-saved-scenario-card strong { white-space:normal; overflow-wrap:anywhere; font-size:13px; }
 .sailships-combat .ssc-saved-scenario-card span { font-size:11px; }
 .sailships-combat .ssc-scenario-actions button { padding:7px 10px; }
+
+.sailships-combat .ssc-range-field { grid-template-columns:minmax(0,1fr); justify-content:stretch; align-items:stretch; }
+.sailships-combat .ssc-sound-path-row label { display:grid; gap:6px; justify-content:stretch; }
+.sailships-combat .ssc-sound-path-row button { width:auto; padding:7px 10px; }
+.sailships-combat .ssc-setup-card > .full-width + .ssc-field { margin-top:16px; }
