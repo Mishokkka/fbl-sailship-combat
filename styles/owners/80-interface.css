@@ -98,13 +98,13 @@
   --ssc-left-col: 190px;
   --ssc-right-col: 300px;
   --ssc-center-min: 320px;
-  --ssc-bottom-info-h: 184px;
+  --ssc-bottom-info-h: 250px;
 }
 .sailships-combat .ssc-main-grid[data-layout="narrow"] {
   --ssc-grid-pad: 6px;
   --ssc-grid-gap: 6px;
   --ssc-center-min: 0px;
-  --ssc-bottom-info-h: 164px;
+  --ssc-bottom-info-h: 250px;
   grid-template-rows: 38px minmax(0, 1fr) var(--ssc-bottom-info-h);
 }
 .sailships-combat :is(.ssc-left-panel, .ssc-right-panel) { padding: 12px; }
@@ -178,7 +178,7 @@
 .sailships-combat .ssc-bottom-info { margin-top: 0; padding: 9px; overflow: auto; }
 .sailships-combat .ssc-summary-head { flex-wrap: wrap; gap: 6px; }
 .sailships-combat .ssc-summary-title-line h2 { font-size: 14px; }
-.sailships-combat .ssc-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.sailships-combat .ssc-summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .sailships-combat .ssc-summary-card { background: #172532; padding: 7px; border-color: #304252; }
 .sailships-combat .ssc-summary-card h3 { font-size: 11px; margin-bottom: 5px; }
 .sailships-combat .ssc-summary-card-grid b { font-size: 10px; line-height: 1.2; }
@@ -203,3 +203,8 @@
 .sailships-combat .ssc-main-grid[data-layout="compact"] .ssc-board-control-dock { flex-direction: column; align-items: stretch; }
 .sailships-combat .ssc-shot-preview-card .ssc-choice-chip { min-height: 28px; padding: 4px 7px; font-size: 11px; }
 .sailships-combat .ssc-shot-preview-card .ssc-gunnery-choice-row { margin-top: 10px; }
+.sailships-combat .ssc-main-grid:is([data-layout="compact"], [data-layout="narrow"]) .ssc-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sailships-combat .ssc-shot-preview-card .ssc-gunnery-choice-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.sailships-combat .ssc-shot-preview-card .ssc-choice-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sailships-combat .ssc-shot-preview-card .ssc-choice-chip { border-radius: 6px; }
+.sailships-combat .ssc-player-control-box > summary { padding: 2px; }

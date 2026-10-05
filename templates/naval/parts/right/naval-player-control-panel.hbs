@@ -1,13 +1,12 @@
         {{#if playerControl.showPanel}}
-          <section class="ssc-action-box ssc-player-control-box">
-            <h3>Игроки</h3>
+          <details class="ssc-action-box ssc-player-control-box ssc-disclosure" data-ui-section="players" {{#unless isGM}}open{{else}}{{#if playerControl.hasPendingOrders}}open{{/if}}{{/unless}}>
+            <summary>{{#if isGM}}Приказы игроков · ожидают {{playerControl.pendingOrderCount}}{{else}}Ваши корабли и приказы{{/if}}</summary>
 
             {{#if isGM}}
               <div class="ssc-player-control-summary">
                 <strong>Приказы: {{playerControl.readyText}}</strong>
-                <span>Pending: {{playerControl.pendingOrderCount}}</span>
+                <span>Ожидают подтверждения: {{playerControl.pendingOrderCount}}</span>
               </div>
-              <p class="ssc-hint" title="Foundry core module sockets не передают модулю проверяемую личность отправителя.">Сетевая модель: доверенный стол. Изменённый клиент может подставить ID другого игрока.</p>
 
               {{#if playerControl.selectedAssignable}}
                 <div class="ssc-player-assignment">
@@ -62,5 +61,5 @@
                 <p class="ssc-hint">Приказ отправлен: {{playerControl.selectedPendingOrderLabel}}.</p>
               {{/if}}
             {{/if}}
-          </section>
+          </details>
         {{/if}}

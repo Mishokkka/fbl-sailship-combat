@@ -1,1 +1,20 @@
-{{#if isGM}}<section class="ssc-control-section" data-board-background-edit>{{!-- pickBoardBackground --}}<h3>Подготовка</h3><div class="ssc-action-grid"><button type="button" data-action="openBattleSetup"><i class="fa-solid fa-compass-drafting"></i> Подготовка боя</button><button type="button" data-action="openBoardSettings"><i class="fa-solid fa-image"></i> Фон поля</button></div><h4>Террейн</h4><p class="ssc-hint ssc-terrain-mode-line">Выберите кисть и рисуйте по полю. Esc или ПКМ завершает режим.</p><div class="ssc-terrain-tool-grid">{{#each terrainTools as |tool|}}<button type="button" data-action="setTerrainMode" data-terrain="{{tool.id}}" class="{{#if tool.active}}active{{/if}}">{{tool.label}}</button>{{/each}}</div><div class="ssc-action-grid"><button type="button" data-action="cancelTerrainMode">Завершить кисть</button><button type="button" data-action="clearAllTerrain">Очистить террейн</button></div></section>{{/if}}
+{{#if isGM}}
+<details class="ssc-control-section ssc-disclosure" data-board-background-edit data-ui-section="field-tools" {{#unless setupConfirmed}}open{{/unless}}>
+  <summary>Настройки поля и местности</summary>
+  <div class="ssc-action-grid">
+    <button type="button" data-action="openBattleSetup">Подготовка боя</button>
+    <button type="button" data-action="openBoardSettings">Фон поля</button>
+  </div>
+  <h4>Местность</h4>
+  <p class="ssc-hint ssc-terrain-mode-line">Выберите кисть и рисуйте по полю. Esc или ПКМ завершает режим.</p>
+  <div class="ssc-terrain-tool-grid">
+    {{#each terrainTools as |tool|}}
+      <button type="button" data-action="setTerrainMode" data-terrain="{{tool.id}}" class="{{#if tool.active}}active{{/if}}">{{tool.label}}</button>
+    {{/each}}
+  </div>
+  <div class="ssc-action-grid">
+    <button type="button" data-action="cancelTerrainMode">Завершить кисть</button>
+    <button type="button" data-action="clearAllTerrain">Очистить местность</button>
+  </div>
+</details>
+{{/if}}
