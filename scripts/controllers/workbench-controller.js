@@ -129,6 +129,36 @@ export class WorkbenchController {
       this.status(scope);
     }
   }
+  /** Capture the submitted scope and values before an asynchronous write. */
+  capture(scope) {
+    return { id: scope.dataset.draftScope, values: new Map(this.fields(scope).map(input => [this.key(input), this.value(input)])) };
+  }
+  /** Acknowledge persisted values while preserving edits made during the write. */
+  acceptSaved(submission, saved) {
+    const draft = this.drafts.get(submission.id) ?? new Map();
+    for (const [key, value] of submission.values) {
+      if (draft.get(key) === value || draft.get(key) === saved.get(key)) draft.delete(key);
+    }
+    for (const scope of this.root?.querySelectorAll("[data-draft-scope]") ?? []) {
+      if (scope.dataset.draftScope !== submission.id) continue;
+      for (const input of this.fields(scope)) {
+        const key = this.key(input);
+        if (!saved.has(key)) continue;
+        const value = this.value(input);
+        this.baselines.set(input, saved.get(key));
+        if (value === submission.values.get(key) || value === saved.get(key)) {
+          this.setValue(input, saved.get(key));
+          draft.delete(key);
+        } else {
+          draft.set(key, value);
+        }
+      }
+      this.drafts.set(submission.id, draft);
+      this.status(scope);
+    }
+    this.drafts.set(submission.id, draft);
+    this.live();
+  }
   discard(scope) {
     if (!scope) return;
     for (const input of this.fields(scope)) if (this.baselines.has(input)) this.setValue(input, this.baselines.get(input));
@@ -147,7 +177,7 @@ export class WorkbenchController {
     if (preview) {
       const path = this.root.querySelector('[name="background.src"]')?.value.trim() ?? "";
       const enabled = this.root.querySelector('[name="background.enabled"]')?.checked;
-      preview.style.backgroundImage = path ? "url(" + JSON.stringify(path) + ")" : "none";
+      preview.style.backgroundImage = path && enabled ? "url(" + JSON.stringify(path) + ")" : "none";
       preview.style.backgroundSize = Math.max(64, Math.min(2048, Number(this.root.querySelector('[name="background.tileSize"]')?.value) || 512)) + "px";
       preview.style.opacity = enabled ? this.root.querySelector('[name="background.opacity"]')?.value ?? "0.35" : "0";
       const message = this.root.querySelector("[data-background-empty]");

@@ -187,7 +187,7 @@ export class ShipyardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       applied = result !== false;
       return result;
     }, { reason: options.reason ?? "" });
-    if (applied && (options.reason === "shipyard-apply-edits" || /^bestiary-(apply-edits|add-section|remove-section|add-attack|remove-attack|add-ability|remove-ability)$/.test(options.reason ?? ""))) this.workbench.accept();
+    if (applied && (options.reason === "shipyard-apply-edits" || options.reason === "bestiary-apply-edits")) this.workbench.accept();
     const main = game.sailshipsCombat.app;
     if (main) {
       main.selectedShipId = this.selectedShipId;
