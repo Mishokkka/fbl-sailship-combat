@@ -46,6 +46,7 @@
                       <span>{{shot.fireModeLabel}}</span>
                     </div>
                     {{/unless}}
+                    {{> "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs" weapon=shot.controls isGM=../isGM}}
                     <details class="ssc-disclosure" data-ui-section="shot-{{shot.arc}}"><summary>Модификаторы и свойства батареи</summary>
                     <div class="ssc-shot-role-row">
                       <span class="ssc-summary-chip" title="Историческая роль этой батареи в бою.">{{shot.roleLabel}}</span>

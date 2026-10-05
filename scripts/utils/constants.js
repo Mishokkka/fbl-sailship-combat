@@ -46,6 +46,7 @@ export const SHIPYARD_PARTIAL_TEMPLATES = [
 ];
 
 export const NAVAL_RIGHT_PARTIAL_TEMPLATES = [
+  "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs",
   "modules/sailships-combat/templates/naval/parts/right/naval-turn-box.hbs",
   "modules/sailships-combat/templates/naval/parts/right/naval-player-control-panel.hbs",
   "modules/sailships-combat/templates/naval/parts/right/naval-orders-panel.hbs",

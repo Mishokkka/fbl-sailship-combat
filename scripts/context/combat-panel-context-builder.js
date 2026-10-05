@@ -291,6 +291,7 @@ export class CombatPanelContextBuilder {
     if (!selectedShip || battle.phase !== "gunnery") return [];
     const actionState = this.app._getActionState(battle, selectedShip);
     const previews = [];
+    const controls = new Map(this.getWeaponControls(battle, selectedShip).map(weapon => [weapon.id, weapon]));
     for (const arc of GunneryEngine.getArcOrder()) {
       const battery = GunneryEngine.getBattery(selectedShip, arc);
       if (!battery) continue;
@@ -309,6 +310,7 @@ export class CombatPanelContextBuilder {
         fireAction,
         arcLabel: ARC_LABELS[arc] ?? arc,
         battery,
+        controls: controls.get(battery.id),
         batteryLabel: battery.label ?? (ARC_LABELS[arc] ?? arc),
         targetName: targetInfo.target.name,
         range: targetInfo.range,

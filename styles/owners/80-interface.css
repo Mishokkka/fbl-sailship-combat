@@ -201,3 +201,5 @@
 .sailships-combat .ssc-narrow-pass { display: none; }
 .sailships-combat .ssc-main-grid[data-layout="narrow"] .ssc-narrow-pass { display: block; width: 100%; }
 .sailships-combat .ssc-main-grid[data-layout="compact"] .ssc-board-control-dock { flex-direction: column; align-items: stretch; }
+.sailships-combat .ssc-shot-preview-card .ssc-choice-chip { min-height: 28px; padding: 4px 7px; font-size: 11px; }
+.sailships-combat .ssc-shot-preview-card .ssc-gunnery-choice-row { margin-top: 10px; }

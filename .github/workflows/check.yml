@@ -38,6 +38,8 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Check interface layouts
+        env:
+          SSC_INLINE_PREVIEW: "1"
         run: node tools/preview-interface.mjs
       - name: Save interface previews
         if: always()

@@ -82,6 +82,9 @@ try {
       if (phase === "gunnery") {
         assert.ok(context.shotPreviews.length, "Fixture must render a real shot preview");
         assert.equal(await page.locator(".ssc-shot-fire-button").count(), context.shotPreviews.length);
+        const ammo = page.locator('.ssc-shot-preview-card [data-action="setAmmo"]').first();
+        assert.ok(await ammo.getAttribute("data-weapon-id"), "Ammo choice must carry the correct battery ID");
+        assert.equal(await ammo.isEnabled(), true);
         const detail = page.locator('details[data-ui-section^="shot-"]').first();
         await detail.locator("summary").focus();
         await page.keyboard.press("Enter");
@@ -98,6 +101,9 @@ try {
       }
       assert.deepEqual(errors, [], "Browser runtime errors");
       await page.screenshot({ path: "artifacts/interface/" + phase + "-" + width + ".png", fullPage: true });
+      if (process.env.SSC_INLINE_PREVIEW === "1" && ((phase === "gunnery" && width === 1500) || (phase === "orders" && width === 1100))) {
+        console.log("SSC_PREVIEW_" + phase + ":" + (await page.screenshot({ type: "jpeg", quality: 65 })).toString("base64"));
+      }
       scenarios += 1;
       await page.close();
     }
