@@ -164,6 +164,22 @@ try {
         assert.equal(await page.locator('[data-victory-mode="decision"]').isVisible(), false);
         await page.locator("[data-discard-draft]").click();
         await page.locator('[data-view="field"]').click();
+        const preset = page.locator('[data-preset-select="board"]');
+        await preset.selectOption({ index: 1 });
+        assert.equal(await page.evaluate(() => [...window.workbench.drafts.values()].some(d => d.size)), false, "Choosing a preset is not an unapplied form edit");
+        await page.locator('[data-setup-field="battle.name"]').fill("Название в черновике");
+        await page.locator('[data-setup-field="board.width"]').fill("50");
+        await page.evaluate(() => {
+          window.workbench.accept('[data-setup-field^="board."]');
+          const root = document.querySelector(".window-content");
+          root.innerHTML = root.innerHTML;
+          const width = root.querySelector('[data-setup-field="board.width"]');
+          width.value = "24"; width.setAttribute("value", "24");
+          window.workbench.bind();
+        });
+        assert.equal(await page.locator('[data-setup-field="board.width"]').inputValue(), "24", "Applied preset replaces the old manual dimension");
+        assert.equal(await page.locator('[data-setup-field="battle.name"]').inputValue(), "Название в черновике", "Applying field dimensions preserves unrelated drafts");
+        await page.locator("[data-discard-draft]").click();
       } else {
         for (const range of await page.locator('input[type="range"]').all()) {
           await range.focus();

@@ -135,6 +135,9 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender(context, options);
     this.workbench.bind();
+    for (const select of this.element.querySelectorAll("[data-preset-select]")) {
+      select.addEventListener("change", () => this._syncPresetSelectionsFromForm());
+    }
   }
 
   _markMainStale() {
@@ -158,7 +161,10 @@ export class BattleSetupApp extends HandlebarsApplicationMixin(ApplicationV2) {
       applied = result !== false;
       return result;
     }, { reason: options.reason ?? "" });
-    if (applied && (options.reason === "setup-apply-sides")) this.workbench.accept();
+    if (applied) {
+      if (options.reason === "setup-apply-sides" || options.reason === "setup-apply-scenario-preset") this.workbench.accept();
+      else if (options.reason === "setup-apply-board-preset") this.workbench.accept('[data-setup-field^="board."]');
+    }
     this._dirty = true;
     this._markMainStale();
     this.render({ force: true });

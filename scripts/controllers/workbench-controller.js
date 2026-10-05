@@ -73,7 +73,7 @@ export class WorkbenchController {
     this.root.addEventListener("change", changed, { signal });
     this.live();
   }
-  fields(scope) { return [...scope.querySelectorAll("input,select,textarea")].filter(input => input.name || Object.keys(input.dataset).length); }
+  fields(scope) { return [...scope.querySelectorAll("input,select,textarea")].filter(input => !input.matches("[data-preset-select]") && (input.name || Object.keys(input.dataset).length)); }
   key(input) { return input.name || JSON.stringify(Object.entries(input.dataset).sort(([a], [b]) => a.localeCompare(b))); }
   value(input) { return input.type === "checkbox" ? input.checked : input.value; }
   setValue(input, value) { if (input.type === "checkbox") input.checked = value; else input.value = value; }
@@ -117,10 +117,15 @@ export class WorkbenchController {
     }
     for (const button of scope.querySelectorAll("[data-discard-draft]")) button.disabled = !dirty;
   }
-  accept() {
+  accept(selector = null) {
     for (const scope of this.root?.querySelectorAll("[data-draft-scope]") ?? []) {
-      this.drafts.delete(scope.dataset.draftScope);
-      for (const input of this.fields(scope)) this.baselines.set(input, this.value(input));
+      const draft = this.drafts.get(scope.dataset.draftScope);
+      for (const input of this.fields(scope)) {
+        if (selector && !input.matches(selector)) continue;
+        draft?.delete(this.key(input));
+        this.baselines.set(input, this.value(input));
+      }
+      if (!selector) this.drafts.delete(scope.dataset.draftScope);
       this.status(scope);
     }
   }
