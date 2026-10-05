@@ -14,6 +14,7 @@ import { DamageEngine } from "../scripts/engine/damage-engine.js";
 import { BattleScenarioService } from "../scripts/services/battle-scenario-service.js";
 import { ShipMovementController } from "../scripts/controllers/ship-movement-controller.js";
 import { ShipyardBattleController } from "../scripts/controllers/shipyard-battle-controller.js";
+import { CreatureEditorController } from "../scripts/controllers/creature-editor-controller.js";
 import { CreatureEditorActions } from "../scripts/controllers/creature-editor-actions.js";
 
 test.beforeEach(() => installTestEnvironment());
@@ -151,4 +152,22 @@ test("queued roster and creature edits recheck a battle confirmed after the init
   await editor.applyEdits();
   await editor.mutate("test", () => assert.fail("The mutation must not run"));
   assert.deepEqual(battle, before);
+});
+
+test("applying creature fields preserves the normalized unit identity and anatomy", () => {
+  const creature = createCreature({ id: "edited-creature", name: "Before", template: "skyRay", side: "red" });
+  const sections = Object.keys(creature.sections);
+  const attackIds = creature.attacks.map(attack => attack.id);
+  const root = {
+    querySelector: selector => selector === '[data-creature-edit="name"]' ? { value: "After" } : null,
+    querySelectorAll: () => []
+  };
+  const result = new CreatureEditorController(root).applyEdits(creature);
+  assert.deepEqual(result, { oldName: "Before", newName: "After", renamed: true });
+  assert.equal(creature.id, "edited-creature");
+  assert.equal(creature.unitType, "creature");
+  assert.equal(creature.side, "red");
+  assert.deepEqual(Object.keys(creature.sections), sections);
+  assert.deepEqual(creature.attacks.map(attack => attack.id), attackIds);
+  assert.ok(creature.vitality.max > 0);
 });
