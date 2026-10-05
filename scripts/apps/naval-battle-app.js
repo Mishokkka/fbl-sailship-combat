@@ -1,3 +1,4 @@
+import { MovementPlanController } from "../controllers/movement-plan-controller.js";
 import { uid } from "../utils/random.js";
 import { BattlePhaseController } from "../controllers/battle-phase-controller.js";
 import { BoardInteractionController } from "../controllers/board-interaction-controller.js";
@@ -23,6 +24,7 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     super(options);
     this.phase = new BattlePhaseController(this);
     this.board = new BoardInteractionController(this);
+    this.movementPlan = new MovementPlanController(this);
     this.setup = new BattleSetupController(this);
     this.environment = new EnvironmentController(this);
     this.movement = new ShipMovementController(this);
@@ -76,6 +78,8 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       nextPhase: this._onNextPhase,
       continueBattle: this._onContinueBattle,
       passTurn: this._onPassTurn,
+      confirmMovementPlan: this._onConfirmMovementPlan,
+      cancelMovementPlan: this._onCancelMovementPlan,
       rotateWindLeft: this._onRotateWindLeft,
       rotateWindRight: this._onRotateWindRight,
       fullSail: this._onFullSail,
@@ -167,6 +171,8 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     summary: { template: "modules/sailships-combat/templates/naval/parts/naval-selected-summary.hbs" },
     controls: { template: "modules/sailships-combat/templates/naval/parts/naval-right-panel.hbs" }
   };
+  static async _onConfirmMovementPlan() { return this.movementPlan.confirm(); }
+  static async _onCancelMovementPlan() { return this.movementPlan.cancel(); }
   get title() {
     return getBattleWindowTitle(this);
   }
@@ -231,6 +237,7 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   _onClose(options) {
     this.layout.destroy();
     this.board.destroy();
+    this.movementPlan.pending = null;
     this.animation.destroy();
     this.renderBattleSnapshot = null;
     this._queuedRenderParts.clear();
@@ -255,7 +262,7 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
     });
     this.renderBattleSnapshot = savedBattle;
     const renderParts = options.renderParts ?? game.sailshipsCombat.storage.getLastChange?.().renderParts ?? BATTLE_RENDER_PARTS;
-    if (renderParts.length) await this.renderBattleState(renderParts);
+    if (renderParts.length) await this.renderBattleState(this.movementPlan.pending ? [...new Set([...renderParts, "board"])] : renderParts);
     if (preserveRightPanelScroll) {
       setTimeout(() => {
         const panel = this.element?.querySelector?.(".ssc-right-panel");
@@ -443,6 +450,7 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   onExternalBattleUpdate({ renderParts = null } = {}) {
     this.renderBattleSnapshot = null;
     this.contextBuilder.invalidate();
-    this.renderBattleState(renderParts?.length ? renderParts : BATTLE_RENDER_PARTS);
+    const parts = renderParts?.length ? renderParts : BATTLE_RENDER_PARTS;
+    this.renderBattleState(this.movementPlan.pending ? [...new Set([...parts, "board"])] : parts);
   }
 }

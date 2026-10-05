@@ -54,6 +54,7 @@ export class BoardContextBuilder {
       hoverCell: { x: 0, y: 0, px: 0, py: 0, key: "0,0" },
       setupZones: this.prepareSetupZones(battle),
       deployable: this.prepareDeployableCells(battle, selectedShip, occupied),
+      movementPlan: app.movementPlan?.getContext(battle) ?? null,
       reachable: reachable.map(c => this.prepareCellShape(battle, c)),
       targetIds: [...targetIds],
       ships: this.prepareShipTokens(battle, selectedShip, { targetIds, cellSize }),

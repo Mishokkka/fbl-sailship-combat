@@ -895,6 +895,18 @@ export class MovementEngine {
     return entries;
   }
 
+  /** Shared deterministic altitude forecast, before landing damage or drift. */
+  static getVerticalProjection(battle, ship) {
+    const before = Number(ship.altitude ?? 0);
+    if (!this.usesAltitude(battle)) return { before, after: 0, velocity: 0, downdraft: false };
+    const initial = Math.max(-2, Math.min(2, Number(ship.verticalVelocity ?? 0)));
+    const downdraft = this.shipInTerrain(battle, ship, "downdraft");
+    let velocity = ship.flags?.falling ? Math.min(-1, initial - 1) : initial;
+    if (downdraft && !ship.flags?.falling) velocity -= 1;
+    velocity = Math.max(-3, Math.min(2, velocity));
+    return { before, after: Math.max(ALTITUDE_MIN, Math.min(ALTITUDE_MAX, before + velocity)), velocity, downdraft };
+  }
+
   static applyVerticalInertia(battle, ship) {
     if (!this.usesAltitude(battle)) {
       ship.altitude = 0;
@@ -907,20 +919,13 @@ export class MovementEngine {
     }
     const entries = [];
     ship.verticalVelocity = Math.max(-2, Math.min(2, Number(ship.verticalVelocity ?? 0)));
-    const before = Number(ship.altitude ?? 0);
-    const downdraft = this.shipInTerrain(battle, ship, "downdraft");
+    const { before, after, velocity, downdraft } = this.getVerticalProjection(battle, ship);
     if (!ship.verticalVelocity && !ship.flags?.falling && !downdraft) return [];
-    let velocity = ship.flags?.falling ? Math.min(-1, ship.verticalVelocity - 1) : ship.verticalVelocity;
-    if (downdraft && !ship.flags?.falling) {
-      velocity -= 1;
-      entries.push(`${ship.name}: нисходящий поток тянет вниз.`);
-    }
-    velocity = Math.max(-3, Math.min(2, velocity));
+    if (downdraft && !ship.flags?.falling) entries.push(`${ship.name}: нисходящий поток тянет вниз.`);
     if (!velocity && before > 0) {
       ship.verticalVelocity = 0;
       return entries;
     }
-    const after = Math.max(ALTITUDE_MIN, Math.min(ALTITUDE_MAX, before + velocity));
     ship.altitude = after;
     ship.verticalVelocity = ship.flags?.falling ? Math.max(-3, velocity) : Math.trunc(velocity / 2);
 
