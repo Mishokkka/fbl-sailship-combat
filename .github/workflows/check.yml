@@ -2,7 +2,7 @@ name: Module checks
 
 on:
   push:
-    branches: [main, scripts-upload]
+    branches: [main, scripts-upload, 'ui/**']
   pull_request:
   workflow_dispatch:
 
