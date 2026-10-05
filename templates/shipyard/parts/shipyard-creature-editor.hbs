@@ -1,21 +1,20 @@
-<section class="ssc-setup-box ssc-ship-editor-box ssc-creature-editor-box">
+<section class="ssc-setup-box ssc-ship-editor-box ssc-creature-editor-box" data-workspace="creature-editor" data-initial-view="profile" data-draft-scope="{{battle.id}}:{{selectedShip.id}}">
   <div class="ssc-yard-section-head">
     <div>
       <h3>{{localize "SAILSHIPS.CreatureEditor"}}: {{selectedShip.name}}</h3>
-      <p class="ssc-hint">Структура существа уже хранится отдельно от корабельных систем. Движение и атаки будут подключены на следующем этапе.</p>
+      <p class="ssc-hint">Настройте живучесть, полёт и арсенал существа. Правки сохраняются кнопкой внизу.</p>
       {{#if setupLocked}}<p class="ssc-hint danger">{{localize "SAILSHIPS.ShipyardLockedEditorHint"}}</p>{{/if}}
     </div>
     <div class="ssc-action-grid compact-actions">
-      <button type="button" data-action="applyCreatureEdits" {{#unless canEditCombatants}}disabled{{/unless}}>{{localize "SAILSHIPS.ApplyCreatureEdits"}}</button>
       <button type="button" data-action="switchShipyardTab" data-tab="creatureLibrary">{{localize "SAILSHIPS.CreatureLibrary"}}</button>
     </div>
   </div>
 
-  <fieldset class="ssc-editor-fieldset" {{#unless canEditCombatants}}disabled{{/unless}}>
-    <div class="ssc-editor-grid">
-      <label>{{localize "SAILSHIPS.Name"}}<input type="text" data-creature-edit="name" value="{{selectedShip.name}}"></label>
-      <label>Тип существа<input type="text" data-creature-edit="creatureType" value="{{selectedShip.creatureType}}"></label>
-      <label>Размер<select data-creature-edit="size">
+<nav class="ssc-section-nav" aria-label="Разделы редактора"><button type="button" data-view="profile">Существо</button><button type="button" data-view="flight">Полёт</button><button type="button" data-view="anatomy">Анатомия</button><button type="button" data-view="attacks">Атаки</button><button type="button" data-view="abilities">Способности</button><button type="button" data-view="behavior">Поведение</button><button type="button" data-view="token">Облик</button></nav>
+<fieldset class="ssc-editor-fieldset" {{#unless canEditCombatants}}disabled{{/unless}}>
+    <section data-view-panel="profile"><h4>Характеристики существа</h4><div class="ssc-editor-grid"><label>{{localize "SAILSHIPS.Name"}}<input type="text" data-creature-edit="name" value="{{selectedShip.name}}"></label>
+<label>Тип существа<input type="text" data-creature-edit="creatureType" value="{{selectedShip.creatureType}}"></label>
+<label>Размер<select data-creature-edit="size">
         <option value="tiny" {{#if (sscEq selectedShip.size 'tiny')}}selected{{/if}}>Крошечное</option>
         <option value="small" {{#if (sscEq selectedShip.size 'small')}}selected{{/if}}>Малое</option>
         <option value="medium" {{#if (sscEq selectedShip.size 'medium')}}selected{{/if}}>Среднее</option>
@@ -23,17 +22,16 @@
         <option value="huge" {{#if (sscEq selectedShip.size 'huge')}}selected{{/if}}>Огромное</option>
         <option value="swarm" {{#if (sscEq selectedShip.size 'swarm')}}selected{{/if}}>Стая</option>
       </select></label>
-      <label>{{localize "SAILSHIPS.MaxSpeed"}}<input type="number" data-creature-edit="maxSpeed" value="{{selectedShip.maxSpeed}}" min="0" max="20" step="1"></label>
-      <label>{{localize "SAILSHIPS.Altitude"}}<input type="number" data-creature-edit="altitude" value="{{selectedShip.altitude}}" min="0" max="{{altitudeMax}}" step="1"></label>
-      <label>{{localize "SAILSHIPS.Vitality"}}<input type="number" data-creature-edit="vitalityCurrent" value="{{selectedShip.vitality.current}}" min="0" max="10000" step="1"></label>
-      <label>{{localize "SAILSHIPS.VitalityMax"}}<input type="number" data-creature-edit="vitalityMax" value="{{selectedShip.vitality.max}}" min="1" max="10000" step="1"></label>
-      <label>{{localize "SAILSHIPS.Morale"}}<input type="number" data-creature-edit="morale" value="{{selectedShip.vitality.morale}}" min="0" max="10" step="1"></label>
-      <label>SM<input type="number" data-creature-edit="sm" value="{{selectedShip.stats.sm}}" min="0" max="30" step="1"></label>
-      <label>HT<input type="number" data-creature-edit="ht" value="{{selectedShip.stats.ht}}" min="1" max="30" step="1"></label>
-      <label>Hnd<input type="number" data-creature-edit="handling" value="{{selectedShip.stats.handling}}" min="-10" max="10" step="1"></label>
-      <label>SR<input type="number" data-creature-edit="stability" value="{{selectedShip.stats.stability}}" min="0" max="20" step="1"></label>
-      <label>{{localize "SAILSHIPS.Armor"}}<input type="number" data-creature-edit="armor" value="{{selectedShip.stats.armor}}" min="0" max="100" step="1"></label>
-      <label>Профиль полета<select data-creature-edit="movementProfile">
+<label>{{localize "SAILSHIPS.Vitality"}}<input type="number" data-creature-edit="vitalityCurrent" value="{{selectedShip.vitality.current}}" min="0" max="10000" step="1"></label>
+<label>{{localize "SAILSHIPS.VitalityMax"}}<input type="number" data-creature-edit="vitalityMax" value="{{selectedShip.vitality.max}}" min="1" max="10000" step="1"></label>
+<label>{{localize "SAILSHIPS.Morale"}}<input type="number" data-creature-edit="morale" value="{{selectedShip.vitality.morale}}" min="0" max="10" step="1"></label>
+<label>SM<input type="number" data-creature-edit="sm" value="{{selectedShip.stats.sm}}" min="0" max="30" step="1"></label>
+<label>HT<input type="number" data-creature-edit="ht" value="{{selectedShip.stats.ht}}" min="1" max="30" step="1"></label>
+<label>Hnd<input type="number" data-creature-edit="handling" value="{{selectedShip.stats.handling}}" min="-10" max="10" step="1"></label>
+<label>SR<input type="number" data-creature-edit="stability" value="{{selectedShip.stats.stability}}" min="0" max="20" step="1"></label>
+<label>{{localize "SAILSHIPS.Armor"}}<input type="number" data-creature-edit="armor" value="{{selectedShip.stats.armor}}" min="0" max="100" step="1"></label></div></section><section data-view-panel="flight" hidden><h4>Полёт и манёвры</h4><div class="ssc-editor-grid"><label>{{localize "SAILSHIPS.MaxSpeed"}}<input type="number" data-creature-edit="maxSpeed" value="{{selectedShip.maxSpeed}}" min="0" max="20" step="1"></label>
+<label>{{localize "SAILSHIPS.Altitude"}}<input type="number" data-creature-edit="altitude" value="{{selectedShip.altitude}}" min="0" max="{{altitudeMax}}" step="1"></label>
+<label>Профиль полета<select data-creature-edit="movementProfile">
         <option value="flier" {{#if (sscEq selectedShip.movement.profile 'flier')}}selected{{/if}}>Активный полет</option>
         <option value="glider" {{#if (sscEq selectedShip.movement.profile 'glider')}}selected{{/if}}>Планирование</option>
         <option value="hover" {{#if (sscEq selectedShip.movement.profile 'hover')}}selected{{/if}}>Зависание</option>
@@ -41,20 +39,19 @@
         <option value="swarm" {{#if (sscEq selectedShip.movement.profile 'swarm')}}selected{{/if}}>Стая</option>
         <option value="levitating" {{#if (sscEq selectedShip.movement.profile 'levitating')}}selected{{/if}}>Левитация</option>
       </select></label>
-      <label>Реакция на ветер<select data-creature-edit="windResponse">
+<label>Реакция на ветер<select data-creature-edit="windResponse">
         <option value="none" {{#if (sscEq selectedShip.movement.windResponse 'none')}}selected{{/if}}>Игнорирует</option>
         <option value="light" {{#if (sscEq selectedShip.movement.windResponse 'light')}}selected{{/if}}>Слабая</option>
         <option value="strong" {{#if (sscEq selectedShip.movement.windResponse 'strong')}}selected{{/if}}>Сильная</option>
         <option value="resistant" {{#if (sscEq selectedShip.movement.windResponse 'resistant')}}selected{{/if}}>Устойчивое</option>
         <option value="drifting" {{#if (sscEq selectedShip.movement.windResponse 'drifting')}}selected{{/if}}>Дрейфующее</option>
       </select></label>
-      <label>Лимит поворота<input type="number" data-creature-edit="turnLimit" value="{{selectedShip.movement.turnLimit}}" min="0" max="6" step="1"></label>
-      <label>Подъем<input type="number" data-creature-edit="climb" value="{{selectedShip.movement.climb}}" min="0" max="4" step="1"></label>
-      <label>Пикирование<input type="number" data-creature-edit="dive" value="{{selectedShip.movement.dive}}" min="0" max="4" step="1"></label>
-      <label class="ssc-checkbox-field"><input type="checkbox" data-creature-edit="canHover" {{#if selectedShip.movement.canHover}}checked{{/if}}>Может зависать</label>
-    </div>
+<label>Лимит поворота<input type="number" data-creature-edit="turnLimit" value="{{selectedShip.movement.turnLimit}}" min="0" max="6" step="1"></label>
+<label>Подъем<input type="number" data-creature-edit="climb" value="{{selectedShip.movement.climb}}" min="0" max="4" step="1"></label>
+<label>Пикирование<input type="number" data-creature-edit="dive" value="{{selectedShip.movement.dive}}" min="0" max="4" step="1"></label>
+<label class="ssc-checkbox-field"><input type="checkbox" data-creature-edit="canHover" {{#if selectedShip.movement.canHover}}checked{{/if}}>Может зависать</label></div></section>
 
-    <section class="ssc-creature-behavior-editor">
+    <section class="ssc-creature-behavior-editor" data-view-panel="behavior" hidden>
       <h4>Поведение и ИИ</h4>
       <div class="ssc-editor-grid">
         <label>Режим<select data-creature-edit="behaviorMode">
@@ -76,7 +73,7 @@
       <p class="ssc-hint">ИИ не действует самопроизвольно. Кнопка «Ход ИИ» выполняет текущую фазу выбранного существа и сразу завершает его активацию.</p>
     </section>
 
-    <section class="ssc-creature-token-editor">
+    <section class="ssc-creature-token-editor" data-view-panel="token" hidden>
       <h4>{{localize "SAILSHIPS.CreatureToken"}}</h4>
       <div class="ssc-editor-grid">
         <label class="ssc-wide-field">Путь к изображению<input type="text" data-creature-edit="tokenImg" value="{{selectedShip.token.img}}"></label>
@@ -94,7 +91,7 @@
       </div>
     </section>
 
-    <section class="ssc-creature-anatomy-editor">
+    <section class="ssc-creature-anatomy-editor" data-view-panel="anatomy" hidden>
       <div class="ssc-section-edit-head">
         <h4>{{localize "SAILSHIPS.AnatomySections"}}</h4>
         <button type="button" data-action="addCreatureSection">Добавить секцию</button>
@@ -123,7 +120,7 @@
       {{/each}}
     </section>
 
-    <section class="ssc-creature-attacks-editor">
+    <section class="ssc-creature-attacks-editor" data-view-panel="attacks" hidden>
       <div class="ssc-section-edit-head">
         <h4>{{localize "SAILSHIPS.NaturalAttacks"}}</h4>
         <button type="button" data-action="addCreatureAttack">Добавить атаку</button>
@@ -157,7 +154,7 @@
       {{/each}}
     </section>
 
-    <section class="ssc-creature-abilities-editor">
+    <section class="ssc-creature-abilities-editor" data-view-panel="abilities" hidden>
       <div class="ssc-section-edit-head">
         <h4>{{localize "SAILSHIPS.CreatureAbilities"}}</h4>
         <button type="button" data-action="addCreatureAbility">Добавить способность</button>
@@ -203,4 +200,5 @@
       {{/each}}
     </section>
   </fieldset>
+<footer class="ssc-save-bar"><span data-draft-status role="status"></span><div><button type="button" data-discard-draft>Отменить правки</button><button type="button" class="primary" data-action="applyCreatureEdits" {{#unless canEditCombatants}}disabled{{/unless}}>Применить изменения</button></div></footer>
 </section>

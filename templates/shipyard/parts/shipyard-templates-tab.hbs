@@ -1,5 +1,4 @@
-    {{#if isTemplatesTab}}
-      <section class="ssc-shipyard-tab-panel">
+<section data-filter="templates" data-view-panel="templates" {{#unless isTemplatesTab}}hidden{{/unless}} class="ssc-shipyard-tab-panel">
         <div class="ssc-yard-section-head">
           <div>
             <h3 title="Расширенный набор встроенных кораблей. Они не хранятся в пользовательской библиотеке и доступны всегда.">{{localize "SAILSHIPS.BuiltInTemplates"}}</h3>
@@ -7,17 +6,17 @@
           </div>
           {{#if setupLocked}}<p class="ssc-hint danger">Бой подтвержден: добавление кораблей из шаблонов заблокировано.</p>{{/if}}
         </div>
-
+<div class="ssc-catalog-search"><label>Поиск по названию и описанию<input type="search" data-filter-input placeholder="Например, фрегат или охотник" aria-label="Поиск в каталоге"></label><button type="button" data-filter-clear>Сбросить поиск</button><span data-filter-count role="status"></span></div><p class="ssc-empty-state" data-filter-empty hidden>Ничего не найдено. Измените запрос или сбросьте поиск.</p>
         <div class="ssc-template-groups">
           {{#each templateGroups as |group|}}
-            <section class="ssc-template-group">
+            <section class="ssc-template-group" data-filter-group>
               <h4>{{group.category}}</h4>
               <div class="ssc-template-grid">
                 {{#each group.templates as |template|}}
-                  <article class="ssc-template-card">
+                  <article data-filter-item class="ssc-template-card">
                     <div class="ssc-template-title">
                       <strong>{{template.label}}</strong>
-                      <span>{{template.id}}</span>
+                      
                     </div>
                     <p>{{template.description}}</p>
                     <p class="ssc-hint">{{template.armament}}</p>
@@ -37,4 +36,3 @@
           {{/each}}
         </div>
       </section>
-    {{/if}}

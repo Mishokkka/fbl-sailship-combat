@@ -1,19 +1,18 @@
-    {{#if isCreatureLibraryTab}}
-      <section class="ssc-shipyard-tab-panel">
+<section data-filter="creatureLibrary" data-view-panel="creatureLibrary" {{#unless isCreatureLibraryTab}}hidden{{/unless}} class="ssc-shipyard-tab-panel">
         <div class="ssc-yard-section-head">
           <div>
             <h3>{{localize "SAILSHIPS.CreatureLibrary"}} <span class="ssc-muted">({{creatureLibraryCount}})</span></h3>
             <p class="ssc-hint">Пользовательские существа хранятся в world setting отдельно от кораблей. Текущие повреждения и боевые флаги при сохранении очищаются.</p>
           </div>
         </div>
-
+<div class="ssc-catalog-search"><label>Поиск по названию и описанию<input type="search" data-filter-input placeholder="Например, фрегат или охотник" aria-label="Поиск в каталоге"></label><button type="button" data-filter-clear>Сбросить поиск</button><span data-filter-count role="status"></span></div><p class="ssc-empty-state" data-filter-empty hidden>Ничего не найдено. Измените запрос или сбросьте поиск.</p>
         <section class="ssc-library-save-box">
           <label>Название шаблона
             <input type="text" data-creature-library-name value="{{defaultCreatureLibraryName}}">
           </label>
           <div class="ssc-action-grid compact-actions">
-            <button type="button" data-action="saveCreatureToLibrary" {{#unless selectedIsCreature}}disabled{{/unless}}>{{localize "SAILSHIPS.SaveCreatureToLibrary"}}</button>
-            <button type="button" data-action="exportCreature" {{#unless selectedIsCreature}}disabled{{/unless}}>{{localize "SAILSHIPS.ExportCreature"}}</button>
+            <button type="button" data-action="saveCreatureToLibrary" {{#unless selectedIsCreature}}disabled{{/unless}} {{#unless selectedIsCreature}}disabled{{/unless}}>{{localize "SAILSHIPS.SaveCreatureToLibrary"}}</button>
+            <button type="button" data-action="exportCreature" {{#unless selectedIsCreature}}disabled{{/unless}} {{#unless selectedIsCreature}}disabled{{/unless}}>{{localize "SAILSHIPS.ExportCreature"}}</button>
             <button type="button" data-action="importCreature" {{#unless canEditCombatants}}disabled{{/unless}}>{{localize "SAILSHIPS.ImportCreature"}}</button>
           </div>
         </section>
@@ -21,7 +20,7 @@
         {{#if creatureLibrary.length}}
           <div class="ssc-library-grid">
             {{#each creatureLibrary as |entry|}}
-              <article class="ssc-library-card ssc-creature-library-card">
+              <article data-filter-item class="ssc-library-card ssc-creature-library-card">
                 <div class="ssc-template-title">
                   <strong>{{entry.name}}</strong>
                   <span>#{{entry.index}}</span>
@@ -46,4 +45,3 @@
           <p class="ssc-hint">Бестиарий пока пуст.</p>
         {{/if}}
       </section>
-    {{/if}}
