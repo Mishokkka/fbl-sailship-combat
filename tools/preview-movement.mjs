@@ -127,10 +127,6 @@ async function install(page) {
       point.y = area.top + 180;
       const desired = point.matrixTransform(svg.getScreenCTM().inverse());
       const ship = cellToPixel(stored.board, stored.ships[0].x, stored.ships[0].y);
-      console.log("Movement camera", JSON.stringify({
-        width: innerWidth, area: area.toJSON(), svg: svg.getBoundingClientRect().toJSON(),
-        desired: { x: desired.x, y: desired.y }, ship, viewBox: svg.getAttribute("viewBox")
-      }));
       app.boardCamera.x += ship.cx - desired.x;
       app.boardCamera.y += ship.cy - desired.y;
       app.board.applyBoardViewBox(svg);
@@ -192,14 +188,12 @@ try {
     console.log("Movement scenario " + width + "x" + height);
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
-    page.on("console", message => { if (message.text().startsWith("Movement camera")) console.log(message.text()); });
     await install(page);
     const before = await page.evaluate(() => window.movementTest.read());
     await choose(page);
     await checkCard(page, "Route at " + width + "x" + height);
     assert.deepEqual(await page.evaluate(() => window.movementTest.read()), before);
     await page.screenshot({ path: "artifacts/interface/movement-plan-" + width + "-" + height + ".png" });
-    if (width === 1500 || (width === 800 && height === 650)) console.log("MOVEMENT_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
     await choose(page, { last: true });
     await page.keyboard.press("Escape");
     await page.locator(".ssc-movement-plan").waitFor({ state: "detached" });
@@ -224,7 +218,6 @@ try {
     await checkCard(page, "Collision at " + width + "x" + height);
     assert.match(await page.locator('[data-action="confirmMovementPlan"]').textContent(), /Подтвердить столкновение/);
     await page.screenshot({ path: "artifacts/interface/movement-collision-" + width + "-" + height + ".png" });
-    if (width === 800 && height === 650) console.log("MOVEMENT_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
     const collisionBefore = await page.evaluate(() => window.movementTest.read());
     await page.locator('[data-action="cancelMovementPlan"]').click();
     await page.evaluate(() => window.movementTest.lastAction);
