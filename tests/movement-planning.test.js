@@ -254,3 +254,18 @@ test("players, setup and completed battles cannot create a movement draft", asyn
     assert.equal(state.commits, 0);
   }
 });
+
+test("a draft invalidated during a queued confirmation cannot become valid again", async () => {
+  const state = harness();
+  const cell = destination(state.read());
+  await state.app._moveSelectedShip(cell.x, cell.y);
+  const selected = state.app.selectedShipId;
+  state.beforeMutation = () => {
+    state.app.selectedShipId = state.read().ships[1].id;
+    state.app.movementPlan.getContext(state.read());
+    state.app.selectedShipId = selected;
+  };
+  await state.app.movementPlan.confirm();
+  assert.equal(state.commits, 0);
+  assert.equal(state.read().lastMovement, undefined);
+});

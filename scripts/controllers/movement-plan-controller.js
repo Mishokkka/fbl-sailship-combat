@@ -71,7 +71,7 @@ export class MovementPlanController {
       await this.app.renderBattleState(["board"]);
       const saved = await this.app._updateBattleAndRender(battle => {
         // Validate again INSIDE the queue, before any AP, dice, logs or damage.
-        const fresh = this.matches(battle, plan) ? this.preview(battle, plan.x, plan.y) : null;
+        const fresh = this.pending === plan && this.matches(battle, plan) ? this.preview(battle, plan.x, plan.y) : null;
         if (!fresh || JSON.stringify(fresh) !== JSON.stringify(plan.preview)) {
           this.pending = null;
           this.notice = "Обстановка изменилась. Выберите маршрут заново.";

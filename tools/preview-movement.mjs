@@ -114,7 +114,7 @@ async function install(page) {
       app.renderBattleSnapshot = null;
       app.contextBuilder.invalidate();
       app.layout.pane = "board";
-      app.boardCamera = { x: 0, y: 0, zoom: 1.8 };
+      app.boardCamera = { x: 0, y: 0, zoom: 1 };
       await app.render({ parts: Object.keys(NavalBattleApp.PARTS) });
       // Pan via the production camera to keep the fixture above the draft card.
       const svg = app.element.querySelector(".ssc-board-svg");
@@ -191,6 +191,7 @@ try {
     await checkCard(page, "Route at " + width + "x" + height);
     assert.deepEqual(await page.evaluate(() => window.movementTest.read()), before);
     await page.screenshot({ path: "artifacts/interface/movement-plan-" + width + "-" + height + ".png" });
+    if (width === 1500 || (width === 800 && height === 650)) console.log("MOVEMENT_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
     await choose(page, { last: true });
     await page.keyboard.press("Escape");
     await page.locator(".ssc-movement-plan").waitFor({ state: "detached" });
