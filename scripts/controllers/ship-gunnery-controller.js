@@ -108,7 +108,7 @@ export class ShipGunneryController {
 
       weapon.ammo = ammo;
       this.app._addLog(battle, `${ship.name}: ${weapon.label} заряжает ${AMMO_LABELS[weapon.ammo] ?? weapon.ammo}.`);
-    }, { preserveRightPanelScroll: true, reason: "set-ammo" });
+    }, { preserveRightPanelScroll: true, reason: "set-ammo", renderParts: ["board", "summary", "controls"] });
   }
 
   async setFireMode(event, target) {
@@ -129,7 +129,7 @@ export class ShipGunneryController {
 
       weapon.fireMode = fireMode;
       this.app._addLog(battle, `${ship.name}: ${weapon.label} — режим «${FIRE_MODE_LABELS[weapon.fireMode] ?? weapon.fireMode}».`);
-    }, { preserveRightPanelScroll: true, reason: "set-fire-mode" });
+    }, { preserveRightPanelScroll: true, reason: "set-fire-mode", renderParts: ["board", "summary", "controls"] });
   }
 
   clearTarget() {

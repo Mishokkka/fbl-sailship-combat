@@ -1,4 +1,5 @@
-import { AIR_ONLY_TERRAIN_TYPES, PHASES, SEA_ONLY_TERRAIN_TYPES, TERRAIN_LABELS } from "../utils/constants.js";
+import { BattleReportService } from "../services/battle-report-service.js";
+import { AIR_ONLY_TERRAIN_TYPES, DECISION_PHASES, SEA_ONLY_TERRAIN_TYPES, TERRAIN_LABELS } from "../utils/constants.js";
 import { BoardContextBuilder } from "./board-context-builder.js";
 import { ShipViewModelBuilder } from "./ship-view-model-builder.js";
 import { CombatPanelContextBuilder } from "./combat-panel-context-builder.js";
@@ -116,8 +117,10 @@ export class BattleContextBuilder {
       canConfirmSetup: Boolean(game.user.isGM && !battle.setupConfirmed),
       canReturnToSetup: Boolean(game.user.isGM && battle.setupConfirmed),
       canNextPhase: Boolean(game.user.isGM && battle.setupConfirmed && !battle.outcome?.resolved
-        && (!this.app._isActivationPhase(battle.phase) || !state.activeShip)),
+        && !this.app.phase?.busy && (!this.app._isActivationPhase(battle.phase) || !state.activeShip)),
       battle,
+      battleReport: BattleReportService.context(battle.lastReport),
+      reportOnBoard: Boolean(battle.lastReport && this.app.dismissedReportId !== battle.lastReport.id && !battle.outcome?.resolved),
       battleMode: state.battleMode,
       deployMode: this.app.deployMode,
       terrainMode: this.app.terrainMode,
@@ -159,12 +162,12 @@ export class BattleContextBuilder {
         && state.activeShip
         && activeActionState.canPass),
       passTurnTitle,
-      nextPhaseLabel: battle.phase === "end" ? "Новый раунд" : "Следующая фаза",
+      nextPhaseLabel: ({ orders: "К манёврам", movement: "К стрельбе", gunnery: "К экипажу", damage: "К экипажу", crew: "Завершить раунд", end: "Завершить раунд" })[battle.phase],
       nextPhaseTitle: this.app._isActivationPhase(battle.phase) && state.activeShip
         ? "Сначала завершите активации всех участников этой фазы."
-        : "Продолжить бой: перейти к следующему этапу.",
+        : ["crew", "end"].includes(battle.phase) ? "Обработать перезарядку, движение по инерции и длительные эффекты, затем начать приказы нового раунда." : "Перейти к следующему этапу.",
       turnOrder: this.app._getTurnOrder(battle),
-      phases: PHASES.map((id, index) => ({ id, number: index + 1, active: id === battle.phase, done: index < PHASES.indexOf(battle.phase) }))
+      phases: DECISION_PHASES.map((id, index) => ({ id, number: index + 1, active: id === battle.phase || (id === "crew" && ["damage", "end"].includes(battle.phase)), done: index < DECISION_PHASES.indexOf(battle.phase) }))
     };
   }
 
@@ -299,6 +302,7 @@ export class BattleContextBuilder {
         : detail.detailCreature
           ? this.combatPanels.getCreatureTargets(battle, detail.detailCreature)
           : [],
+      gunneryTargets: detail.detailShip ? battle.ships.filter(unit => unit.side !== detail.detailShip.side && CombatantRules.isActive(unit) && CombatantRules.supports(unit, "targetable")).map(unit => ({ id: unit.id, name: unit.name, selected: unit.id === state.selectedTarget?.id })) : [],
       shotPreviews,
       shotPreviewEmptyText: this.combatPanels.getShotPreviewEmptyText(state.selectedTarget),
       aimSection: this.app.aimSection,

@@ -614,7 +614,7 @@ export class BattlePhaseController {
       return false;
     } finally {
       this.busy = false;
-      await this.app.renderBattleState({ parts: ["fleet", "board", "summary", "controls"] });
+      await this.app.renderBattleState();
     }
   }
 

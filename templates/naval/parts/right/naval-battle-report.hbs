@@ -1,0 +1,20 @@
+{{#with battleReport}}
+<section class="ssc-battle-report outcome-{{outcome}}" tabindex="-1" aria-label="{{label}}">
+  <span class="ssc-eyebrow">{{label}}</span>
+  <h3>{{title}}</h3>
+  <p class="ssc-report-outcome">{{outcomeLabel}}</p>
+  {{#if highlights.length}}
+  <div class="ssc-report-highlights">
+    {{#each highlights}}<div><span>{{name}} · {{label}}</span><strong>{{before}} <i aria-label="стало">→</i> {{after}}</strong></div>{{/each}}
+  </div>
+  {{else}}<p class="ssc-hint">Изменений состояния ваших доступных кораблей нет.</p>{{/if}}
+  <details class="ssc-disclosure" data-ui-section="report-{{id}}">
+    <summary>Все последствия и расчёт</summary>
+    {{#each groups}}
+    <h4>{{name}}</h4>
+    <dl class="ssc-report-changes">{{#each changes}}<div><dt>{{label}}</dt><dd>{{before}} → <strong>{{after}}</strong></dd></div>{{/each}}</dl>
+    {{/each}}
+    {{#if details.length}}<div class="ssc-report-log">{{#each details}}<p>{{this}}</p>{{/each}}</div>{{/if}}
+  </details>
+</section>
+{{/with}}

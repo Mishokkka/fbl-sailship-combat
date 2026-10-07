@@ -124,6 +124,7 @@ export class CombatPanelContextBuilder {
         weaponType: type,
         weaponTypeLabel: WEAPON_TYPE_LABELS[type] ?? type,
         ammoLabel: AMMO_LABELS[weapon.ammo] ?? weapon.ammo,
+        ammoIntent: ({ roundShot: "Ядра: повреждают корпус и корабельные системы.", chainShot: "Книппели: рвут паруса и снижают подвижность.", grapeShot: "Картечь: потери экипажа на короткой дистанции.", heatedShot: "Калёные ядра: вызывают пожар, но опасны и для своей батареи.", bomb: "Бомбы: взрыв и пожар на палубе." })[weapon.ammo] ?? AMMO_TOOLTIPS[weapon.ammo] ?? "",
         fireModeLabel: FIRE_MODE_LABELS[weapon.fireMode ?? "full"] ?? weapon.fireMode ?? "full",
         ammoOptions,
         ammoUnavailable: !ammoOptions.some(option => option.active),
@@ -296,17 +297,28 @@ export class CombatPanelContextBuilder {
       const battery = GunneryEngine.getBattery(selectedShip, arc);
       if (!battery) continue;
       const targets = this.getTargets(battle, selectedShip, arc);
-      const targetInfo = selectedTarget ? targets.find(t => t.target.id === selectedTarget.id) : targets[0];
-      if (!targetInfo) continue;
-      const functional = GunneryEngine.isBatteryFunctional(selectedShip, battery);
-      const reloading = Number(battery.reload ?? 0) > 0;
-      if (reloading || !functional) continue;
-
-      const preview = targetInfo.preview ?? GunneryEngine.getShotPreview(battle, selectedShip, targetInfo.target, battery, targetInfo.range, { aimedSection: this.app.aimSection });
+      const targetInfo = selectedTarget ? targets.find(t => t.target.id === selectedTarget.id) : null;
+      const blockedReason = GunneryEngine.getShotBlockReason(battle, selectedShip, battery, selectedTarget, { aimedSection: this.app.aimSection });
+      const canAct = Boolean(actionState?.[this.getCanFireKey(arc)] && !this.app.gunnery?.busy);
+      const preview = targetInfo?.preview ?? {};
+      if (!targetInfo) {
+        previews.push({
+          arc, fireAction: this.getFireAction(arc), battery, controls: controls.get(battery.id),
+          focused: arc === (this.app.selectedBatteryArc ?? "port"),
+          batteryLabel: battery.label ?? ARC_LABELS[arc], arcLabel: ARC_LABELS[arc],
+          weaponTypeLabel: WEAPON_TYPE_LABELS[GunneryEngine.getWeaponType(battery)],
+          targetId: selectedTarget?.id, targetName: selectedTarget?.name ?? "Цель не выбрана",
+          available: false, canFireNow: false, blockedReason: blockedReason || "Нет доступного выстрела."
+        });
+        continue;
+      }
       const fireAction = this.getFireAction(arc);
       const uiMeta = this.getWeaponUiMeta(GunneryEngine.getWeaponType(battery), preview.minRange, preview.maxRange);
       previews.push({
         arc,
+        focused: arc === (this.app.selectedBatteryArc ?? "port"),
+        targetId: targetInfo.target.id,
+        blockedReason: canAct ? "" : "Активация недоступна или ОД уже потрачены.",
         fireAction,
         arcLabel: ARC_LABELS[arc] ?? arc,
         battery,
@@ -321,8 +333,8 @@ export class CombatPanelContextBuilder {
         modeText: preview.modeText,
         hasTarget: true,
         available: true,
-        canFireNow: Boolean(actionState?.[this.getCanFireKey(arc)]),
-        functional,
+        canFireNow: canAct,
+        functional: true,
         reload: 0,
         preview,
         hitChance: Number(preview.hitChance ?? GunneryEngine.getHitProbability(preview.skill)),

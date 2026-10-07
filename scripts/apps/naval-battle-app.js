@@ -103,6 +103,9 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       coreModeBoosted: this._onCoreModeBoosted,
       coreModeEmergency: this._onCoreModeEmergency,
       coreModeShutdown: this._onCoreModeShutdown,
+      selectBatteryArc: this._onSelectBatteryArc,
+      showBattleReport: this._onShowBattleReport,
+      dismissBattleReport: this._onDismissBattleReport,
       firePort: this._onFirePort,
       fireStarboard: this._onFireStarboard,
       fireBow: this._onFireBow,
@@ -354,6 +357,25 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onExportBattle(event) { event.preventDefault(); return this.persistence.exportBattle(); }
   static async _onImportBattle(event) { event.preventDefault(); return this.persistence.importBattle(); }
   static async _onClearBattleLog(event) { event.preventDefault(); return this.persistence.clearLog(); }
+  static async _onSelectBatteryArc(event, target) {
+    event.preventDefault();
+    this.selectedBatteryArc = (target ?? event.currentTarget)?.dataset?.arc;
+    return this.renderBattleState(["board", "controls"]);
+  }
+  static _onShowBattleReport(event) {
+    event.preventDefault();
+    this.layout.showPane("controls");
+    const card = this.element?.querySelector(".ssc-battle-report");
+    const details = card?.querySelector("details");
+    if (details) details.open = true;
+    card?.scrollIntoView({ block: "start" });
+    card?.focus({ preventScroll: true });
+  }
+  static _onDismissBattleReport(event) {
+    event.preventDefault();
+    this.dismissedReportId = (this.renderBattleSnapshot ?? this.battle).lastReport?.id;
+    return this.renderBattleState(["board"]);
+  }
   static _onShowLayoutPane(event, target) {
     event.preventDefault();
     this.layout.showPane((target ?? event.currentTarget)?.dataset?.pane);
