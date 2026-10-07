@@ -111,6 +111,7 @@ async function install(page) {
         const path = MovementEngine.getPathCells(stored.ships[0], 0, 3, stored);
         Object.assign(stored.ships[1], { x: path[2].x, y: path[2].y, heading: 180, altitude: stored.ships[0].altitude });
       }
+      for (const ship of stored.ships) MovementEngine.syncSailingState(stored, ship);
       app.renderBattleSnapshot = null;
       app.contextBuilder.invalidate();
       app.layout.pane = "board";
@@ -204,6 +205,14 @@ try {
     await page.locator(".ssc-movement-plan").waitFor({ state: "detached" });
     assert.deepEqual(await page.evaluate(() => window.movementTest.read()), before);
     await choose(page);
+    if (width === 1500) {
+      await page.evaluate(() => { window.movementTest.mode = "deny"; });
+      await page.locator('[data-action="confirmMovementPlan"]').click();
+      await page.evaluate(() => window.movementTest.lastAction);
+      assert.deepEqual(await page.evaluate(() => window.movementTest.read()), before);
+      assert.match(await page.locator(".ssc-movement-plan [role=status]").textContent(), /не сохранён/);
+      await page.evaluate(() => { window.movementTest.mode = "allow"; });
+    }
     await page.locator('[data-action="confirmMovementPlan"]').click();
     await page.evaluate(() => window.movementTest.lastAction);
     assert.equal(await page.evaluate(() => window.movementTest.commits), 1);
@@ -215,6 +224,7 @@ try {
     await checkCard(page, "Collision at " + width + "x" + height);
     assert.match(await page.locator('[data-action="confirmMovementPlan"]').textContent(), /Подтвердить столкновение/);
     await page.screenshot({ path: "artifacts/interface/movement-collision-" + width + "-" + height + ".png" });
+    if (width === 800 && height === 650) console.log("MOVEMENT_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
     const collisionBefore = await page.evaluate(() => window.movementTest.read());
     await page.locator('[data-action="cancelMovementPlan"]').click();
     await page.evaluate(() => window.movementTest.lastAction);

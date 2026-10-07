@@ -253,3 +253,8 @@
 .sailships-combat .ssc-plan-actions kbd { margin-left: 4px; font: inherit; font-size: 10px; opacity: .65; }
 .sailships-combat .ssc-movement-notice { max-width: 340px; margin: 0; padding: 8px 10px; border: 1px solid var(--ssc-border); border-radius: 7px; background: #121e2a; color: var(--ssc-text); font-size: 12px; }
 .sailships-combat .ssc-main-grid[data-layout="narrow"] .ssc-movement-plan { max-height: 65%; }
+
+/* In a short window the draft replaces the bottom summary, leaving the route visible. */
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-movement-plan) { --ssc-bottom-info-h: 0px; }
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-movement-plan) > .ssc-bottom-info { display: none; }
+.sailships-combat .ssc-main-grid[data-layout="narrow"] .ssc-board-phase-strip { margin-top: 48px; }
