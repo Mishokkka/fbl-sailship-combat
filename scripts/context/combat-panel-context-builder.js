@@ -209,7 +209,7 @@ export class CombatPanelContextBuilder {
     const actionState = this.app._getActionState(battle, creature);
     return (creature?.attacks ?? []).map(attack => {
       const targets = CreatureAttackEngine.getTargets(battle, creature, attack.id);
-      const selected = selectedTarget ? targets.find(entry => entry.target.id === selectedTarget.id) : targets[0];
+      const selected = selectedTarget ? targets.find(entry => entry.target.id === selectedTarget.id) : null;
       const preview = CreatureAttackEngine.preview(battle, creature, attack.id, selected?.target?.id ?? null);
       return {
         ...attack,
@@ -222,7 +222,7 @@ export class CombatPanelContextBuilder {
         typeLabel: preview?.typeLabel ?? attack.type,
         arcLabel: preview?.arcLabel ?? attack.arc,
         ready: Number(attack.cooldown ?? 0) <= 0,
-        canUse: Boolean(actionState.canCreatureAttack && selected),
+        canUse: Boolean(actionState.canCreatureAttack && selected && !this.app.creatures?.attackBusy),
         cooldownLabel: Number(attack.cooldown ?? 0) > 0 ? `${attack.cooldown} р.` : "готова",
         tagsText: (attack.tags ?? []).join(", ")
       };
@@ -304,7 +304,7 @@ export class CombatPanelContextBuilder {
       if (!targetInfo) {
         previews.push({
           arc, fireAction: this.getFireAction(arc), battery, controls: controls.get(battery.id),
-          focused: arc === (this.app.selectedBatteryArc ?? "port"),
+          focused: arc === this.app.selectedBatteryArc,
           batteryLabel: battery.label ?? ARC_LABELS[arc], arcLabel: ARC_LABELS[arc],
           weaponTypeLabel: WEAPON_TYPE_LABELS[GunneryEngine.getWeaponType(battery)],
           targetId: selectedTarget?.id, targetName: selectedTarget?.name ?? "Цель не выбрана",
@@ -316,7 +316,7 @@ export class CombatPanelContextBuilder {
       const uiMeta = this.getWeaponUiMeta(GunneryEngine.getWeaponType(battery), preview.minRange, preview.maxRange);
       previews.push({
         arc,
-        focused: arc === (this.app.selectedBatteryArc ?? "port"),
+        focused: arc === this.app.selectedBatteryArc,
         targetId: targetInfo.target.id,
         blockedReason: canAct ? "" : "Активация недоступна или ОД уже потрачены.",
         fireAction,
@@ -348,7 +348,7 @@ export class CombatPanelContextBuilder {
         arcHintLabel: uiMeta.arcLabel
       });
     }
-    return previews;
+    return previews.sort((a, b) => Number(b.available) - Number(a.available));
   }
 
   getShotPreviewEmptyText(selectedTarget) {

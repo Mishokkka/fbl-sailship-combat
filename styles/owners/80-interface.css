@@ -262,9 +262,9 @@
 /* Shot intent, visible restrictions, and persisted consequences. */
 .sailships-combat .ssc-target-picker { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
 .sailships-combat .ssc-target-picker .ssc-target-row { display: block; width: auto; flex: 1 1 130px; padding: 8px; text-align: left; }
-.sailships-combat .ssc-battery-focus { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: flex-start; gap: 3px; background: transparent; border: 0; text-align: left; padding: 3px; }
-.sailships-combat .ssc-battery-focus strong { font-size: 14px; overflow-wrap: anywhere; }
-.sailships-combat .ssc-battery-focus span { font-size: 10px; color: var(--ssc-muted); }
+.sailships-combat .window-content .ssc-battery-focus { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: flex-start; gap: 3px; background: transparent; border: 0; text-align: left; padding: 3px; }
+.sailships-combat .window-content .ssc-battery-focus strong { font-size: 14px; overflow-wrap: anywhere; }
+.sailships-combat .window-content .ssc-battery-focus span { font-size: 10px; color: var(--ssc-muted); }
 .sailships-combat .ssc-shot-preview-card.is-focused { border-color: var(--ssc-accent); }
 .sailships-combat .ssc-shot-preview-card.is-blocked { background: #141e28; }
 .sailships-combat .ssc-shot-blocked { padding: 8px 10px; border-left: 2px solid #cdad83; background: #ffffff05; font-size: 12px; color: #e4c9a6; line-height: 1.45; }
@@ -292,3 +292,7 @@
 .sailships-combat .ssc-report-toast p { margin: 0; color: #cfe5cf; font-size: 11px; }
 .sailships-combat .ssc-report-toast button { width: auto; min-height: 28px; padding: 5px 8px; font-size: 11px; }
 .sailships-combat .ssc-report-toast .ssc-report-dismiss { position: absolute; right: 3px; top: 3px; background: transparent; border: 0; font-size: 18px; }
+
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-report-toast) { --ssc-bottom-info-h: 0px; }
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-report-toast) > .ssc-bottom-info { display: none; }
+.sailships-combat .window-content .ssc-battery-focus { width: auto; }

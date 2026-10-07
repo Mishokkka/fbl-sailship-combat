@@ -48,8 +48,16 @@
         <div class="ssc-shot-effect" title="{{shot.effectTooltip}}">При попадании <strong>{{shot.preview.expectedDamage}}</strong><span>урона до брони</span></div>
       {{/if}}
       {{/if}}
+      {{#if shot.available}}
       {{> "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs" weapon=shot.controls isGM=../isGM}}
       <p class="ssc-shot-intent">{{shot.controls.ammoIntent}}</p>
+      {{else}}
+      <details class="ssc-disclosure" data-ui-section="unavailable-{{shot.arc}}">
+        <summary>{{shot.controls.ammoLabel}} · {{shot.controls.fireModeLabel}}</summary>
+        {{> "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs" weapon=shot.controls isGM=../isGM}}
+        <p class="ssc-shot-intent">{{shot.controls.ammoIntent}}</p>
+      </details>
+      {{/if}}
       {{#if shot.available}}
       <details class="ssc-disclosure" data-ui-section="shot-{{shot.arc}}">
         <summary>Почему такой шанс и урон?</summary>

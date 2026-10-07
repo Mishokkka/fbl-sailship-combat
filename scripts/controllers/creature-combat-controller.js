@@ -1,3 +1,4 @@
+import { BattleReportService } from "../services/battle-report-service.js";
 import { CreatureAttackEngine } from "../engine/creature-attack-engine.js";
 import { CreatureDamageEngine } from "../engine/creature-damage-engine.js";
 import { CreatureMovementEngine } from "../engine/creature-movement-engine.js";
@@ -64,33 +65,55 @@ export class CreatureCombatController {
   }
 
   async attack(attackId) {
-    await this.app._updateBattleAndRender(battle => {
-      const creature = this.getSelectedCreature(battle);
-      if (!this.app._requireActivePhase(battle, creature, "gunnery", "Атака существа")) return false;
-      if (!attackId) return false;
-      if (!this.app._markTurnAction(battle, creature, "creatureAttack")) {
-        ui.notifications.warn(`${creature.name} уже атаковал в этой фазе или исчерпал ОД.`);
-        return false;
+    if (this.attackBusy || !attackId) return false;
+    const shown = this.app.renderBattleSnapshot ?? this.app.battle;
+    const request = { id: shown.id, revision: shown.revision, shipId: this.app.selectedShipId, targetId: this.app.selectedTargetId };
+    if (!request.targetId) return ui.notifications.warn("Сначала выберите цель атаки.");
+    this.attackBusy = true;
+    let reportId = null;
+    try {
+      const saved = await this.app._updateBattleAndRender(battle => {
+        if (battle.id !== request.id || battle.revision !== request.revision || !battle.setupConfirmed || battle.outcome?.resolved
+          || this.app.selectedShipId !== request.shipId || this.app.selectedTargetId !== request.targetId) return false;
+        const creature = this.getSelectedCreature(battle);
+        if (!this.app._requireActivePhase(battle, creature, "gunnery", "Атака существа")) return false;
+        if (!this.app._markTurnAction(battle, creature, "creatureAttack")) return false;
+        const before = BattleReportService.capture(battle);
+        const result = CreatureAttackEngine.resolve(battle, creature.id, attackId, request.targetId);
+        if (!result.ok) {
+          this.app._refundTurnAction(battle, creature, "creatureAttack");
+          ui.notifications.warn(result.text ?? "Атака невозможна.");
+          return false;
+        }
+        this.app._addLog(battle, result.text);
+        reportId = BattleReportService.record(battle, before, {
+          outcome: result.hit ? "hit" : "miss", sourceId: creature.id, targetId: result.target.id,
+          title: creature.name + " → " + result.target.name, details: [result.text]
+        }).id;
+        const timestamp = Date.now();
+        battle.lastAudioEvent = { id: "audio-" + reportId, type: "creatureAttack", shipId: creature.id, timestamp };
+        this.app._completeShipActivation(battle, creature, "gunnery");
+        const next = this.app._getActiveShip(battle);
+        this.app._addLog(battle, next ? "Ход боевой единицы: " + next.name + "." : "Атаки завершены. Можно перейти к экипажу.");
+      }, { reason: "creature-attack-" + attackId, renderParts: [] });
+      if (reportId && saved.lastReport?.id === reportId && saved.revision > request.revision) {
+        if (this.app.selectedShipId === request.shipId) {
+          this.app.selectedShipId = this.app._getActiveShip(saved)?.id ?? request.shipId;
+          this.app.selectedTargetId = null;
+        }
+        return true;
       }
-      const result = CreatureAttackEngine.resolve(battle, creature.id, attackId, this.app.selectedTargetId);
-      if (!result.ok) {
-        this.app._refundTurnAction(battle, creature, "creatureAttack");
-        ui.notifications.warn(result.text ?? "Атака невозможна.");
-        return false;
-      }
-      this.app._addLog(battle, result.text);
-      const timestamp = Date.now();
-      battle.lastAudioEvent = { id: `audio-creature-${battle.round}-${creature.id}-${timestamp}`, type: "creatureAttack", shipId: creature.id, timestamp };
-      this.app._completeShipActivation(battle, creature, "gunnery");
-      const next = this.app._getActiveShip(battle);
-      if (next) {
-        this.app.selectedShipId = next.id;
-        this.app._addLog(battle, `Ход боевой единицы: ${next.name}.`);
-      } else {
-        this.app._addLog(battle, "Все боевые единицы завершили фазу. Можно перейти дальше.");
-      }
-      this.app.selectedTargetId = null;
-    }, { reason: `creature-attack-${attackId}` });
+      if (reportId) ui.notifications.warn("Атака не сохранена. Проверьте состояние боя.");
+      return false;
+    } catch (error) {
+      this.app.renderBattleSnapshot = null;
+      ui.notifications.error("Не удалось сохранить атаку. Проверьте состояние боя перед повтором.");
+      console.error("Sailships Combat | Creature attack failed", error);
+      return false;
+    } finally {
+      this.attackBusy = false;
+      await this.app.renderBattleState();
+    }
   }
 
   async ability(abilityId) {
