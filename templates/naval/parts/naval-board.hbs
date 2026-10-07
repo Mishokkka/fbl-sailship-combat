@@ -225,7 +225,7 @@
           {{#if @root.reportOnBoard}}
           {{#with @root.battleReport}}
           <section class="ssc-report-toast" role="status" aria-live="polite">
-            <div><span>{{label}}</span><strong>{{title}}</strong><p>{{outcomeLabel}}</p></div>
+            <div><span>{{label}}</span><strong>{{title}}</strong><p>{{outcomeLabel}}</p>{{#with leadChange}}<p class="ssc-toast-change">{{label}}: {{before}} → {{after}}</p>{{/with}}</div>
             <button type="button" data-action="showBattleReport">Последствия</button>
             <button type="button" class="ssc-report-dismiss" data-action="dismissBattleReport" aria-label="Скрыть результат на поле">×</button>
           </section>

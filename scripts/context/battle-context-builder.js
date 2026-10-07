@@ -265,6 +265,7 @@ export class BattleContextBuilder {
         actionState: detail.actionState, canViewDetails: detail.canViewSelectedShipDetails,
         isGM: game.user.isGM, canSubmitOrder: detail.playerControl.canSubmitOrder,
         pendingOrder: Boolean(detail.playerControl.selectedPendingOrder),
+        hasSelectedTarget: Boolean(state.selectedTarget),
         hasShotPreview: shotPreviews.some(shot => shot.canFireNow)
       }),
       playerControl: detail.playerControl,

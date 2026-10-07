@@ -106,8 +106,9 @@ export class BattleReportService {
     const primary = report.groups.find(group => group.unitId === report.targetId) ?? report.groups[0];
     return {
       ...report,
-      label: report.kind === "round" ? "Итоги раунда " + report.round : "Последняя атака · раунд " + report.round,
+      label: report.kind === "round" ? "Раунд завершён" : "Последняя атака · раунд " + report.round,
       outcomeLabel: OUTCOMES[report.outcome] ?? OUTCOMES.resolved,
+      leadChange: primary?.changes[0] ? { ...primary.changes[0], name: primary.name } : null,
       highlights: primary ? primary.changes.slice(0, 3).map(row => ({ ...row, name: primary.name })) : [],
       hasChanges: report.groups.some(group => group.changes.length)
     };

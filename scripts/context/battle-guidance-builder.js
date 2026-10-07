@@ -3,7 +3,7 @@ import { PHASE_LABELS } from "../utils/constants.js";
 /** Build guidance only from the battle projection and permitted action state. */
 export class BattleGuidanceBuilder {
   static build({ battle, selectedShip, activeShip, actionState = {}, canViewDetails = false,
-    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false }) {
+    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false, hasSelectedTarget = false }) {
     const phase = battle.phase;
     const guide = (title, description, extra = {}) => ({
       eyebrow: battle.setupConfirmed ? `Раунд ${battle.round} · ${PHASE_LABELS[phase] ?? phase}` : "Подготовка боя",
@@ -47,8 +47,9 @@ export class BattleGuidanceBuilder {
     }
     if (phase === "gunnery") {
       if (creature) return guide("Выберите цель и атаку", "Доступность каждой атаки, её дальность и перезарядка показаны ниже.");
+      if (!hasSelectedTarget) return guide("Выберите цель залпа", "Нажмите на противника на поле или в списке. Батареи покажут доступность и прогноз атаки.");
       const ready = hasShotPreview;
-      return ready ? guide("Выберите цель и выполните залп", "Проверьте шанс попадания и боеприпас в карточке атаки. Урон в прогнозе указан до брони.", { tone: "ready" })
+      return ready ? guide("Проверьте залп", "Выберите боеприпас и проверьте прогноз. Кнопка «Залп» применит результат и передаст ход.", { tone: "ready" })
         : guide("Сейчас нет доступного выстрела", "Выберите цель. У каждой батареи показана причина ограничения. Если стрелять невозможно, завершите активацию.");
     }
     if (phase === "crew") return guide("Выберите задачу экипажа", "Устраните наиболее опасную аварию или подготовьте абордаж. Причины ограничений указаны у действий.");

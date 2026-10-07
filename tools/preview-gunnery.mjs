@@ -123,9 +123,6 @@ async function install(page) {
       if (mode === "hit") Math.random = () => 0.15;
       if (mode === "reload") GunneryEngine.getBattery(stored.ships[0], "bow").reload = 2;
       if (mode === "round") {
-        stored.phase = "crew";
-        stored.turn.activeShipId = null;
-        stored.turn.completed.crew = stored.ships.map(unit => unit.id);
         stored.ships[0].sections.bow.fire = 1;
         stored.ships[0].verticalVelocity = -1;
       }
@@ -202,10 +199,20 @@ try {
     await action(page, '[data-action="showBattleReport"]');
     assert.equal(await page.locator(".ssc-battle-report details").getAttribute("open"), "");
     assert.ok(await page.locator(".ssc-report-changes > div").count() > 0);
+    await checkLayout(page, "Expanded consequences");
     await page.evaluate(() => window.previewApp.layout.showPane("board"));
     await action(page, '[data-action="dismissBattleReport"]');
     assert.equal(await page.locator(".ssc-report-toast").count(), 0);
 
+    // Finish remaining shots and crew activations through production actions.
+    while (await page.evaluate(() => Boolean(window.gunneryTest.read().turn.activeShipId))) {
+      await action(page, '.ssc-board-control-dock [data-action="passTurn"]');
+    }
+    await action(page, '.ssc-board-control-dock [data-action="nextPhase"]');
+    assert.equal(await page.evaluate(() => window.gunneryTest.read().phase), "crew");
+    while (await page.evaluate(() => Boolean(window.gunneryTest.read().turn.activeShipId))) {
+      await action(page, '.ssc-board-control-dock [data-action="passTurn"]');
+    }
     await page.evaluate(() => window.gunneryTest.change("round"));
     const oldRound = await page.evaluate(() => window.gunneryTest.read().round);
     await action(page, '.ssc-board-control-dock [data-action="nextPhase"]');

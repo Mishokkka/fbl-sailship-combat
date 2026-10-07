@@ -296,3 +296,8 @@
 .sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-report-toast) { --ssc-bottom-info-h: 0px; }
 .sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-report-toast) > .ssc-bottom-info { display: none; }
 .sailships-combat .window-content .ssc-battery-focus { width: auto; }
+
+.sailships-combat .ssc-board-control-dock:has(.ssc-report-toast) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 430px; max-width: calc(100% - 20px); align-items: stretch; }
+.sailships-combat .ssc-report-toast { grid-column: 1 / -1; }
+.sailships-combat .ssc-report-toast strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sailships-combat .ssc-report-toast .ssc-toast-change { color: var(--ssc-muted); }
