@@ -3,7 +3,7 @@ import { PHASE_LABELS } from "../utils/constants.js";
 /** Build guidance only from the battle projection and permitted action state. */
 export class BattleGuidanceBuilder {
   static build({ battle, selectedShip, activeShip, actionState = {}, canViewDetails = false,
-    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false }) {
+    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false, hasSelectedTarget = false }) {
     const phase = battle.phase;
     const guide = (title, description, extra = {}) => ({
       eyebrow: battle.setupConfirmed ? `Раунд ${battle.round} · ${PHASE_LABELS[phase] ?? phase}` : "Подготовка боя",
@@ -14,8 +14,9 @@ export class BattleGuidanceBuilder {
       isGM ? "Откройте подготовку, расставьте корабли и подтвердите начало боя." : "Ведущий готовит поле и участников.",
       isGM ? { action: "openBattleSetup", actionLabel: "Подготовка боя" } : {});
     if (isGM && !activeShip && ["orders", "movement", "gunnery", "crew"].includes(phase)) {
-      return guide("Все участники завершили фазу", "Можно перейти к следующему этапу раунда.",
-        { action: "nextPhase", actionLabel: "Продолжить", tone: "ready" });
+      return guide(phase === "crew" ? "Раунд готов к завершению" : "Все участники завершили фазу",
+        phase === "crew" ? "Одна команда обновит перезарядку, движение по инерции и длительные эффекты. Изменения появятся в итогах раунда." : "Можно перейти к следующему этапу раунда.",
+        { action: "nextPhase", actionLabel: phase === "crew" ? "Завершить раунд" : "Продолжить", tone: "ready" });
     }
     if (isGM && ["damage", "end"].includes(phase)) {
       return guide(phase === "damage" ? "Проверьте последствия залпов" : "Завершите раунд",
@@ -46,9 +47,10 @@ export class BattleGuidanceBuilder {
     }
     if (phase === "gunnery") {
       if (creature) return guide("Выберите цель и атаку", "Доступность каждой атаки, её дальность и перезарядка показаны ниже.");
+      if (!hasSelectedTarget) return guide("Выберите цель залпа", "Нажмите на противника на поле или в списке. Батареи покажут доступность и прогноз атаки.");
       const ready = hasShotPreview;
-      return ready ? guide("Выберите цель и выполните залп", "Проверьте шанс попадания и боеприпас в карточке атаки. Урон в прогнозе указан до брони.", { tone: "ready" })
-        : guide("Сейчас нет доступного выстрела", "Проверьте цель, дугу огня, высоту и перезарядку. Если стрелять невозможно, завершите активацию.");
+      return ready ? guide("Проверьте залп", "Выберите боеприпас и проверьте прогноз. Кнопка «Залп» применит результат и передаст ход.", { tone: "ready" })
+        : guide("Сейчас нет доступного выстрела", "У каждой батареи показана причина ограничения. Выберите другую цель или завершите активацию.");
     }
     if (phase === "crew") return guide("Выберите задачу экипажа", "Устраните наиболее опасную аварию или подготовьте абордаж. Причины ограничений указаны у действий.");
     return guide("Следите за обстановкой", "Состояние корабля и доступные действия показаны ниже.");

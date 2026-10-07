@@ -1,6 +1,6 @@
 {{#if phaseFlags.damage}}
-  <section class="ssc-action-box">
-    <h3>Анатомический урон</h3>
+  <details class="ssc-action-box ssc-disclosure" data-ui-section="manual-damage">
+    <summary>Ручные поправки ведущего</summary>
     <p class="ssc-hint">Ручное применение урона для ГМа. Броня выбранной части тела учитывается автоматически.</p>
     <div class="ssc-system-list">
       {{#each selectedShip.sections as |section sectionId|}}
@@ -13,5 +13,5 @@
         </div>
       {{/each}}
     </div>
-  </section>
+  </details>
 {{/if}}

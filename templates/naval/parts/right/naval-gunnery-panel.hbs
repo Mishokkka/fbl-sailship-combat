@@ -1,70 +1,77 @@
-        {{#if phaseFlags.gunnery}}
-          <section class="ssc-action-box">
-            <h3>{{localize "SAILSHIPS.GunneryActions"}}</h3>
-            <div class="ssc-aim-strip">
-              {{#each aimButtons as |aim|}}
-                <button type="button" class="{{#if aim.active}}active{{/if}} {{#if aim.danger}}danger{{/if}}" data-action="{{aim.action}}" title="{{aim.title}}" {{#if aim.disabled}}disabled{{/if}}>{{aim.label}}</button>
-              {{/each}}
-            </div>
-            <p class="ssc-hint">{{localize "SAILSHIPS.AimHint"}}</p>
-            {{#if (sscEq aimSection 'crystalCore')}}<p class="ssc-hint danger">{{localize "SAILSHIPS.CoreAimWarning"}}</p>{{/if}}
-          </section>
-
-          <section class="ssc-shot-preview-box">
-            <h3 title="Показываются только батареи, которые сейчас имеют цель в дуге огня, исправны и не перезаряжаются.">{{localize "SAILSHIPS.ShotPreview"}}</h3>
-            {{#if shotPreviews.length}}
-              <div class="ssc-shot-preview-list">
-                {{#each shotPreviews as |shot|}}
-                  <article class="ssc-shot-preview-card arc-{{shot.arc}}" title="{{shot.tooltip}}">
-                    <header class="ssc-shot-preview-header">
-                      <div class="ssc-shot-preview-title">
-                        <strong>{{shot.batteryLabel}}</strong>
-                        <span>{{shot.arcLabel}} · {{shot.weaponTypeLabel}}</span>
-                      </div>
-                      <button type="button" class="ssc-shot-fire-button" data-action="{{shot.fireAction}}" {{#unless shot.canFireNow}}disabled{{/unless}}>{{#if (sscEq shot.preview.fireMode "delayed")}}Подготовить{{else}}Залп{{/if}}</button>
-                    </header>
-
-                    <div class="ssc-shot-preview-meta">
-                      <span title="Цель, по которой пойдет залп.">{{localize "SAILSHIPS.Target"}}: <strong>{{shot.targetName}}</strong></span>
-                      <span title="{{shot.rangeTooltip}}">{{localize "SAILSHIPS.Range"}}: <strong>{{shot.range}}</strong> / {{shot.minRange}}-{{shot.maxRange}} <em>({{shot.preview.minRangeMeters}}-{{shot.preview.maxRangeMeters}} м)</em></span>
-                      <span title="Текущая дистанция относительно исторической роли батареи.">Дистанция боя: <strong>{{shot.rangeBandLabel}}</strong></span>
-                      <span title="Секция попадания с учетом выбранного прицела.">{{localize "SAILSHIPS.Section"}}: <strong>{{shot.preview.targetSectionLabel}}</strong></span>
-                      <span title="Разница высот между стрелком и целью.">ΔH: <strong>{{shot.preview.altitudeDelta}}</strong></span>
-                    </div>
-
-                    {{#if (sscEq shot.preview.fireMode "delayed")}}<p class="ssc-hint">Подготовка батареи: без выстрела сейчас, +2 к следующему залпу.</p>{{/if}}
-                    {{#unless (sscEq shot.preview.fireMode "delayed")}}
-                    <div class="ssc-hit-chance" title="{{shot.chanceTooltip}}">
-                      <span>{{localize "SAILSHIPS.ToHit"}}: <strong>{{shot.hitChanceLabel}}</strong></span>
-                      <span>навык {{shot.preview.skill}}</span>
-                      <i class="ssc-hit-chance-bar"><b style="--ssc-hit-chance: {{shot.hitChance}}%;"></b></i>
-                    </div>
-
-                    <div class="ssc-shot-effect" title="{{shot.effectTooltip}}">
-                      Урон при попадании: <strong>{{shot.preview.expectedDamage}}</strong><span>до брони</span>
-                      <span>{{sscAmmo shot.preview.ammo}}</span>
-                      <span>{{shot.fireModeLabel}}</span>
-                    </div>
-                    {{/unless}}
-                    {{> "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs" weapon=shot.controls isGM=../isGM}}
-                    <details class="ssc-disclosure" data-ui-section="shot-{{shot.arc}}"><summary>Модификаторы и свойства батареи</summary>
-                    <div class="ssc-shot-role-row">
-                      <span class="ssc-summary-chip" title="Историческая роль этой батареи в бою.">{{shot.roleLabel}}</span>
-                      <span class="ssc-summary-chip" title="Типичная дуга стрельбы этой батареи.">{{shot.arcHintLabel}}</span>
-                    </div>
-                    <p class="ssc-hint" title="{{shot.modeText}}">{{shot.modeText}}</p>
-
-                    <div class="ssc-shot-mods" aria-label="Модификаторы залпа">
-                      {{#each shot.preview.modifierBreakdown as |mod|}}
-                        <span class="ssc-shot-mod {{#if mod.active}}active{{/if}}" title="{{mod.title}}">{{mod.label}} {{mod.valueText}}</span>
-                      {{/each}}
-                    </div>
-                    </details>
-                  </article>
-                {{/each}}
-              </div>
-            {{else}}
-              <p class="ssc-shot-empty">{{shotPreviewEmptyText}}</p>
-            {{/if}}
-          </section>
-        {{/if}}
+{{#if phaseFlags.gunnery}}
+<section class="ssc-action-box ssc-gunnery-target">
+  <span class="ssc-eyebrow">1 · Цель</span>
+  <h3>{{#if selectedTarget}}{{selectedTarget.name}}{{else}}По кому стреляем?{{/if}}</h3>
+  <div class="ssc-target-picker" aria-label="Цель залпа">
+    {{#each gunneryTargets}}
+    <button type="button" class="ssc-target-row {{#if selected}}active{{/if}}" data-target-id="{{id}}" aria-pressed="{{selected}}">{{name}}</button>
+    {{else}}<p class="ssc-hint">В поле нет доступных противников.</p>{{/each}}
+  </div>
+  <details class="ssc-disclosure" data-ui-section="gunnery-aim">
+    <summary>Прицел: {{#if aimSection}}{{#each aimButtons}}{{#if active}}{{label}}{{/if}}{{/each}}{{else}}автоматический выбор секции{{/if}}</summary>
+    <div class="ssc-aim-strip">
+    {{#each aimButtons as |aim|}}
+      <button type="button" class="{{#if aim.active}}active{{/if}} {{#if aim.danger}}danger{{/if}}" data-action="{{aim.action}}" title="{{aim.title}}" {{#if aim.disabled}}disabled{{/if}}>{{aim.label}}</button>
+    {{/each}}
+    </div>
+    <p class="ssc-hint">{{localize "SAILSHIPS.AimHint"}}</p>
+    {{#if (sscEq aimSection "crystalCore")}}<p class="ssc-hint danger">{{localize "SAILSHIPS.CoreAimWarning"}}</p>{{/if}}
+  </details>
+</section>
+<section class="ssc-shot-preview-box">
+  <span class="ssc-eyebrow">2 · Батарея и залп</span>
+  <h3>Возможности стрельбы</h3>
+  <p class="ssc-hint">Нажмите на название батареи, чтобы выделить её сектор на поле.</p>
+  <div class="ssc-shot-preview-list">
+  {{#each shotPreviews as |shot|}}
+    <article class="ssc-shot-preview-card arc-{{shot.arc}} {{#if shot.focused}}is-focused{{/if}} {{#unless shot.available}}is-blocked{{/unless}}">
+      <header class="ssc-shot-preview-header">
+        <button type="button" class="ssc-battery-focus" data-action="selectBatteryArc" data-arc="{{shot.arc}}" aria-pressed="{{shot.focused}}">
+          <strong>{{shot.batteryLabel}}</strong><span>{{shot.arcLabel}} · {{shot.weaponTypeLabel}}</span>
+        </button>
+        <button type="button" class="ssc-shot-fire-button primary" data-action="{{shot.fireAction}}" data-weapon-id="{{shot.battery.id}}" data-target-id="{{shot.targetId}}" {{#unless shot.canFireNow}}disabled{{/unless}}>{{#if (sscEq shot.controls.fireMode "delayed")}}Подготовить{{else}}Залп{{/if}}</button>
+      </header>
+      {{#if shot.blockedReason}}<p class="ssc-shot-blocked">{{shot.blockedReason}}</p>{{/if}}
+      {{#if shot.available}}
+      <div class="ssc-shot-preview-meta">
+        <span>Цель: <strong>{{shot.targetName}}</strong></span>
+        <span title="{{shot.rangeTooltip}}">Дистанция: <strong>{{shot.range}} гекс.</strong> · {{shot.rangeBandLabel}}</span>
+        <span>Секция: <strong>{{shot.preview.targetSectionLabel}}</strong> · ΔH {{shot.preview.altitudeDelta}}</span>
+      </div>
+      {{#if (sscEq shot.preview.fireMode "delayed")}}
+        <p class="ssc-shot-intent">Без выстрела сейчас. Батарея получит +2 к следующему залпу.</p>
+      {{else}}
+        <div class="ssc-hit-chance" title="{{shot.chanceTooltip}}">
+          <span>Попадание <strong>{{shot.hitChanceLabel}}</strong></span><span>навык {{shot.preview.skill}}</span>
+          <i class="ssc-hit-chance-bar"><b style="--ssc-hit-chance: {{shot.hitChance}}%;"></b></i>
+        </div>
+        <div class="ssc-shot-effect" title="{{shot.effectTooltip}}">При попадании <strong>{{shot.preview.expectedDamage}}</strong><span>урона до брони</span></div>
+      {{/if}}
+      {{/if}}
+      {{#if shot.available}}
+      {{> "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs" weapon=shot.controls isGM=../isGM}}
+      <p class="ssc-shot-intent">{{shot.controls.ammoIntent}}</p>
+      {{else}}
+      <details class="ssc-disclosure" data-ui-section="unavailable-{{shot.arc}}">
+        <summary>{{shot.controls.ammoLabel}} · {{shot.controls.fireModeLabel}}</summary>
+        {{> "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs" weapon=shot.controls isGM=../isGM}}
+        <p class="ssc-shot-intent">{{shot.controls.ammoIntent}}</p>
+      </details>
+      {{/if}}
+      {{#if shot.available}}
+      <details class="ssc-disclosure" data-ui-section="shot-{{shot.arc}}">
+        <summary>Почему такой шанс и урон?</summary>
+        <p class="ssc-hint">{{shot.modeText}}</p>
+        <div class="ssc-shot-mods" aria-label="Модификаторы залпа">
+        {{#each shot.preview.modifierBreakdown as |mod|}}
+          <span class="ssc-shot-mod {{#if mod.active}}active{{/if}}" title="{{mod.title}}">{{mod.label}} {{mod.valueText}}</span>
+        {{/each}}
+        </div>
+        <p class="ssc-hint">{{shot.controls.roleText}}</p>
+      </details>
+      {{/if}}
+    </article>
+  {{else}}<p class="ssc-shot-empty">На корабле нет батарей.</p>{{/each}}
+  </div>
+</section>
+{{/if}}

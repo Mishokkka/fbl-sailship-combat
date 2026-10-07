@@ -6,7 +6,7 @@ const ship = { id: "a", name: "Люмен", unitType: "ship" };
 function guidance(overrides = {}) {
   return BattleGuidanceBuilder.build({
     battle: { round: 2, phase: "gunnery", setupConfirmed: true },
-    selectedShip: ship, activeShip: ship, canViewDetails: true, isGM: true, ...overrides
+    selectedShip: ship, activeShip: ship, canViewDetails: true, isGM: true, hasSelectedTarget: true, ...overrides
   });
 }
 
@@ -58,4 +58,8 @@ test("resolved battle and creature guidance do not offer ship-specific actions",
   const creature = { id: "a", unitType: "creature" };
   assert.equal(guidance({ selectedShip: creature }).title, "Выберите цель и атаку");
   assert.match(guidance({ selectedShip: creature, battle: { phase: "crew", setupConfirmed: true } }).title, /существа/);
+});
+
+test("gunnery starts by asking for a target before diagnosing weapon limits", () => {
+  assert.equal(guidance({ hasSelectedTarget: false }).title, "Выберите цель залпа");
 });

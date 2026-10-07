@@ -61,7 +61,7 @@
 
           <g class="ssc-arc-overlays">
             {{#each board.arcs as |arc|}}
-              <g class="ssc-fire-arc arc-{{arc.arc}}">
+              <g class="ssc-fire-arc arc-{{arc.arc}} {{#if arc.focused}}is-focused{{/if}} {{#if arc.muted}}is-muted{{/if}}">
                 <path class="ssc-fire-arc-sector" d="{{arc.path}}"></path>
               </g>
             {{/each}}
@@ -222,6 +222,15 @@
         </section>
         {{else}}
         <div class="ssc-board-control-dock">
+          {{#if @root.reportOnBoard}}
+          {{#with @root.battleReport}}
+          <section class="ssc-report-toast" role="status" aria-live="polite">
+            <div><span>{{label}}</span><strong>{{title}}</strong><p>{{outcomeLabel}}</p>{{#with leadChange}}<p class="ssc-toast-change">{{label}}: {{before}} → {{after}}</p>{{/with}}</div>
+            <button type="button" data-action="showBattleReport">Последствия</button>
+            <button type="button" class="ssc-report-dismiss" data-action="dismissBattleReport" aria-label="Скрыть результат на поле">×</button>
+          </section>
+          {{/with}}
+          {{/if}}
           {{#if board.movementPlan.notice}}<p class="ssc-movement-notice" role="status">{{board.movementPlan.notice}}</p>{{/if}}
           <button type="button" class="ssc-overlay-action" data-action="passTurn" title="{{passTurnTitle}}" {{#unless canPassTurn}}disabled{{/unless}}>
             <i class="fa-solid fa-check" aria-hidden="true"></i><span>Завершить действие</span>

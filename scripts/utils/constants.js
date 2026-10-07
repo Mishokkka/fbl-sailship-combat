@@ -46,6 +46,7 @@ export const SHIPYARD_PARTIAL_TEMPLATES = [
 ];
 
 export const NAVAL_RIGHT_PARTIAL_TEMPLATES = [
+  "modules/sailships-combat/templates/naval/parts/right/naval-battle-report.hbs",
   "modules/sailships-combat/templates/naval/parts/right/naval-battery-choices.hbs",
   "modules/sailships-combat/templates/naval/parts/right/naval-turn-box.hbs",
   "modules/sailships-combat/templates/naval/parts/right/naval-player-control-panel.hbs",
@@ -92,6 +93,8 @@ export const APP_PARTIAL_TEMPLATES = [
   ...BATTLE_SETUP_PARTIAL_TEMPLATES
 ];
 
+export const DECISION_PHASES = Object.freeze(["orders", "movement", "gunnery", "crew"]);
+// Retain legacy phases for saved battles and logs.
 export const PHASES = [
   "orders",
   "movement",

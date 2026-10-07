@@ -258,3 +258,46 @@
 .sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-movement-plan) { --ssc-bottom-info-h: 0px; }
 .sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-movement-plan) > .ssc-bottom-info { display: none; }
 .sailships-combat .ssc-main-grid[data-layout="narrow"] .ssc-board-phase-strip { margin-top: 48px; }
+
+/* Shot intent, visible restrictions, and persisted consequences. */
+.sailships-combat .ssc-target-picker { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.sailships-combat .ssc-target-picker .ssc-target-row { display: block; width: auto; flex: 1 1 130px; padding: 8px; text-align: left; }
+.sailships-combat .window-content .ssc-battery-focus { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: flex-start; gap: 3px; background: transparent; border: 0; text-align: left; padding: 3px; }
+.sailships-combat .window-content .ssc-battery-focus strong { font-size: 14px; overflow-wrap: anywhere; }
+.sailships-combat .window-content .ssc-battery-focus span { font-size: 10px; color: var(--ssc-muted); }
+.sailships-combat .ssc-shot-preview-card.is-focused { border-color: var(--ssc-accent); }
+.sailships-combat .ssc-shot-preview-card.is-blocked { background: #141e28; }
+.sailships-combat .ssc-shot-blocked { padding: 8px 10px; border-left: 2px solid #cdad83; background: #ffffff05; font-size: 12px; color: #e4c9a6; line-height: 1.45; }
+.sailships-combat .ssc-shot-intent { color: var(--ssc-muted); font-size: 11px; line-height: 1.5; margin: 8px 0 0; }
+.sailships-combat .ssc-fire-arc.is-muted { opacity: .1; }
+.sailships-combat .ssc-fire-arc.is-focused { opacity: .55; stroke: #f0d299; stroke-width: 2; }
+.sailships-combat .ssc-battle-report { border: 1px solid #708e85; border-radius: 10px; padding: 14px; background: linear-gradient(140deg, #243630, #17212b 80%); margin-bottom: 12px; overflow-wrap: anywhere; }
+.sailships-combat .ssc-battle-report h3 { margin: 6px 0; font-size: 16px; line-height: 1.35; }
+.sailships-combat .ssc-report-outcome { font-weight: 650; color: #cfe5cf; margin: 8px 0 12px; }
+.sailships-combat .ssc-battle-report.outcome-miss { border-color: var(--ssc-border); background: #1b2632; }
+.sailships-combat .ssc-battle-report h4 { margin: 14px 0 6px; font-size: 12px; color: var(--ssc-accent); }
+.sailships-combat .ssc-report-highlights { display: grid; gap: 8px; margin: 10px 0; }
+.sailships-combat .ssc-report-highlights > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px; font-size: 12px; }
+.sailships-combat .ssc-report-highlights span { flex: 1 1 140px; color: var(--ssc-muted); }
+.sailships-combat .ssc-report-highlights strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sailships-combat .ssc-report-highlights i { font-style: normal; font-weight: 400; color: var(--ssc-muted); }
+.sailships-combat .ssc-report-changes { margin: 0; font-size: 11px; }
+.sailships-combat .ssc-report-changes > div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid #ffffff0c; }
+.sailships-combat .ssc-report-changes dd { margin: 0; text-align: right; }
+.sailships-combat .ssc-report-log { font-size: 11px; line-height: 1.5; color: var(--ssc-muted); }
+.sailships-combat .ssc-report-toast { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1 1 100%; width: 100%; max-width: 430px; background: #16232c; border: 1px solid #708e85; border-radius: 9px; padding: 10px 32px 10px 12px; box-shadow: 0 4px 20px #0006; }
+.sailships-combat .ssc-report-toast > div { display: grid; gap: 3px; flex: 1 1 160px; min-width: 0; }
+.sailships-combat .ssc-report-toast span { font-size: 10px; color: var(--ssc-muted); }
+.sailships-combat .ssc-report-toast strong { font-size: 12px; overflow-wrap: anywhere; }
+.sailships-combat .ssc-report-toast p { margin: 0; color: #cfe5cf; font-size: 11px; }
+.sailships-combat .ssc-report-toast button { width: auto; min-height: 28px; padding: 5px 8px; font-size: 11px; }
+.sailships-combat .ssc-report-toast .ssc-report-dismiss { position: absolute; right: 3px; top: 3px; background: transparent; border: 0; font-size: 18px; }
+
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-report-toast) { --ssc-bottom-info-h: 0px; }
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-report-toast) > .ssc-bottom-info { display: none; }
+.sailships-combat .window-content .ssc-battery-focus { width: auto; }
+
+.sailships-combat .ssc-board-control-dock:has(.ssc-report-toast) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 430px; max-width: calc(100% - 20px); align-items: stretch; }
+.sailships-combat .ssc-report-toast { grid-column: 1 / -1; }
+.sailships-combat .ssc-report-toast strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sailships-combat .ssc-report-toast .ssc-toast-change { color: var(--ssc-muted); }

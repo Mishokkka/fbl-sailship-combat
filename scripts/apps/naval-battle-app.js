@@ -103,6 +103,9 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       coreModeBoosted: this._onCoreModeBoosted,
       coreModeEmergency: this._onCoreModeEmergency,
       coreModeShutdown: this._onCoreModeShutdown,
+      selectBatteryArc: this._onSelectBatteryArc,
+      showBattleReport: this._onShowBattleReport,
+      dismissBattleReport: this._onDismissBattleReport,
       firePort: this._onFirePort,
       fireStarboard: this._onFireStarboard,
       fireBow: this._onFireBow,
@@ -354,6 +357,25 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onExportBattle(event) { event.preventDefault(); return this.persistence.exportBattle(); }
   static async _onImportBattle(event) { event.preventDefault(); return this.persistence.importBattle(); }
   static async _onClearBattleLog(event) { event.preventDefault(); return this.persistence.clearLog(); }
+  static async _onSelectBatteryArc(event, target) {
+    event.preventDefault();
+    this.selectedBatteryArc = (target ?? event.currentTarget)?.dataset?.arc;
+    return this.renderBattleState(["board", "controls"]);
+  }
+  static _onShowBattleReport(event) {
+    event.preventDefault();
+    this.layout.showPane("controls");
+    const card = this.element?.querySelector(".ssc-battle-report");
+    const details = card?.querySelector("details");
+    if (details) details.open = true;
+    card?.scrollIntoView({ block: "start" });
+    card?.focus({ preventScroll: true });
+  }
+  static _onDismissBattleReport(event) {
+    event.preventDefault();
+    this.dismissedReportId = (this.renderBattleSnapshot ?? this.battle).lastReport?.id;
+    return this.renderBattleState(["board"]);
+  }
   static _onShowLayoutPane(event, target) {
     event.preventDefault();
     this.layout.showPane((target ?? event.currentTarget)?.dataset?.pane);
@@ -405,12 +427,12 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onCoreModeBoosted(event) { event.preventDefault(); return this.movement.setCoreMode("boosted"); }
   static async _onCoreModeEmergency(event) { event.preventDefault(); return this.movement.setCoreMode("emergency"); }
   static async _onCoreModeShutdown(event) { event.preventDefault(); return this.movement.setCoreMode("shutdown"); }
-  static async _onFirePort(event) { event.preventDefault(); return this.gunnery.fireArc("port"); }
-  static async _onFireStarboard(event) { event.preventDefault(); return this.gunnery.fireArc("starboard"); }
-  static async _onFireBow(event) { event.preventDefault(); return this.gunnery.fireArc("bow"); }
-  static async _onFireStern(event) { event.preventDefault(); return this.gunnery.fireArc("stern"); }
-  static async _onFireMortar(event) { event.preventDefault(); return this.gunnery.fireArc("mortar"); }
-  static async _onFireSwivel(event) { event.preventDefault(); return this.gunnery.fireArc("swivel"); }
+  static async _onFirePort(event, target) { event.preventDefault(); return this.gunnery.fireArc("port", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireStarboard(event, target) { event.preventDefault(); return this.gunnery.fireArc("starboard", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireBow(event, target) { event.preventDefault(); return this.gunnery.fireArc("bow", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireStern(event, target) { event.preventDefault(); return this.gunnery.fireArc("stern", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireMortar(event, target) { event.preventDefault(); return this.gunnery.fireArc("mortar", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireSwivel(event, target) { event.preventDefault(); return this.gunnery.fireArc("swivel", target ?? event.target?.closest?.("[data-action]")); }
   static async _onCreatureAttack(event, target) {
     event.preventDefault();
     return this.creatures.attack((target ?? event.currentTarget)?.dataset?.attackId);

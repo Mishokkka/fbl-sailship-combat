@@ -198,6 +198,27 @@ export class GunneryEngine {
     return normalizeHeading(heading);
   }
 
+  /** Shared by the list of legal targets and disabled battery explanations. */
+  static getShotBlockReason(battle, attacker, battery, target, options = {}) {
+    if (!attacker || !CombatantRules.supports(attacker, "gunnery")) return "Корабельная стрельба недоступна.";
+    if (!battery) return "Батарея отсутствует.";
+    if (!this.isBatteryFunctional(attacker, battery)) return "Батарея выведена из строя.";
+    if (Number(battery.reload ?? 0) > 0) return `Перезарядка: ещё ${battery.reload} раунд.`;
+    const policy = this.validateCoreTargetingPolicy(battle, attacker, options);
+    if (!policy.ok) return policy.text;
+    if (!this.getAvailableAmmo(battle, attacker, battery).includes(battery.ammo ?? "roundShot")) return "Боеприпас не подготовлен или несовместим с батареей.";
+    if (!target) return "Выберите цель на поле или в списке.";
+    if (target.id === attacker.id || target.side === attacker.side) return "Выберите противника.";
+    if (!CombatantRules.supports(target, "targetable") || !CombatantRules.isActive(target)) return "Цель выбыла из боя.";
+    if (!this.isDirectionInArc(attacker, battery.arc, directionToCell(attacker, target))) return "Цель вне сектора этой батареи.";
+    const range = distanceCells(attacker, target);
+    if (range < this.getMinimumRange(battery)) return `Слишком близко: минимум ${this.getMinimumRange(battery)} гекс.`;
+    if (range > this.getEffectiveRange(battery)) return `Вне дальности: ${range} гекс., предел ${this.getEffectiveRange(battery)}.`;
+    if (Math.abs(Number(attacker.altitude ?? 0) - Number(target.altitude ?? 0)) > this.getAltitudeLimit(battery)) return "Слишком большая разница высот.";
+    if (this.shotBlockedByTerrain(battle, attacker, target, battery)) return "Линию огня перекрывает террейн.";
+    return "";
+  }
+
   static getTargets(battle, attacker, arc, options = {}) {
     if (!CombatantRules.supports(attacker, "gunnery")) return [];
     const battery = this.getBattery(attacker, arc);
@@ -207,26 +228,14 @@ export class GunneryEngine {
     this.normalizeFireModeForWeapon(battery);
 
     const arcHeading = this.getArcHeading(attacker, arc);
-    const maxRange = this.getEffectiveRange(battery);
-    const minRange = this.getMinimumRange(battery);
-    const altitudeLimit = this.getAltitudeLimit(battery);
     const aimedSection = options.aimedSection ?? null;
     const targets = [];
 
     for (const target of getCombatants(battle)) {
-      if (target.id === attacker.id
-        || target.side === attacker.side
-        || !CombatantRules.supports(target, "targetable")
-        || !CombatantRules.isActive(target)) continue;
-
+      if (this.getShotBlockReason(battle, attacker, battery, target, options)) continue;
       const hexDirection = directionToCell(attacker, target);
-      if (!this.isDirectionInArc(attacker, arc, hexDirection)) continue;
       const range = distanceCells(attacker, target);
-      if (range > maxRange || range < minRange) continue;
       const altitudeDelta = Math.abs(Number(attacker.altitude ?? 0) - Number(target.altitude ?? 0));
-      if (altitudeDelta > altitudeLimit) continue;
-      if (this.shotBlockedByTerrain(battle, attacker, target, battery)) continue;
-
       const bearing = bearingBetween(attacker, target);
       const arcDelta = angleBetween(arcHeading, bearing);
       const autoSection = DamageEngine.chooseHitSection(attacker, target);

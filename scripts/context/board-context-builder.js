@@ -206,7 +206,7 @@ export class BoardContextBuilder {
       const path = this.buildArcSectorPath(battle, ship, weapon.arc, range);
       if (!path) continue;
       seenArcs.add(weapon.arc);
-      overlays.push({ arc: weapon.arc, path });
+      overlays.push({ arc: weapon.arc, path, focused: battle.phase === "gunnery" && weapon.arc === this.app.selectedBatteryArc, muted: battle.phase === "gunnery" && Boolean(this.app.selectedBatteryArc) && weapon.arc !== this.app.selectedBatteryArc });
     }
     return overlays;
   }
