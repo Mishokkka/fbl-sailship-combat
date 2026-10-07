@@ -1,5 +1,5 @@
 import { MovementEngine } from "../engine/movement-engine.js";
-import { SECTION_LABELS } from "../utils/constants.js";
+import { SECTION_LABELS, STATUS_LABELS } from "../utils/constants.js";
 import { boundedArray, boundedInteger, boundedString, isPlainObject } from "../utils/schema.js";
 
 const OUTCOMES = { hit: "Попадание", miss: "Промах", prepared: "Батарея подготовлена · +2 к следующему залпу", resolved: "Эффекты раунда обработаны" };
@@ -10,9 +10,13 @@ export class BattleReportService {
     return (battle.ships ?? []).map(unit => {
       const values = {};
       const add = (key, label, value) => { values[key] = { label, value: String(value ?? "—") }; };
+      add("position", "Позиция", unit.x + ", " + unit.y);
       add("speed", "Ход", unit.speed);
       add("maxSpeed", "Предельный ход", MovementEngine.getEffectiveMaxSpeed(battle, unit));
-      if (MovementEngine.usesAltitude(battle)) add("altitude", "Высота", unit.altitude);
+      if (MovementEngine.usesAltitude(battle)) {
+        add("altitude", "Высота", unit.altitude);
+        add("vertical", "Вертикальная инерция", unit.verticalVelocity ?? 0);
+      }
       add("crew", unit.unitType === "creature" ? "Жизненная сила" : "Экипаж", unit.vitality?.current ?? unit.crew?.current);
       add("morale", "Мораль", unit.vitality?.morale ?? unit.crew?.morale);
       if (MovementEngine.usesCore(battle) && unit.crystal) {
@@ -26,7 +30,7 @@ export class BattleReportService {
           ["flooding", "затопление", section.flooding ?? 0], ["breaches", "пробоины", section.breaches ?? 0]
         ]) add(id + ":" + field, name + " · " + label, value);
         for (const [index, system] of (section.systems ?? []).entries()) {
-          add(id + ":system:" + (system.id ?? index), system.name ?? "Система", system.status ?? "intact");
+          add(id + ":system:" + (system.id ?? index), system.name ?? "Система", STATUS_LABELS[system.status ?? "intact"] ?? system.status);
         }
       }
       for (const [key, label] of Object.entries({
@@ -102,7 +106,7 @@ export class BattleReportService {
     const primary = report.groups.find(group => group.unitId === report.targetId) ?? report.groups[0];
     return {
       ...report,
-      label: report.kind === "round" ? "Итоги раунда " + report.round : "Последний залп · раунд " + report.round,
+      label: report.kind === "round" ? "Итоги раунда " + report.round : "Последняя атака · раунд " + report.round,
       outcomeLabel: OUTCOMES[report.outcome] ?? OUTCOMES.resolved,
       highlights: primary ? primary.changes.slice(0, 3).map(row => ({ ...row, name: primary.name })) : [],
       hasChanges: report.groups.some(group => group.changes.length)

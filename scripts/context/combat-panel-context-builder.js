@@ -124,7 +124,7 @@ export class CombatPanelContextBuilder {
         weaponType: type,
         weaponTypeLabel: WEAPON_TYPE_LABELS[type] ?? type,
         ammoLabel: AMMO_LABELS[weapon.ammo] ?? weapon.ammo,
-        ammoIntent: ({ roundShot: "Ядра: повреждают корпус и корабельные системы.", chainShot: "Книппели: рвут паруса и снижают подвижность.", grapeShot: "Картечь: потери экипажа на короткой дистанции.", heatedShot: "Калёные ядра: вызывают пожар, но опасны и для своей батареи.", bomb: "Бомбы: взрыв и пожар на палубе." })[weapon.ammo] ?? AMMO_TOOLTIPS[weapon.ammo] ?? "",
+        ammoIntent: ({ roundShot: "Ядра: повреждают корпус и корабельные системы.", chainShot: "Книппели: рвут паруса и снижают подвижность.", grapeShot: "Картечь: потери экипажа на короткой дистанции.", heatedShot: "Калёные ядра: вызывают пожар, но опасны и для своей батареи.", shellBomb: "Бомбы: взрыв и пожар на палубе." })[weapon.ammo] ?? AMMO_TOOLTIPS[weapon.ammo] ?? "",
         fireModeLabel: FIRE_MODE_LABELS[weapon.fireMode ?? "full"] ?? weapon.fireMode ?? "full",
         ammoOptions,
         ammoUnavailable: !ammoOptions.some(option => option.active),
