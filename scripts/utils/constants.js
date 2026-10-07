@@ -92,6 +92,8 @@ export const APP_PARTIAL_TEMPLATES = [
   ...BATTLE_SETUP_PARTIAL_TEMPLATES
 ];
 
+export const DECISION_PHASES = Object.freeze(["orders", "movement", "gunnery", "crew"]);
+// Retain legacy phases for saved battles and logs.
 export const PHASES = [
   "orders",
   "movement",

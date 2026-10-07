@@ -1,3 +1,4 @@
+import { BattleReportService } from "../services/battle-report-service.js";
 import { ALTITUDE_MAX, ALTITUDE_MIN, BOARD_LIMITS, CURRENT_SCHEMA_VERSION, PHASES, SEA_STATE_SEQUENCE, TERRAIN_TYPES, VISIBILITY_SEQUENCE } from "../utils/constants.js";
 import { SchemaMigrations } from "../migrations/schema-migrations.js";
 import { CombatantNormalizer } from "./combatant-normalizer.js";
@@ -59,6 +60,9 @@ export class BattleNormalizer {
     VictoryEngine.normalizeBattleState(battle);
     BattleScenarioService.applyModeToBattle(battle);
     this.normalizePresentationEvents(battle);
+    const report = BattleReportService.normalize(battle.lastReport, battle);
+    if (report) battle.lastReport = report;
+    else delete battle.lastReport;
     PlayerControlService.normalizePlayerState(battle);
     VisibilityEngine.normalizeState(battle);
 

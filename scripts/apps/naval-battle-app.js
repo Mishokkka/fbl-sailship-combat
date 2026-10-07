@@ -405,12 +405,12 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onCoreModeBoosted(event) { event.preventDefault(); return this.movement.setCoreMode("boosted"); }
   static async _onCoreModeEmergency(event) { event.preventDefault(); return this.movement.setCoreMode("emergency"); }
   static async _onCoreModeShutdown(event) { event.preventDefault(); return this.movement.setCoreMode("shutdown"); }
-  static async _onFirePort(event) { event.preventDefault(); return this.gunnery.fireArc("port"); }
-  static async _onFireStarboard(event) { event.preventDefault(); return this.gunnery.fireArc("starboard"); }
-  static async _onFireBow(event) { event.preventDefault(); return this.gunnery.fireArc("bow"); }
-  static async _onFireStern(event) { event.preventDefault(); return this.gunnery.fireArc("stern"); }
-  static async _onFireMortar(event) { event.preventDefault(); return this.gunnery.fireArc("mortar"); }
-  static async _onFireSwivel(event) { event.preventDefault(); return this.gunnery.fireArc("swivel"); }
+  static async _onFirePort(event, target) { event.preventDefault(); return this.gunnery.fireArc("port", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireStarboard(event, target) { event.preventDefault(); return this.gunnery.fireArc("starboard", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireBow(event, target) { event.preventDefault(); return this.gunnery.fireArc("bow", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireStern(event, target) { event.preventDefault(); return this.gunnery.fireArc("stern", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireMortar(event, target) { event.preventDefault(); return this.gunnery.fireArc("mortar", target ?? event.target?.closest?.("[data-action]")); }
+  static async _onFireSwivel(event, target) { event.preventDefault(); return this.gunnery.fireArc("swivel", target ?? event.target?.closest?.("[data-action]")); }
   static async _onCreatureAttack(event, target) {
     event.preventDefault();
     return this.creatures.attack((target ?? event.currentTarget)?.dataset?.attackId);

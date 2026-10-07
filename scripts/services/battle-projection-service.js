@@ -1,3 +1,4 @@
+import { BattleReportService } from "./battle-report-service.js";
 import { PHASES } from "../utils/constants.js";
 import { PlayerControlService } from "./player-control-service.js";
 import { VisibilityEngine } from "../engine/visibility-engine.js";
@@ -81,6 +82,8 @@ export class BattleProjectionService {
       && observableIds.has(battle.lastCollision.attackerId)
       && observableIds.has(battle.lastCollision.targetId)) projected.lastCollision = clone(battle.lastCollision);
 
+    const report = BattleReportService.project(battle.lastReport, controlledIds, ships);
+    if (report) projected.lastReport = clone(report);
     return projected;
   }
 
