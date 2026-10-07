@@ -3,6 +3,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createCreature } from "../scripts/data/creature-factory.js";
 import { createDefaultBattle } from "../scripts/data/default-battle.js";
+import { StorageService } from "../scripts/services/storage-service.js";
+import { DocumentStateStore, DOCUMENT_STORAGE_ROLES } from "../scripts/services/document-state-store.js";
 import { BattleNormalizer } from "../scripts/normalizers/battle-normalizer.js";
 import { BattleReportService } from "../scripts/services/battle-report-service.js";
 import { BattleProjectionService } from "../scripts/services/battle-projection-service.js";
@@ -296,4 +298,26 @@ test("natural attacks use the same persisted report and reject duplicate clicks"
   assert.equal(state.read().lastReport.targetId, battle.ships[1].id);
   assert.equal(state.read().lastReport.outcome, "hit");
   assert.equal(state.app.selectedShipId, state.read().turn.activeShipId);
+});
+
+test("reports survive the real storage normalization, split documents and snapshot restore", async t => {
+  t.mock.method(Math, "random", () => 0.15);
+  DocumentStateStore.invalidateCache();
+  StorageService.resetMutationQueueForTests();
+  const battle = fixture();
+  await DocumentStateStore.ensureBattleDocuments(battle);
+  await DocumentStateStore.ensureCollection(DOCUMENT_STORAGE_ROLES.SNAPSHOTS, { battles: [] });
+  game.sailshipsCombat = { storage: StorageService, app: null };
+  const app = new NavalBattleApp();
+  app.renderBattleState = async () => {};
+  app.selectedShipId = battle.ships[0].id;
+  app.selectedTargetId = battle.ships[1].id;
+  await app.gunnery.fireArc("bow");
+  const report = DocumentStateStore.readAuthoritativeBattle().lastReport;
+  assert.equal(report.outcome, "hit");
+  const snapshot = await StorageService.saveSnapshot("After salvo");
+  await StorageService.updateBattle(next => { delete next.lastReport; }, { broadcast: false });
+  const restored = await StorageService.loadSnapshot(snapshot.id);
+  assert.deepEqual(restored.battle.lastReport, report);
+  assert.deepEqual(DocumentStateStore.readAuthoritativeBattle().lastReport, report);
 });

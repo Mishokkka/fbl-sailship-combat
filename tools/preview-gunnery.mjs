@@ -169,7 +169,6 @@ try {
     await checkLayout(page, "Shot " + width + "x" + height);
     await page.locator(".ssc-right-panel").evaluate(panel => { panel.scrollTop = 0; });
     await page.screenshot({ path: "artifacts/interface/gunnery-choice-" + width + "-" + height + ".png" });
-    if (width === 1500) console.log("GUNNERY_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
 
     if (width === 1500) {
       const before = await page.evaluate(() => window.gunneryTest.read());
@@ -195,7 +194,6 @@ try {
     assert.ok(accessible, "Report must remain reachable on the board");
     await checkLayout(page, "Result " + width + "x" + height);
     await page.screenshot({ path: "artifacts/interface/gunnery-result-" + width + "-" + height + ".png" });
-    if (width === 800 && height === 650) console.log("GUNNERY_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
     await action(page, '[data-action="showBattleReport"]');
     assert.equal(await page.locator(".ssc-battle-report details").getAttribute("open"), "");
     assert.ok(await page.locator(".ssc-report-changes > div").count() > 0);
@@ -223,7 +221,6 @@ try {
     assert.equal(settled.lastReport.round, oldRound);
     await checkLayout(page, "Round " + width + "x" + height);
     await page.screenshot({ path: "artifacts/interface/round-result-" + width + "-" + height + ".png" });
-    if (width === 1500) console.log("GUNNERY_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
 
     if (width === 1500) {
       await page.evaluate(() => window.gunneryTest.reset());
