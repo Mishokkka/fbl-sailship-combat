@@ -23,14 +23,15 @@ export class BattleLayoutController {
         if (main.contains(detail)) this.disclosures.set(key, detail.open);
       });
     }
-    const applyLayout = width => {
+    const applyLayout = (width, height = main.clientHeight) => {
       const value = Number(width ?? main.clientWidth ?? 0);
       main.dataset.layout = value < 920 ? "narrow" : value < 1380 ? "compact" : "wide";
+      main.dataset.short = Number(height ?? 0) < 680 ? "true" : "false";
       this.applyPane(main);
     };
     applyLayout(main.clientWidth);
     if (typeof ResizeObserver !== "undefined") {
-      this.observer = new ResizeObserver(entries => applyLayout(entries[0]?.contentRect?.width));
+      this.observer = new ResizeObserver(entries => applyLayout(entries[0]?.contentRect?.width, entries[0]?.contentRect?.height));
       this.observer.observe(main);
     }
   }

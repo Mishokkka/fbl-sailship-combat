@@ -395,7 +395,9 @@ export class BattlePhaseController {
     const actions = this.getShipTurnActions(battle, ship);
     if (actions[action]) return false;
     actions._apSpent = Number(actions._apSpent ?? 0);
-    if (actions._apSpent + cost > this.getPhaseBudget(battle, ship, battle.phase)) return false;
+    const forcedMove = action === "move" && cost === 0 && battle.phase === "movement"
+      && this.getMovementResolutionState(battle, ship).mustMove;
+    if (!forcedMove && actions._apSpent + cost > this.getPhaseBudget(battle, ship, battle.phase)) return false;
     actions[action] = true;
     actions._apSpent += cost;
     return true;

@@ -1,5 +1,5 @@
       <section class="ssc-board-panel {{#if terrainMode}}terrain-mode{{/if}}">
-        <svg class="ssc-board-svg" viewBox="{{board.viewBox}}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Тактическое поле боя" data-pixel-width="{{board.pixelWidth}}" data-pixel-height="{{board.pixelHeight}}" data-lod="{{board.lod}}">
+        <svg tabindex="0" aria-label="Тактическое поле. Выберите подсвеченную клетку для предпросмотра маршрута." class="ssc-board-svg" viewBox="{{board.viewBox}}" preserveAspectRatio="xMidYMid meet" role="img" data-pixel-width="{{board.pixelWidth}}" data-pixel-height="{{board.pixelHeight}}" data-lod="{{board.lod}}">
           <defs>
             <marker id="ssc-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
               <path d="M0,0 L0,6 L6,3 z"></path>
@@ -124,6 +124,23 @@
               </g>
             </g>
           {{/each}}
+        {{#with board.movementPlan.preview}}
+        <g class="ssc-movement-route {{#if collision}}has-collision{{/if}}" aria-hidden="true">
+          <polyline class="ssc-route-line" points="{{routePoints}}"></polyline>
+          {{#each steps}}
+          <circle class="ssc-route-step" cx="{{cx}}" cy="{{cy}}" r="5"></circle>
+          {{/each}}
+          {{#if contact}}
+          <line class="ssc-route-contact" x1="{{cx}}" y1="{{cy}}" x2="{{contact.cx}}" y2="{{contact.cy}}"></line>
+          <circle class="ssc-route-contact" cx="{{contact.cx}}" cy="{{contact.cy}}" r="20"></circle>
+          {{/if}}
+          <g class="ssc-route-ghost" transform="translate({{cx}} {{cy}})">
+            <circle r="25"></circle>
+            <path d="M 23 0 L -13 -12 L -7 0 L -13 12 Z" transform="rotate({{renderHeading}})"></path>
+            <text y="41" text-anchor="middle">Остановка · {{destination}}</text>
+          </g>
+        </g>
+        {{/with}}
         <g class="ssc-wind-particles" opacity="{{board.windParticleOpacity}}" transform="rotate({{board.windParticleAngle}} {{board.windParticleCenterX}} {{board.windParticleCenterY}})">
           {{#each board.windParticles as |p|}}
             <line x1="{{p.x1}}" y1="{{p.y}}" x2="{{p.x2}}" y2="{{p.y}}" stroke-width="{{p.width}}">
@@ -153,6 +170,7 @@
         </section>
         {{/if}}
 
+        {{#unless board.movementPlan.preview}}
         <div class="ssc-board-status-stack">
           {{#if battleMode.usesWater}}
           <div class="ssc-board-status-card" title="Состояние моря. Бурное море и шторм ухудшают стрельбу и устойчивость.">
@@ -173,7 +191,38 @@
           </div>
         </div>
 
+        {{/unless}}
+        {{#with board.movementPlan.preview}}
+        <section class="ssc-movement-plan {{#if hasWarnings}}has-warnings{{/if}}" aria-label="План манёвра">
+          <div class="ssc-plan-body">
+            {{#if @root.board.movementPlan.notice}}<p class="ssc-plan-danger" role="status">{{@root.board.movementPlan.notice}}</p>{{/if}}
+            <div class="ssc-plan-heading"><span>План манёвра</span><strong>{{shipName}}</strong></div>
+            <p class="ssc-plan-destination">Остановка {{destination}} <span>· курс {{heading}}° · путь {{distance}} гекс.</span></p>
+            <div class="ssc-plan-stats">
+              <span>Прогноз хода* <strong>{{speedBefore}} → {{speedAfter}}</strong></span>
+              <span>Стоимость <strong>{{apCost}} ОД</strong></span>
+              {{#if showAltitude}}<span>Высота сейчас <strong>H{{altitudeNow}}</strong></span>
+              <span>К концу раунда* <strong>H{{altitudeEnd}}</strong></span>{{/if}}
+            </div>
+            {{#if collision}}<p class="ssc-plan-danger">Столкновение: корабль остановится перед клеткой контакта.</p>{{/if}}
+            {{#if hasWarnings}}
+            <details class="ssc-plan-risks" {{#if collision}}open{{/if}}>
+              <summary>Последствия и риски · {{warnings.length}}</summary>
+              <ul>{{#each warnings}}<li>{{this}}</li>{{/each}}</ul>
+            </details>
+            {{/if}}
+            <p class="ssc-plan-note">* При сохранении условий, без последствий новых повреждений. Движение завершит активацию. До подтверждения маршрут можно заменить другой клеткой.</p>
+          </div>
+          <div class="ssc-plan-actions">
+            <button type="button" data-action="cancelMovementPlan" {{#if @root.board.movementPlan.busy}}disabled{{/if}}>Отмена <kbd>Esc</kbd></button>
+            <button type="button" class="{{#if collision}}danger{{else}}primary{{/if}}" data-action="confirmMovementPlan" {{#if @root.board.movementPlan.busy}}disabled{{/if}}>
+              {{#if @root.board.movementPlan.busy}}Выполняется…{{else}}{{#if collision}}Подтвердить столкновение{{else}}Выполнить манёвр{{/if}}{{/if}}
+            </button>
+          </div>
+        </section>
+        {{else}}
         <div class="ssc-board-control-dock">
+          {{#if board.movementPlan.notice}}<p class="ssc-movement-notice" role="status">{{board.movementPlan.notice}}</p>{{/if}}
           <button type="button" class="ssc-overlay-action" data-action="passTurn" title="{{passTurnTitle}}" {{#unless canPassTurn}}disabled{{/unless}}>
             <i class="fa-solid fa-check" aria-hidden="true"></i><span>Завершить действие</span>
           </button>
@@ -181,5 +230,6 @@
             <i class="fa-solid fa-forward-step" aria-hidden="true"></i><span>{{nextPhaseLabel}}</span>
           </button>
         </div>
+        {{/with}}
       </section>
       <div class="ssc-board-hint"><span>Колесико — масштаб · СКМ — камера · Alt — сведения о террейне</span><span class="ssc-board-cursor">—</span></div>

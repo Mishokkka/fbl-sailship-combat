@@ -101,6 +101,8 @@
   --ssc-bottom-info-h: 270px;
 }
 .sailships-combat .ssc-main-grid[data-layout="narrow"] {
+  --ssc-left-col: 0px;
+  --ssc-right-col: 0px;
   --ssc-grid-pad: 6px;
   --ssc-grid-gap: 6px;
   --ssc-center-min: 0px;
@@ -212,3 +214,47 @@
 .sailships-combat .ssc-turn-heading .ssc-active-ship { flex: 1 1 130px; margin: 0; overflow-wrap: anywhere; }
 .sailships-combat .ssc-turn-ap { color: var(--ssc-muted); white-space: nowrap; }
 .sailships-combat .ssc-turn-ap strong { color: var(--ssc-text); }
+
+/* Draft route and its explicit commitment share the board in every layout. */
+.sailships-combat .ssc-movement-route { pointer-events: none; color: #f0d299; }
+.sailships-combat .ssc-route-line { fill: none; stroke: currentColor; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.sailships-combat .ssc-route-step { fill: #142332; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.sailships-combat .ssc-route-contact { fill: none; stroke: #ffb4a1; stroke-width: 3; stroke-dasharray: 5 5; vector-effect: non-scaling-stroke; }
+.sailships-combat .ssc-route-ghost circle { fill: #152736; fill-opacity: .85; stroke: currentColor; stroke-width: 2; stroke-dasharray: 4 4; }
+.sailships-combat .ssc-route-ghost path { fill: currentColor; stroke: #142332; stroke-width: 2; }
+.sailships-combat .ssc-route-ghost text { fill: #fff2d2; font-size: 13px; font-weight: 700; paint-order: stroke; stroke: #0c141d; stroke-width: 4; }
+.sailships-combat .ssc-movement-plan {
+  position: relative; z-index: 4; grid-column: 2; grid-row: 1;
+  align-self: end; justify-self: center;
+  display: flex; flex-direction: column;
+  width: min(520px, calc(100% - 16px)); min-width: 0; max-height: 60%;
+  margin-bottom: 8px; border: 1px solid var(--ssc-accent); border-radius: 10px;
+  background: #121e2a; box-shadow: 0 5px 24px #0008; overflow: hidden;
+}
+.sailships-combat .ssc-movement-plan.has-warnings { border-color: #d7a185; }
+.sailships-combat .ssc-plan-body { overflow: auto; min-height: 0; padding: 12px 14px 8px; scrollbar-width: thin; }
+.sailships-combat .ssc-plan-heading { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.sailships-combat .ssc-plan-heading span { color: var(--ssc-accent); font-size: 11px; }
+.sailships-combat .ssc-plan-heading strong { font-size: 15px; overflow-wrap: anywhere; }
+.sailships-combat .ssc-plan-destination { margin: 6px 0 10px; font-weight: 650; }
+.sailships-combat .ssc-plan-destination span { font-size: 12px; color: var(--ssc-muted); font-weight: 400; }
+.sailships-combat .ssc-plan-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; }
+.sailships-combat .ssc-plan-stats span { display: flex; justify-content: space-between; gap: 8px; color: var(--ssc-muted); font-size: 11px; }
+.sailships-combat .ssc-plan-stats strong { color: var(--ssc-text); font-size: 12px; white-space: nowrap; }
+.sailships-combat .ssc-plan-note { margin: 9px 0 0; color: var(--ssc-muted); font-size: 11px; line-height: 1.4; }
+.sailships-combat .ssc-plan-danger { color: #ffc4b9; margin: 8px 0 0; font-size: 12px; }
+.sailships-combat .ssc-plan-risks { margin-top: 8px; color: #ffcbb5; font-size: 12px; }
+.sailships-combat .ssc-plan-risks summary { cursor: pointer; padding: 3px 0; }
+.sailships-combat .ssc-plan-risks ul { padding-left: 18px; margin: 6px 0; }
+.sailships-combat .ssc-plan-risks li + li { margin-top: 5px; }
+.sailships-combat .ssc-plan-actions { display: flex; flex: 0 0 auto; gap: 8px; padding: 9px 12px; border-top: 1px solid var(--ssc-border); background: #172532; }
+.sailships-combat .ssc-plan-actions button { min-width: 0; }
+.sailships-combat .ssc-plan-actions button:last-child { flex: 1; }
+.sailships-combat .ssc-plan-actions kbd { margin-left: 4px; font: inherit; font-size: 10px; opacity: .65; }
+.sailships-combat .ssc-movement-notice { max-width: 340px; margin: 0; padding: 8px 10px; border: 1px solid var(--ssc-border); border-radius: 7px; background: #121e2a; color: var(--ssc-text); font-size: 12px; }
+.sailships-combat .ssc-main-grid[data-layout="narrow"] .ssc-movement-plan { max-height: 65%; }
+
+/* In a short window the draft replaces the bottom summary, leaving the route visible. */
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-movement-plan) { --ssc-bottom-info-h: 0px; }
+.sailships-combat .ssc-main-grid[data-short="true"]:has(.ssc-movement-plan) > .ssc-bottom-info { display: none; }
+.sailships-combat .ssc-main-grid[data-layout="narrow"] .ssc-board-phase-strip { margin-top: 48px; }

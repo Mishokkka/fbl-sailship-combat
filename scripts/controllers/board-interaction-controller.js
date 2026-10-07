@@ -131,11 +131,15 @@ export class BoardInteractionController {
   bindEvents() {
     const root = this.app.element;
     if (!root) return;
+    this.bindingAbort?.abort();
+    this.bindingAbort = new AbortController();
+    const listen = (node, type, listener, options = {}) =>
+      node.addEventListener(type, listener, { ...options, signal: this.bindingAbort.signal });
     this.lastHoverCellKey = null;
     this.lastHoverContext = null;
 
     root.querySelectorAll(".ssc-ship-list-item[data-ship-id]").forEach(node => {
-      node.addEventListener("click", event => {
+      listen(node, "click", event => {
         event.preventDefault();
         event.stopPropagation();
         this.selectShip(event.currentTarget.dataset.shipId);
@@ -143,7 +147,7 @@ export class BoardInteractionController {
     });
 
     root.querySelectorAll(".ssc-target-row[data-target-id]").forEach(node => {
-      node.addEventListener("click", event => {
+      listen(node, "click", event => {
         event.preventDefault();
         event.stopPropagation();
         this.app.selectedTargetId = event.currentTarget.dataset.targetId;
@@ -161,15 +165,15 @@ export class BoardInteractionController {
     window.addEventListener("keyup", this.boundAltKeyUp);
     window.addEventListener("blur", this.boundWindowBlur);
 
-    board.addEventListener("wheel", event => this.onBoardWheel(event), { passive: false });
-    board.addEventListener("mousedown", event => this.onBoardMouseDown(event));
-    board.addEventListener("mousemove", event => this.queueBoardHover(event));
-    board.addEventListener("mouseleave", event => this.onBoardLeave(event));
-    board.addEventListener("click", event => this.onBoardClick(event));
-    board.addEventListener("contextmenu", event => this.onBoardContextMenu(event));
+    listen(board, "wheel", event => this.onBoardWheel(event), { passive: false });
+    listen(board, "mousedown", event => this.onBoardMouseDown(event));
+    listen(board, "mousemove", event => this.queueBoardHover(event));
+    listen(board, "mouseleave", event => this.onBoardLeave(event));
+    listen(board, "click", event => this.onBoardClick(event));
+    listen(board, "contextmenu", event => this.onBoardContextMenu(event));
 
     board.querySelectorAll("[data-ship-id]").forEach(node => {
-      node.addEventListener("click", async event => {
+      listen(node, "click", async event => {
         event.preventDefault();
         event.stopPropagation();
         if (this.suppressClick) return;
@@ -333,6 +337,13 @@ export class BoardInteractionController {
   }
 
   onAltKeyDown(event) {
+    if (event.key === "Escape" && this.app.movementPlan?.pending
+      && this.app.element?.contains(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      void this.app.movementPlan.cancel();
+      return;
+    }
     if (event.key === "Escape" && this.app.terrainMode) {
       event.preventDefault();
       event.stopPropagation();
@@ -505,6 +516,8 @@ export class BoardInteractionController {
   }
 
   destroy() {
+    this.bindingAbort?.abort();
+    this.bindingAbort = null;
     this.releaseBoardPan();
     this.releaseTerrainPaint();
     window.removeEventListener("mouseup", this.boundBoardPanUp);
@@ -587,21 +600,7 @@ export class BoardInteractionController {
 
   async moveSelectedShip(x, y) {
     if (!game.user.isGM) return ui.notifications.warn("Движение пока доступно только ГМу.");
-    const previewBattle = this.getBattleSnapshot();
-    const previewShip = previewBattle.ships.find(ship => ship.id === this.app.selectedShipId);
-    const previewMove = previewShip && previewBattle.setupConfirmed && !this.app.deployMode && this.app._canShowMovement(previewBattle, previewShip)
-      ? MovementEngine.getMoveResult(previewBattle, previewShip.id, x, y)
-      : null;
-    if (previewMove?.candidate?.collision) {
-      const collision = previewMove.candidate.collision;
-      const confirmed = await DialogService.confirm({
-        title: "Опасный манёвр",
-        content: `${collision.title}. Корабль остановится перед клеткой контакта. Выполнить манёвр?`,
-        yesLabel: "Допустить столкновение",
-        danger: true
-      });
-      if (!confirmed) return;
-    }
+    if (this.getBattleSnapshot().setupConfirmed) return this.app.movementPlan.stage(x, y);
     await this.app._updateBattleAndRender(battle => {
       if (this.app.terrainMode && !battle.setupConfirmed) {
         const terrainMode = this.app.terrainMode;
@@ -622,53 +621,60 @@ export class BoardInteractionController {
 
       if (this.app.deployMode) return this.placeSelectedShipLocal(battle, ship, x, y) ? undefined : false;
 
-      if (!this.app._requireActivePhase(battle, ship, "movement", "Маневр")) return false;
-      const moveCost = this.app._getRemainingAP(battle, ship, "movement") > 0 ? 1 : 0;
-      if (!this.app._markTurnAction(battle, ship, "move", moveCost)) {
-        ui.notifications.warn(`${ship.name} уже маневрировал в этой фазе или исчерпал ОД.`);
-        return false;
-      }
-
-      const move = MovementEngine.getMoveResult(battle, ship.id, x, y);
-      if (!move.ok) {
-        this.app._refundTurnAction(battle, ship, "move", moveCost);
-        const terrain = MovementEngine.getTerrain(battle, x, y);
-        const blocked = MovementEngine.isBlockingTerrain(terrain, Number(ship.altitude ?? 0));
-        ui.notifications.warn(blocked
-          ? "Клетка заблокирована террейном на текущей высоте корабля."
-          : "Клетка не входит в доступный путь: проверьте ход, курс и занятые клетки. Дым сам по себе движение не блокирует.");
-        return false;
-      }
-
-      const startHeading = Number(ship.heading ?? 0);
-      const execution = MovementEngine.applyMoveResult(battle, move);
-      if (!execution.ok) {
-        this.app._refundTurnAction(battle, ship, "move", moveCost);
-        return false;
-      }
-      const inertiaResult = execution.inertia;
-      const terrainText = execution.terrain.text;
-      if (Number(move.candidate.heading ?? startHeading) !== startHeading || Number(move.candidate.steps ?? 0) >= 4) {
-        ship.flags ??= {};
-        ship.flags.sharpManeuver = true;
-      }
-      const inIrons = MovementEngine.syncSailingState(battle, ship);
-      const windText = inIrons ? " Корабль встал носом против ветра: ход падает до 0." : "";
-      const inertiaText = inertiaResult.brakingCost > 0
-        ? ` Инерция погашена: ход ${inertiaResult.before} → ${inertiaResult.after}.`
-        : ` Ход сохранён: ${ship.speed}.`;
-
-      this.app._addLog(battle, `${ship.name}: маневрирует в клетку ${x + 1}:${y + 1}, курс ${ship.heading}°.${inertiaText}${terrainText}${windText}`);
-      if (execution.collision.applied) this.app._addLog(battle, `Столкновение: ${execution.collision.text}`);
-      this.app._completeShipActivation(battle, ship, "movement");
-      const next = this.app._getActiveShip(battle);
-      if (next) {
-        this.app.selectedShipId = next.id;
-        this.app._addLog(battle, `Ход боевой единицы: ${next.name}.`);
-      } else {
-        this.app._addLog(battle, `Все боевые единицы завершили фазу. Можно перейти дальше.`);
-      }
+      return false;
     }, { reason: "board-move-ship" });
+  }
+
+  executePlannedMove(battle, plan) {
+    const { x, y, shipId } = plan;
+    const ship = battle.ships.find(unit => unit.id === shipId);
+    if (!ship) return false;
+    if (!this.app._requireActivePhase(battle, ship, "movement", "Маневр")) return false;
+    const moveCost = this.app._getRemainingAP(battle, ship, "movement") > 0 ? 1 : 0;
+    if (!this.app._markTurnAction(battle, ship, "move", moveCost)) {
+      ui.notifications.warn(`${ship.name} уже маневрировал в этой фазе или исчерпал ОД.`);
+      return false;
+    }
+
+    const move = MovementEngine.getMoveResult(battle, ship.id, x, y);
+    if (!move.ok) {
+      this.app._refundTurnAction(battle, ship, "move", moveCost);
+      const terrain = MovementEngine.getTerrain(battle, x, y);
+      const blocked = MovementEngine.isBlockingTerrain(terrain, Number(ship.altitude ?? 0));
+      ui.notifications.warn(blocked
+        ? "Клетка заблокирована террейном на текущей высоте корабля."
+        : "Клетка не входит в доступный путь: проверьте ход, курс и занятые клетки. Дым сам по себе движение не блокирует.");
+      return false;
+    }
+
+    const startHeading = Number(ship.heading ?? 0);
+    const execution = MovementEngine.applyMoveResult(battle, move);
+    if (!execution.ok) {
+      this.app._refundTurnAction(battle, ship, "move", moveCost);
+      return false;
+    }
+    const inertiaResult = execution.inertia;
+    const terrainText = execution.terrain.text;
+    if (Number(move.candidate.heading ?? startHeading) !== startHeading || Number(move.candidate.steps ?? 0) >= 4) {
+      ship.flags ??= {};
+      ship.flags.sharpManeuver = true;
+    }
+    const inIrons = MovementEngine.syncSailingState(battle, ship);
+    const windText = inIrons ? " Корабль встал носом против ветра: ход падает до 0." : "";
+    const inertiaText = inertiaResult.brakingCost > 0
+      ? ` Инерция погашена: ход ${inertiaResult.before} → ${inertiaResult.after}.`
+      : ` Ход сохранён: ${ship.speed}.`;
+
+    this.app._addLog(battle, `${ship.name}: маневрирует в клетку ${ship.x + 1}:${ship.y + 1}, курс ${ship.heading}°.${inertiaText}${terrainText}${windText}`);
+    if (execution.collision.applied) this.app._addLog(battle, `Столкновение: ${execution.collision.text}`);
+    this.app._completeShipActivation(battle, ship, "movement");
+    const next = this.app._getActiveShip(battle);
+    if (next) {
+      this.app._addLog(battle, `Ход боевой единицы: ${next.name}.`);
+    } else {
+      this.app._addLog(battle, `Все боевые единицы завершили фазу. Можно перейти дальше.`);
+    }
+    return true;
   }
 
   isInsideSideDeploymentZone(battle, ship, x, y) {

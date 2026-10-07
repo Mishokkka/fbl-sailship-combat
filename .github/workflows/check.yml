@@ -41,6 +41,8 @@ jobs:
         run: node tools/preview-interface.mjs
       - name: Check module workspaces
         run: node tools/preview-workspaces.mjs
+      - name: Check movement workflow
+        run: node tools/preview-movement.mjs
       - name: Save interface previews
         if: always()
         uses: actions/upload-artifact@v7
