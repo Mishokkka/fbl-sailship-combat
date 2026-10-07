@@ -131,11 +131,15 @@ export class BoardInteractionController {
   bindEvents() {
     const root = this.app.element;
     if (!root) return;
+    this.bindingAbort?.abort();
+    this.bindingAbort = new AbortController();
+    const listen = (node, type, listener, options = {}) =>
+      node.addEventListener(type, listener, { ...options, signal: this.bindingAbort.signal });
     this.lastHoverCellKey = null;
     this.lastHoverContext = null;
 
     root.querySelectorAll(".ssc-ship-list-item[data-ship-id]").forEach(node => {
-      node.addEventListener("click", event => {
+      listen(node, "click", event => {
         event.preventDefault();
         event.stopPropagation();
         this.selectShip(event.currentTarget.dataset.shipId);
@@ -143,7 +147,7 @@ export class BoardInteractionController {
     });
 
     root.querySelectorAll(".ssc-target-row[data-target-id]").forEach(node => {
-      node.addEventListener("click", event => {
+      listen(node, "click", event => {
         event.preventDefault();
         event.stopPropagation();
         this.app.selectedTargetId = event.currentTarget.dataset.targetId;
@@ -161,15 +165,15 @@ export class BoardInteractionController {
     window.addEventListener("keyup", this.boundAltKeyUp);
     window.addEventListener("blur", this.boundWindowBlur);
 
-    board.addEventListener("wheel", event => this.onBoardWheel(event), { passive: false });
-    board.addEventListener("mousedown", event => this.onBoardMouseDown(event));
-    board.addEventListener("mousemove", event => this.queueBoardHover(event));
-    board.addEventListener("mouseleave", event => this.onBoardLeave(event));
-    board.addEventListener("click", event => this.onBoardClick(event));
-    board.addEventListener("contextmenu", event => this.onBoardContextMenu(event));
+    listen(board, "wheel", event => this.onBoardWheel(event), { passive: false });
+    listen(board, "mousedown", event => this.onBoardMouseDown(event));
+    listen(board, "mousemove", event => this.queueBoardHover(event));
+    listen(board, "mouseleave", event => this.onBoardLeave(event));
+    listen(board, "click", event => this.onBoardClick(event));
+    listen(board, "contextmenu", event => this.onBoardContextMenu(event));
 
     board.querySelectorAll("[data-ship-id]").forEach(node => {
-      node.addEventListener("click", async event => {
+      listen(node, "click", async event => {
         event.preventDefault();
         event.stopPropagation();
         if (this.suppressClick) return;
@@ -512,6 +516,8 @@ export class BoardInteractionController {
   }
 
   destroy() {
+    this.bindingAbort?.abort();
+    this.bindingAbort = null;
     this.releaseBoardPan();
     this.releaseTerrainPaint();
     window.removeEventListener("mouseup", this.boundBoardPanUp);

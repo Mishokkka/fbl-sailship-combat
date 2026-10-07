@@ -148,6 +148,12 @@ async function install(page) {
 }
 async function choose(page, options = {}) {
   const route = await page.evaluate(options => window.movementTest.route(options), options);
+  const hit = await page.evaluate(route => {
+    const node = document.elementFromPoint(route.screenX, route.screenY);
+    return { tag: node?.tagName, className: node?.getAttribute("class"),
+      onBoard: Boolean(node?.closest(".ssc-board-svg")), camera: window.previewApp.boardCamera };
+  }, route);
+  assert.equal(hit.onBoard, true, "Destination must be clickable: " + JSON.stringify({ route, hit, viewport: page.viewportSize() }));
   await page.mouse.click(route.screenX, route.screenY);
   await page.waitForFunction(({ x, y }) => {
     const pending = window.previewApp.movementPlan.pending;
@@ -176,6 +182,7 @@ let layouts = 0;
 try {
   for (const [width, height] of [[1500, 900], [1100, 900], [800, 900], [800, 650]]) {
     const page = await browser.newPage({ viewport: { width, height }, reducedMotion: "reduce" });
+    console.log("Movement scenario " + width + "x" + height);
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await install(page);
