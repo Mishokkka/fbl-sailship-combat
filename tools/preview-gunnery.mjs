@@ -144,6 +144,21 @@ async function action(page, selector) {
   await page.locator(selector).click();
   await page.evaluate(() => window.gunneryTest.lastAction);
 }
+/** Finish one phase, failing immediately when a completed click makes no progress. */
+async function finishActivations(page, phase) {
+  const initial = await page.evaluate(() => window.gunneryTest.read());
+  assert.equal(initial.phase, phase, "Activation loop must start in the expected phase");
+  let activeShipId = initial.turn.activeShipId;
+  for (let count = 0; count < initial.ships.length && activeShipId !== null; count++) {
+    await action(page, '.ssc-board-control-dock [data-action="passTurn"]');
+    const after = await page.evaluate(() => window.gunneryTest.read());
+    assert.equal(after.phase, phase, "Passing an activation must not change the phase");
+    assert.notEqual(after.turn.activeShipId, activeShipId,
+      phase + ": passTurn did not advance active ship " + activeShipId);
+    activeShipId = after.turn.activeShipId;
+  }
+  assert.equal(activeShipId, null, phase + ": activations exceeded the number of ships");
+}
 async function checkLayout(page, label) {
   const overflow = await page.locator(".ssc-main-grid, .ssc-right-panel, .ssc-battle-report, .ssc-report-toast").evaluateAll(elements =>
     elements.filter(el => el.getClientRects().length && el.scrollWidth > el.clientWidth + 2).map(el => el.className));
@@ -202,15 +217,21 @@ try {
     await action(page, '[data-action="dismissBattleReport"]');
     assert.equal(await page.locator(".ssc-report-toast").count(), 0);
 
-    // Finish remaining shots and crew activations through production actions.
-    while (await page.evaluate(() => Boolean(window.gunneryTest.read().turn.activeShipId))) {
-      await action(page, '.ssc-board-control-dock [data-action="passTurn"]');
+    if (width === 1500) {
+      const before = await page.evaluate(() => window.gunneryTest.read());
+      await page.evaluate(() => { window.gunneryTest.mode = "deny"; });
+      try {
+        await assert.rejects(() => finishActivations(page, "gunnery"), /passTurn did not advance active ship/);
+        assert.deepEqual(await page.evaluate(() => window.gunneryTest.read()), before);
+      } finally {
+        await page.evaluate(() => { window.gunneryTest.mode = "allow"; });
+      }
     }
+    // Finish remaining shots and crew activations through production actions.
+    await finishActivations(page, "gunnery");
     await action(page, '.ssc-board-control-dock [data-action="nextPhase"]');
     assert.equal(await page.evaluate(() => window.gunneryTest.read().phase), "crew");
-    while (await page.evaluate(() => Boolean(window.gunneryTest.read().turn.activeShipId))) {
-      await action(page, '.ssc-board-control-dock [data-action="passTurn"]');
-    }
+    await finishActivations(page, "crew");
     await page.evaluate(() => window.gunneryTest.change("round"));
     const oldRound = await page.evaluate(() => window.gunneryTest.read().round);
     await action(page, '.ssc-board-control-dock [data-action="nextPhase"]');
