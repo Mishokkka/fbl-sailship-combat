@@ -101,6 +101,8 @@
   --ssc-bottom-info-h: 270px;
 }
 .sailships-combat .ssc-main-grid[data-layout="narrow"] {
+  --ssc-left-col: 0px;
+  --ssc-right-col: 0px;
   --ssc-grid-pad: 6px;
   --ssc-grid-gap: 6px;
   --ssc-center-min: 0px;
