@@ -116,6 +116,8 @@ async function install(page) {
       app.layout.pane = "board";
       app.boardCamera = { x: 0, y: 0, zoom: 1 };
       await app.render({ parts: Object.keys(NavalBattleApp.PARTS) });
+      // Let responsive CSS and SVG viewport metrics settle before measuring the camera.
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       // Pan via the production camera to keep the fixture above the draft card.
       const svg = app.element.querySelector(".ssc-board-svg");
       const area = app.element.querySelector(".ssc-center-panel").getBoundingClientRect();
@@ -124,6 +126,10 @@ async function install(page) {
       point.y = area.top + 180;
       const desired = point.matrixTransform(svg.getScreenCTM().inverse());
       const ship = cellToPixel(stored.board, stored.ships[0].x, stored.ships[0].y);
+      console.log("Movement camera", JSON.stringify({
+        width: innerWidth, area: area.toJSON(), svg: svg.getBoundingClientRect().toJSON(),
+        desired: { x: desired.x, y: desired.y }, ship, viewBox: svg.getAttribute("viewBox")
+      }));
       app.boardCamera.x += ship.cx - desired.x;
       app.boardCamera.y += ship.cy - desired.y;
       app.board.applyBoardViewBox(svg);
@@ -185,6 +191,7 @@ try {
     console.log("Movement scenario " + width + "x" + height);
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
+    page.on("console", message => { if (message.text().startsWith("Movement camera")) console.log(message.text()); });
     await install(page);
     const before = await page.evaluate(() => window.movementTest.read());
     await choose(page);
