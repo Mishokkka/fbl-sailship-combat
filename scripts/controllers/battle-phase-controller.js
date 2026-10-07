@@ -641,36 +641,49 @@ export class BattlePhaseController {
 
   async passTurn() {
     if (!game.user.isGM) return ui.notifications.warn("Ход боевой единицы завершает ГМ.");
-    await this.app._updateBattleAndRender(battle => {
-      if (!this.isActivationPhase(battle.phase)) {
-        ui.notifications.warn("В этой фазе нет очередности боевых единиц.");
-        return false;
-      }
-      const ship = this.getActiveShip(battle);
-      if (!ship) {
-        ui.notifications.warn("Нет активной боевой единицы.");
-        return false;
-      }
-      if (battle.phase === "movement") {
-        const actions = this.getShipTurnActions(battle, ship);
-        const resolution = MovementEngine.resolveHorizontalCompletion(battle, ship, { actions });
-        if (!resolution.ok) {
-          ui.notifications.warn(resolution.text);
-          return false;
+    if (this.busy) return false;
+    const shown = this.app.renderBattleSnapshot ?? this.app.battle;
+    const request = { id: shown.id, revision: shown.revision, phase: shown.phase, activeId: shown.turn?.activeShipId };
+    this.busy = true;
+    let applied = false;
+    try {
+      const saved = await this.app._updateBattleAndRender(battle => {
+        if (battle.id !== request.id || battle.revision !== request.revision || battle.phase !== request.phase
+          || battle.turn?.activeShipId !== request.activeId || !battle.setupConfirmed || battle.outcome?.resolved
+          || !this.isActivationPhase(battle.phase)) return false;
+        const ship = this.getActiveShip(battle);
+        if (!ship) return false;
+        if (battle.phase === "movement") {
+          const actions = this.getShipTurnActions(battle, ship);
+          const resolution = MovementEngine.resolveHorizontalCompletion(battle, ship, { actions });
+          if (!resolution.ok) { ui.notifications.warn(resolution.text); return false; }
+          if (resolution.text) this.app._addLog(battle, resolution.text);
         }
-        if (resolution.text) this.app._addLog(battle, resolution.text);
+        this.app._addLog(battle, ship.name + ": завершает действие в фазе «" + game.i18n.localize("SAILSHIPS.PhaseLabels." + battle.phase) + "».");
+        this.completeShipActivation(battle, ship, battle.phase);
+        const next = this.getActiveShip(battle);
+        this.app._addLog(battle, next ? "Ход боевой единицы: " + next.name + "." : "Все боевые единицы завершили фазу. Можно перейти дальше.");
+        applied = true;
+        return true;
+      }, { reason: "pass-turn", renderParts: [] });
+      if (applied && saved.id === request.id && saved.revision > request.revision
+        && saved.turn?.completed?.[request.phase]?.includes(request.activeId)) {
+        this.app.selectedShipId = this.getActiveShip(saved)?.id ?? this.app.selectedShipId;
+        this.app.selectedTargetId = null;
+        this.app.aimSection = null;
+        return true;
       }
-      this.app._addLog(battle, `${ship.name}: завершает действие в фазе «${game.i18n.localize(`SAILSHIPS.PhaseLabels.${battle.phase}`) || battle.phase}».`);
-      this.completeShipActivation(battle, ship, battle.phase);
-      const next = this.getActiveShip(battle);
-      if (next) {
-        this.app.selectedShipId = next.id;
-        this.app._addLog(battle, `Ход боевой единицы: ${next.name}.`);
-      } else {
-        this.app._addLog(battle, "Все боевые единицы завершили фазу. Можно перейти дальше.");
-      }
-      this.app.selectedTargetId = null;
-    }, { reason: "pass-turn" });
+      if (applied) ui.notifications.warn("Завершение действия не сохранено. Проверьте состояние боя.");
+      return false;
+    } catch (error) {
+      this.app.renderBattleSnapshot = null;
+      ui.notifications.error("Не удалось сохранить завершение действия.");
+      console.error("Sailships Combat | Pass turn failed", error);
+      return false;
+    } finally {
+      this.busy = false;
+      await this.app.renderBattleState();
+    }
   }
 
   nextPhaseId(currentPhase) {

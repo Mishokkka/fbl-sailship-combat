@@ -6,8 +6,8 @@ const VALID_PARTS = new Set(ALL_PARTS);
 const PARTS_BY_REASON = Object.freeze({
   "clear-battle-log": ["fleet"],
   "save-battle-snapshot-log": ["fleet", "controls"],
-  "set-ammo": ["summary", "controls"],
-  "set-fire-mode": ["summary", "controls"],
+  "set-ammo": ["board", "summary", "controls"],
+  "set-fire-mode": ["board", "summary", "controls"],
   "set-order": ["fleet", "summary", "controls"],
   "assign-ship-player": ["fleet", "summary", "controls"],
   "unassign-ship-player": ["fleet", "summary", "controls"],

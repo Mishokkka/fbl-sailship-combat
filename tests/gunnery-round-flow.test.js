@@ -1,6 +1,7 @@
 import { installTestEnvironment } from "./test-env.js";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createCreature } from "../scripts/data/creature-factory.js";
 import { createDefaultBattle } from "../scripts/data/default-battle.js";
 import { BattleNormalizer } from "../scripts/normalizers/battle-normalizer.js";
 import { BattleReportService } from "../scripts/services/battle-report-service.js";
@@ -264,4 +265,35 @@ test("imported report metadata is bounded and unrelated battles cannot inject a 
   assert.equal(report.details.length, 80);
   assert.equal(report.details[0].length, 2000);
   assert.equal(report.outcome, "resolved");
+});
+
+test("double pass advances one activation and rejected writes preserve selection", async () => {
+  const state = harness();
+  const first = state.app.selectedShipId;
+  await Promise.all([state.app.phase.passTurn(), state.app.phase.passTurn()]);
+  assert.equal(state.commits, 1);
+  assert.deepEqual(state.read().turn.completed.gunnery, [first]);
+  assert.equal(state.app.selectedShipId, state.read().ships[1].id);
+  const denied = harness();
+  denied.mode = "deny";
+  await denied.app.phase.passTurn();
+  assert.equal(denied.app.selectedShipId, first);
+  assert.equal(denied.commits, 0);
+});
+
+test("natural attacks use the same persisted report and reject duplicate clicks", async t => {
+  t.mock.method(Math, "random", () => 0.15);
+  const battle = fixture();
+  battle.ships[0] = createCreature({ id: "creature", side: "blue", x: 12, y: 7, heading: 0, template: "skyRay" });
+  battle.ships[0].altitude = battle.ships[1].altitude;
+  battle.turn.activeShipId = battle.ships[0].id;
+  battle.turn.phaseOrder.gunnery = battle.ships.map(unit => unit.id);
+  const state = harness(battle);
+  const attack = battle.ships[0].attacks[0];
+  await Promise.all([state.app.creatures.attack(attack.id), state.app.creatures.attack(attack.id)]);
+  assert.equal(state.commits, 1);
+  assert.equal(state.read().lastReport.sourceId, "creature");
+  assert.equal(state.read().lastReport.targetId, battle.ships[1].id);
+  assert.equal(state.read().lastReport.outcome, "hit");
+  assert.equal(state.app.selectedShipId, state.read().turn.activeShipId);
 });
