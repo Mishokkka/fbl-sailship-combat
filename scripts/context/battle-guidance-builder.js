@@ -3,7 +3,7 @@ import { PHASE_LABELS } from "../utils/constants.js";
 /** Build guidance only from the battle projection and permitted action state. */
 export class BattleGuidanceBuilder {
   static build({ battle, selectedShip, activeShip, actionState = {}, canViewDetails = false,
-    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false, hasSelectedTarget = false, crewControl = null }) {
+    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false, hasSelectedTarget = false, crewControl = null, pacing = null }) {
     const phase = battle.phase;
     const guide = (title, description, extra = {}) => ({
       eyebrow: battle.setupConfirmed ? `Раунд ${battle.round} · ${PHASE_LABELS[phase] ?? phase}` : "Подготовка боя",
@@ -13,6 +13,9 @@ export class BattleGuidanceBuilder {
     if (!battle.setupConfirmed) return guide("Подготовьте поле и участников",
       isGM ? "Откройте подготовку, расставьте корабли и подтвердите начало боя." : "Ведущий готовит поле и участников.",
       isGM ? { action: "openBattleSetup", actionLabel: "Подготовка боя" } : {});
+    if (isGM && pacing?.available) return guide(activeShip ? "Сейчас участник ждёт" : "Фаза завершена",
+      pacing.reason,
+      { tone: "ready" });
     if (isGM && !activeShip && ["orders", "movement", "gunnery", "crew"].includes(phase)) {
       return guide(phase === "crew" ? "Раунд готов к завершению" : "Все участники завершили фазу",
         phase === "crew" ? "Одна команда обновит перезарядку, движение по инерции и длительные эффекты. Изменения появятся в итогах раунда." : "Можно перейти к следующему этапу раунда.",

@@ -56,6 +56,8 @@ jobs:
         run: node tools/preview-gunnery.mjs
       - name: Check crew workflow
         run: node tools/preview-crew.mjs
+      - name: Check readiness and round pacing
+        run: node tools/preview-pacing.mjs
       - name: Save interface previews
         if: always()
         uses: actions/upload-artifact@v7

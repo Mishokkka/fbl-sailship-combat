@@ -11,9 +11,24 @@
             {{/if}}
             </div>
             {{#if isGM}}<button type="button" class="ssc-narrow-pass" data-action="passTurn" title="{{passTurnTitle}}" {{#unless canPassTurn}}disabled{{/unless}}>Завершить действие</button>{{/if}}
-            <details class="ssc-disclosure" data-ui-section="turn-order"><summary>Очередность участников</summary><div class="ssc-turn-list">
+            {{#if pacing.available}}
+            <div class="ssc-pacing-control">
+              <button type="button" class="ssc-advance-action primary" data-action="advanceToDecision"
+              data-battle-id="{{battle.id}}" data-revision="{{battle.revision}}" data-round="{{battle.round}}" data-phase="{{battle.phase}}" data-active-id="{{battle.turn.activeShipId}}"
+              title="Пропустить только ожидание. Остановиться перед доступным действием или после расчёта одного раунда." {{#if pacing.disabled}}disabled{{/if}}>
+              <i class="fa-solid fa-forward" aria-hidden="true"></i> К следующему решению
+            </button>
+              <p>Пропускает ожидание до ближайшего действия. Приказы, манёвры и эвакуация — вручную.</p>
+            </div>
+            {{/if}}
+            {{#if pacing.notice}}<p class="ssc-pacing-notice" role="status">{{pacing.notice}}</p>{{/if}}
+            <details class="ssc-disclosure" data-ui-section="turn-order" open><summary>Очередь · {{turnOrder.length}}</summary><div class="ssc-turn-list ssc-turn-queue">
               {{#each turnOrder as |turnShip|}}
-                <span class="ssc-turn-pill side-{{turnShip.side}} {{#if turnShip.active}}active{{/if}} {{#if turnShip.done}}done{{/if}}" style="--ssc-side-color: {{turnShip.sideColor}};">{{turnShip.name}}{{#if turnShip.initiative}} <em>{{turnShip.initiative}}</em>{{/if}}</span>
+                <button type="button" class="ssc-turn-pill ssc-turn-row side-{{turnShip.side}} readiness-{{turnShip.readiness.kind}} {{#if turnShip.active}}active{{/if}} {{#if turnShip.done}}done{{/if}}"
+                  data-action="selectTurnUnit" data-ship-id="{{turnShip.id}}" title="{{turnShip.readiness.reason}}" style="--ssc-side-color: {{turnShip.sideColor}};" {{#if turnShip.active}}aria-current="true"{{/if}}>
+                  <span class="ssc-turn-unit">{{#if turnShip.active}}<i class="fa-solid fa-caret-right" aria-hidden="true"></i>{{/if}}<strong>{{turnShip.name}}</strong>{{#if turnShip.initiative}}<em title="Инициатива">{{turnShip.initiative}}</em>{{/if}}</span>
+                  <span class="ssc-turn-readiness">{{turnShip.readiness.label}}</span>
+                </button>
               {{/each}}
             </div>
             </details>

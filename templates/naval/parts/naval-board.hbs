@@ -222,6 +222,11 @@
         </section>
         {{else}}
         <div class="ssc-board-control-dock">
+          {{#if pacing.available}}<button type="button" class="ssc-advance-action primary" data-action="advanceToDecision"
+              data-battle-id="{{battle.id}}" data-revision="{{battle.revision}}" data-round="{{battle.round}}" data-phase="{{battle.phase}}" data-active-id="{{battle.turn.activeShipId}}"
+              title="Пропустить только ожидание. Остановиться перед доступным действием или после расчёта одного раунда." {{#if pacing.disabled}}disabled{{/if}}>
+              <i class="fa-solid fa-forward" aria-hidden="true"></i> К следующему решению
+            </button>{{/if}}
           {{#if @root.reportOnBoard}}
           {{#with @root.battleReport}}
           <section class="ssc-report-toast" role="status" aria-live="polite">

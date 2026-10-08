@@ -150,6 +150,24 @@ export class BattleContextBuilder {
   }
 
   getTurnFields(battle, state) {
+    const turnOrder = this.renderCache.memo("readiness:" + game.user.id + ":" + game.user.isGM, () =>
+      this.app._getTurnOrder(battle).map(entry => ({
+        ...entry,
+        readiness: game.user.isGM
+          ? this.app.phase.getReadiness(battle, battle.ships.find(unit => unit.id === entry.id))
+          : { kind: entry.done ? "done" : "unknown", label: entry.done ? "Завершено" : "Решение ведущего", reason: "" }
+      })));
+    const activeReadiness = turnOrder.find(entry => entry.active)?.readiness;
+    const available = Boolean(game.user.isGM && battle.setupConfirmed && !battle.outcome?.resolved
+      && battle.projection?.kind !== "player" && ["orders", "movement", "gunnery", "crew", "damage", "end"].includes(battle.phase)
+      && (!state.activeShip || activeReadiness?.canSkip || ["damage", "end"].includes(battle.phase)));
+    const notice = this.app.phase.advanceNotice;
+    const pacing = {
+      available,
+      disabled: Boolean(this.app.phase.busy || this.app.movementPlan?.pending || this.app.movementPlan?.busy),
+      reason: activeReadiness?.canSkip ? activeReadiness.reason : "Очередь фазы завершена. Можно перейти к следующему решению.",
+      notice: game.user.isGM && notice?.id === battle.id && notice.revision === battle.revision ? notice.text : ""
+    };
     const activeActionState = state.activeShip && CombatantRules.isOperational(state.activeShip)
       ? this.app._getActionState(battle, state.activeShip)
       : { canPass: false };
@@ -167,7 +185,7 @@ export class BattleContextBuilder {
       nextPhaseTitle: this.app._isActivationPhase(battle.phase) && state.activeShip
         ? "Сначала завершите активации всех участников этой фазы."
         : ["crew", "end"].includes(battle.phase) ? "Обработать перезарядку, движение по инерции и длительные эффекты, затем начать приказы нового раунда." : "Перейти к следующему этапу.",
-      turnOrder: this.app._getTurnOrder(battle),
+      turnOrder, pacing,
       phases: DECISION_PHASES.map((id, index) => ({ id, number: index + 1, active: id === battle.phase || (id === "crew" && ["damage", "end"].includes(battle.phase)), done: index < DECISION_PHASES.indexOf(battle.phase) }))
     };
   }
@@ -258,9 +276,10 @@ export class BattleContextBuilder {
       ? this.combatPanels.getShotPreviews(battle, detail.detailShip, state.selectedTarget)
       : [];
 
+    const turnFields = this.getTurnFields(battle, state);
     const crewControl = detail.detailShip ? CrewContextBuilder.build(battle, detail.detailShip, detail.actionState, this.app) : null;
     return {
-      ...this.getTurnFields(battle, state),
+      ...turnFields,
       crewControl,
       actionState: detail.actionState,
       guidance: BattleGuidanceBuilder.build({
@@ -268,7 +287,7 @@ export class BattleContextBuilder {
         actionState: detail.actionState, canViewDetails: detail.canViewSelectedShipDetails,
         isGM: game.user.isGM, canSubmitOrder: detail.playerControl.canSubmitOrder,
         pendingOrder: Boolean(detail.playerControl.selectedPendingOrder),
-        crewControl,
+        crewControl, pacing: turnFields.pacing,
         hasSelectedTarget: Boolean(state.selectedTarget),
         hasShotPreview: shotPreviews.some(shot => shot.canFireNow)
       }),
