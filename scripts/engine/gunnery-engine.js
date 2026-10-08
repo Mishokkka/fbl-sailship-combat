@@ -383,6 +383,7 @@ export class GunneryEngine {
       targetSection,
       targetSectionLabel: options.aimedSection === "crystalCore" ? SECTION_LABELS.crystalCore : (SECTION_LABELS[targetSection] ?? targetSection),
       expectedDamage,
+      hullPreview: fireMode === "delayed" ? null : DamageEngine.getGunneryHullPreview(target, targetSection, expectedDamage, ammo),
       modifierBreakdown,
       modText: this.formatModifierTextFromBreakdown(modifierBreakdown),
       modeText: this.getFireModeText(battery, target)
