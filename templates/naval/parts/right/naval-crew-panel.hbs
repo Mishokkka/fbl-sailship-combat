@@ -1,39 +1,54 @@
-        {{#if phaseFlags.crew}}
-          <section class="ssc-action-box">
-            <h3>{{localize "SAILSHIPS.DamageControl"}}</h3>
-            <div class="ssc-order-reference" aria-label="Справка по приказам">
-              <span class="ssc-order-ref-label">Приказы:</span>
-              <div class="ssc-choice-strip">
-                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'battleSail')}}active{{/if}}" title="{{sscOrderTooltip 'battleSail'}}">{{localize "SAILSHIPS.Orders.battleSail"}}</span>
-                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'pressSail')}}active{{/if}}" title="{{sscOrderTooltip 'pressSail'}}">{{localize "SAILSHIPS.Orders.pressSail"}}</span>
-                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'steadyGunnery')}}active{{/if}}" title="{{sscOrderTooltip 'steadyGunnery'}}">{{localize "SAILSHIPS.Orders.steadyGunnery"}}</span>
-                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'damageControl')}}active{{/if}}" title="{{sscOrderTooltip 'damageControl'}}">{{localize "SAILSHIPS.Orders.damageControl"}}</span>
-                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'boarding')}}active{{/if}}" title="{{sscOrderTooltip 'boarding'}}">{{localize "SAILSHIPS.Orders.boarding"}}</span>
-                <span class="ssc-choice-chip {{#if (sscEq selectedShip.selectedOrder 'brace')}}active{{/if}}" title="{{sscOrderTooltip 'brace'}}">{{localize "SAILSHIPS.Orders.brace"}}</span>
-              </div>
-            </div>
-            <div class="ssc-action-grid">
-              <button type="button" data-action="repair" title="{{actionState.repairTitle}}" {{#unless actionState.canRepairAuto}}disabled{{/unless}}>{{localize "SAILSHIPS.Repair"}}</button>
-              <button type="button" data-action="repairFire" title="{{actionState.repairFireTitle}}" {{#unless actionState.canRepairFire}}disabled{{/unless}}>{{localize "SAILSHIPS.ExtinguishFire"}}</button>
-              <button type="button" data-action="repairFlooding" title="{{actionState.repairFloodingTitle}}" {{#unless actionState.canRepairFlooding}}disabled{{/unless}}>{{localize "SAILSHIPS.PumpWater"}}</button>
-              <button type="button" data-action="repairSystem" title="{{actionState.repairSystemTitle}}" {{#unless actionState.canRepairSystem}}disabled{{/unless}}>{{localize "SAILSHIPS.RepairSystem"}}</button>
-              {{#if battleMode.usesCrystal}}<button type="button" data-action="coolCrystalCore" title="{{actionState.coolCrystalTitle}}" {{#unless actionState.canCoolCrystalCore}}disabled{{/unless}}>{{localize "SAILSHIPS.CoolCrystalCore"}}</button>{{/if}}
-              <button type="button" data-action="rallyCrew" title="{{actionState.rallyCrewTitle}}" {{#unless actionState.canRallyCrew}}disabled{{/unless}}>{{localize "SAILSHIPS.RallyCrew"}}</button>
-              <button type="button" data-action="abandonShip" title="{{actionState.abandonShipTitle}}" {{#unless actionState.canAbandonShip}}disabled{{/unless}}>{{localize "SAILSHIPS.AbandonShip"}}</button>
-            </div>
-          </section>
+{{#if phaseFlags.crew}}
+<section class="ssc-crew-workbench" aria-label="Работа экипажа">
+  <header class="ssc-crew-heading">
+    <div><span class="ssc-eyebrow">Борьба за живучесть</span><h3>Куда направить команду?</h3></div>
+    <span class="ssc-crew-ap">{{crewControl.remainingAP}} ОД</span>
+  </header>
+  <p class="ssc-hint">{{#if crewControl.boosted}}Аварийные партии: усиленный ремонт и два ОД.{{else}}Каждая работа стоит 1 ОД.{{/if}} Один вид работ доступен один раз за фазу; помпы и пробоины делят одну команду, расчистка и ремонт системы — другую.</p>
+  {{#if crewControl.noProblems}}<p class="ssc-crew-empty">Пожаров, течей и повреждённых систем нет. Ядро и мораль в порядке.</p>{{/if}}
+  <div class="ssc-crew-tasks">
+    {{#each crewControl.tasks as |task|}}
+    <article class="ssc-crew-task {{#if task.urgent}}is-urgent{{/if}}" data-task-id="{{task.id}}">
+      <header><span class="ssc-eyebrow">{{task.location}}</span><span class="ssc-crew-priority">{{#if task.suggested}}Первый приоритет{{else}}{{task.priorityLabel}}{{/if}}</span></header>
+      <h4>{{task.title}}</h4>
+      <p class="ssc-crew-consequence">{{task.consequence}}</p>
+      <div class="ssc-crew-forecast"><span>{{task.metric}}</span><strong>{{task.before}} → {{task.after}}{{#if task.max}} <small>/ {{task.max}}</small>{{/if}}</strong></div>
+      {{#if task.secondary}}<p class="ssc-hint">{{task.secondary}}</p>{{/if}}
+      <p class="ssc-crew-effect">{{task.effect}}</p>
+      {{#if task.risk}}<p class="ssc-crew-risk">{{task.risk}}</p>{{/if}}
+      {{#if task.blockedReason}}<p class="ssc-crew-blocked">{{task.blockedReason}}</p>{{/if}}
+      <button type="button" class="{{#if task.suggested}}primary{{/if}}" data-action="crewTask" data-task-id="{{task.id}}" data-ship-id="{{../selectedShip.id}}" data-revision="{{../battle.revision}}" {{#unless task.canUse}}disabled{{/unless}}>{{task.button}} <span>· {{task.cost}} ОД</span></button>
+    </article>
+    {{/each}}
+  </div>
+  {{#if crewControl.unavailable.length}}
+  <details class="ssc-disclosure" data-ui-section="crew-unrepairable">
+    <summary>Не восстановить в бою · {{crewControl.unavailable.length}}</summary>
+    {{#each crewControl.unavailable}}<p class="ssc-hint"><strong>{{location}} · {{title}}</strong><br>{{blockedReason}}</p>{{/each}}
+  </details>
+  {{/if}}
+</section>
 
-          <section class="ssc-action-box">
-            <h3>{{localize "SAILSHIPS.Boarding"}}</h3>
-            <div class="ssc-action-grid">
-              <button type="button" data-action="grapple" title="{{actionState.grappleTitle}}" {{#unless actionState.canGrappleAction}}disabled{{/unless}}>{{localize "SAILSHIPS.Grapple"}}</button>
-              <button type="button" data-action="boarding" title="{{actionState.boardingTitle}}" {{#unless actionState.canBoardAction}}disabled{{/unless}}>{{localize "SAILSHIPS.BoardingAttack"}}</button>
-              <button type="button" data-action="releaseGrapple" title="{{actionState.releaseGrappleTitle}}" {{#unless actionState.canReleaseGrappleAction}}disabled{{/unless}}>{{localize "SAILSHIPS.ReleaseGrapple"}}</button>
-              <button type="button" data-action="repelCreature" title="{{actionState.repelCreatureTitle}}" {{#unless actionState.canRepelCreature}}disabled{{/unless}}>Отбить чудовище{{#if actionState.attachedCreatureCount}} ({{actionState.attachedCreatureCount}}){{/if}}</button>
-            </div>
-            {{#if selectedTarget}}
-              {{#if boardingInfo.canGrapple}}<p class="ssc-hint">{{localize "SAILSHIPS.CanGrapple"}}</p>{{/if}}
-            {{/if}}
-            {{#if boardingInfo.canBoard}}<p class="ssc-hint">{{localize "SAILSHIPS.CanBoard"}}</p>{{/if}}
-          </section>
-        {{/if}}
+<details class="ssc-action-box ssc-disclosure ssc-crew-boarding" data-ui-section="crew-boarding" {{#if crewControl.boardingRelevant}}open{{/if}}>
+  <summary>Абордаж и защита палубы</summary>
+  {{#if crewControl.boardingRelevant}}
+    {{#if crewControl.boardingTargets.length}}
+    <p class="ssc-hint">Выберите соседний корабль для сцепки:</p>
+    <div class="ssc-target-picker">{{#each crewControl.boardingTargets}}<button type="button" class="ssc-target-row {{#if selected}}active{{/if}}" data-target-id="{{id}}" aria-pressed="{{selected}}">{{name}}</button>{{/each}}</div>
+    {{/if}}
+    {{#each crewControl.boarding}}
+    <div class="ssc-crew-boarding-action">
+      <p>{{text}}</p>
+      {{#if blockedReason}}<p class="ssc-hint">{{blockedReason}}</p>{{/if}}
+      <button type="button" data-action="{{action}}" {{#unless canUse}}disabled{{/unless}}>{{label}} · 1 ОД</button>
+    </div>
+    {{/each}}
+  {{else}}<p class="ssc-hint">Рядом нет цели для сцепки. Абордаж доступен после сцепки с противником на той же высоте.</p>{{/if}}
+</details>
+
+<details class="ssc-action-box ssc-disclosure" data-ui-section="crew-abandon">
+  <summary>Оставить корабль</summary>
+  <p class="ssc-hint">{{crewControl.abandonText}}</p>
+  <button type="button" class="danger" data-action="abandonShip" {{#unless crewControl.canAbandon}}disabled{{/unless}}>Оставить корабль · 1 ОД</button>
+</details>
+{{/if}}
