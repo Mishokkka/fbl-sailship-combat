@@ -42,7 +42,8 @@ export class CrewContextBuilder {
     return {
       tasks: tasks.filter(task => task.repairable), unavailable: tasks.filter(task => !task.repairable),
       availableCount: available.length, taskCount: tasks.filter(task => task.repairable).length,
-      noUsefulAction: !available.length && !boarding.some(entry => entry.canUse),
+      noUsefulAction: !available.length && !boarding.some(entry => entry.canUse)
+        && !(boardingTargets.length && !block("crewBoarding:grapple")),
       noProblems: tasks.length === 0,
       canFinish: Boolean(actionState.isActive && actionState.canPass && !app.crew?.busy),
       remainingAP: actionState.remainingAP ?? 0,
