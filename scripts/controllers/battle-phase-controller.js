@@ -1,3 +1,4 @@
+import { ActivationReadinessService } from "../services/activation-readiness-service.js";
 import { BattleReportService } from "../services/battle-report-service.js";
 import { DECISION_PHASES } from "../utils/constants.js";
 import { WindEngine } from "../engine/wind-engine.js";
@@ -531,6 +532,60 @@ export class BattlePhaseController {
   }
 
 
+  /** Shared phase transition: callers hold the storage transaction and validate its revision. */
+  transitionPhase(battle) {
+    if (!battle.setupConfirmed || battle.outcome?.resolved || ![...DECISION_PHASES, "damage", "end"].includes(battle.phase)) return false;
+    if (this.isActivationPhase(battle.phase) && this.getActiveShip(battle)) return false;
+    const round = battle.round;
+    const next = this.nextPhaseId(battle.phase);
+    const endsRound = ["crew", "end"].includes(battle.phase);
+    const before = endsRound ? BattleReportService.capture(battle) : null;
+    const previousLogIds = new Set((battle.log ?? []).map(entry => entry.id));
+    const report = () => BattleReportService.record(battle, before, {
+      kind: "round", round, title: "Итоги раунда " + round,
+      details: (battle.log ?? []).filter(entry => !previousLogIds.has(entry.id)).map(entry => entry.text)
+    });
+
+    if (endsRound) {
+      // Keep the legacy end marker during settlement, including a resolved victory.
+      battle.phase = "end";
+      this.tickReloads(battle);
+      for (const text of MovementEngine.advanceEndOfRoundMovement(battle)) this.app._addLog(battle, text);
+      const movementStrikeEntries = [];
+      for (const ship of battle.ships ?? []) DamageEngine.checkStruck(ship, movementStrikeEntries);
+      for (const text of movementStrikeEntries) this.app._addLog(battle, text);
+      for (const text of DamageEngine.advanceOngoingDamage(battle)) this.app._addLog(battle, text);
+      for (const text of VictoryEngine.processWithdrawals(battle)) this.app._addLog(battle, text);
+      const outcome = VictoryEngine.evaluate(battle);
+      if (outcome.resolved) {
+        this.clearRoundShipActions(battle);
+        outcome.timestamp = Date.now();
+        battle.outcome = outcome;
+        battle.turn.activeShipId = null;
+        this.app._addLog(battle, outcome.title + ". " + outcome.summary);
+        report();
+        return true;
+      }
+      battle.round += 1;
+      this.clearRoundShipActions(battle);
+    }
+
+    this.startPhase(battle, next);
+    const timestamp = Date.now();
+    battle.lastAudioEvent = { id: "audio-phase-" + battle.round + "-" + next + "-" + timestamp, type: "phase", shipId: null, timestamp };
+    const active = this.getActiveShip(battle);
+    this.app._addLog(battle, "Фаза боя: " + game.i18n.localize("SAILSHIPS.PhaseLabels." + next) + ".");
+    const orderText = this.getTurnOrder(battle).map(unit => unit.name + (unit.initiative != null ? " (" + unit.initiative + ")" : "")).join(" → ");
+    if (orderText) this.app._addLog(battle, "Очередность фазы: " + orderText + ".");
+    if (active) this.app._addLog(battle, "Ход боевой единицы: " + active.name + ".");
+    if (endsRound) report();
+    return true;
+  }
+
+  getReadiness(battle, unit) {
+    return ActivationReadinessService.assess(battle, unit, this.getPhaseBudget(battle, unit, battle.phase));
+  }
+
   async nextPhase() {
     if (!game.user.isGM) return ui.notifications.warn("Фазы боя переключает ГМ.");
     if (this.busy) return false;
@@ -550,51 +605,8 @@ export class BattlePhaseController {
           ui.notifications.warn("Сначала завершите активации всех участников этой фазы.");
           return false;
         }
-        const next = this.nextPhaseId(battle.phase);
-        const endsRound = ["crew", "end"].includes(battle.phase);
-        const before = endsRound ? BattleReportService.capture(battle) : null;
-        const previousLogIds = new Set((battle.log ?? []).map(entry => entry.id));
-        const report = () => BattleReportService.record(battle, before, {
-          kind: "round", round: request.round, title: "Итоги раунда " + request.round,
-          details: (battle.log ?? []).filter(entry => !previousLogIds.has(entry.id)).map(entry => entry.text)
-        });
-
-        if (endsRound) {
-          // Keep the legacy end marker during settlement, including a resolved victory.
-          battle.phase = "end";
-          this.tickReloads(battle);
-          for (const text of MovementEngine.advanceEndOfRoundMovement(battle)) this.app._addLog(battle, text);
-          const movementStrikeEntries = [];
-          for (const ship of battle.ships ?? []) DamageEngine.checkStruck(ship, movementStrikeEntries);
-          for (const text of movementStrikeEntries) this.app._addLog(battle, text);
-          for (const text of DamageEngine.advanceOngoingDamage(battle)) this.app._addLog(battle, text);
-          for (const text of VictoryEngine.processWithdrawals(battle)) this.app._addLog(battle, text);
-          const outcome = VictoryEngine.evaluate(battle);
-          if (outcome.resolved) {
-            this.clearRoundShipActions(battle);
-            outcome.timestamp = Date.now();
-            battle.outcome = outcome;
-            battle.turn.activeShipId = null;
-            this.app._addLog(battle, outcome.title + ". " + outcome.summary);
-            report();
-            applied = true;
-            return true;
-          }
-          battle.round += 1;
-          this.clearRoundShipActions(battle);
-        }
-
-        this.startPhase(battle, next);
-        const timestamp = Date.now();
-        battle.lastAudioEvent = { id: "audio-phase-" + battle.round + "-" + next + "-" + timestamp, type: "phase", shipId: null, timestamp };
-        const active = this.getActiveShip(battle);
-        this.app._addLog(battle, "Фаза боя: " + game.i18n.localize("SAILSHIPS.PhaseLabels." + next) + ".");
-        const orderText = this.getTurnOrder(battle).map(unit => unit.name + (unit.initiative != null ? " (" + unit.initiative + ")" : "")).join(" → ");
-        if (orderText) this.app._addLog(battle, "Очередность фазы: " + orderText + ".");
-        if (active) this.app._addLog(battle, "Ход боевой единицы: " + active.name + ".");
-        if (endsRound) report();
-        applied = true;
-        return true;
+        applied = this.transitionPhase(battle);
+        return applied;
       }, { reason: "next-phase", renderParts: [] });
       if (applied && saved?.id === request.id && saved.revision > request.revision
         && (saved.phase !== request.phase || saved.round !== request.round || saved.outcome?.resolved)) {
@@ -611,6 +623,84 @@ export class BattlePhaseController {
       this.app.renderBattleSnapshot = null;
       ui.notifications.error("Не удалось сохранить переход. Проверьте состояние боя перед повтором.");
       console.error("Sailships Combat | Phase transition failed", error);
+      return false;
+    } finally {
+      this.busy = false;
+      await this.app.renderBattleState();
+    }
+  }
+
+  /** Skip only verified empty activations, stopping at a decision or after one round settlement. */
+  async advanceToDecision(button = null) {
+    if (!game.user.isGM || this.busy || this.app.movementPlan?.pending || this.app.movementPlan?.busy) return false;
+    const shown = this.app.renderBattleSnapshot ?? this.app.battle;
+    const data = button?.dataset ?? {};
+    const request = {
+      id: data.battleId ?? shown.id, revision: Number(data.revision ?? shown.revision),
+      round: Number(data.round ?? shown.round), phase: data.phase ?? shown.phase,
+      activeId: data.activeId !== undefined ? data.activeId || null : shown.turn?.activeShipId ?? null,
+      selectedId: this.app.selectedShipId
+    };
+    this.busy = true;
+    let result = null;
+    try {
+      const saved = await this.app._updateBattleAndRender(battle => {
+        if (battle.id !== request.id || battle.revision !== request.revision || battle.round !== request.round
+          || battle.phase !== request.phase || (battle.turn?.activeShipId ?? null) !== request.activeId
+          || !battle.setupConfirmed || battle.outcome?.resolved || battle.projection?.kind === "player") {
+          ui.notifications.warn("Очередь изменилась. Проверьте текущего участника.");
+          return false;
+        }
+        if (![...DECISION_PHASES, "damage", "end"].includes(battle.phase)) return false;
+        let skipped = 0, transitions = 0;
+        const limit = ((battle.ships?.length ?? 0) + 1) * (DECISION_PHASES.length + 1);
+        for (let step = 0; step < limit; step++) {
+          if (battle.outcome?.resolved || battle.round !== request.round) break;
+          const active = this.isActivationPhase(battle.phase) ? this.getActiveShip(battle) : null;
+          if (active) {
+            const readiness = this.getReadiness(battle, active);
+            if (!readiness.canSkip) break;
+            if (!this.completeShipActivation(battle, active, battle.phase)) throw new Error("Empty activation could not finish");
+            this.app._addLog(battle, active.name + ": пропуск ожидания — " + readiness.label + ". " + readiness.reason);
+            skipped++;
+          } else {
+            if (!this.transitionPhase(battle)) throw new Error("Phase transition could not complete");
+            transitions++;
+          }
+          if (step === limit - 1) throw new Error("Advance exceeded the bounded phase queue");
+        }
+        if (!skipped && !transitions) {
+          ui.notifications.info("У текущего участника есть решение. Выполните действие или завершите его вручную.");
+          return false;
+        }
+        const next = this.getActiveShip(battle);
+        const stop = battle.outcome?.resolved ? "Бой завершён." : battle.round !== request.round
+          ? "Раунд рассчитан. Проверьте итоги перед следующим решением."
+          : next ? "Остановка: " + next.name + "." : "Очередь завершена.";
+        const text = "Пропущено пустых активаций: " + skipped + "; переходов фазы: " + transitions + ". " + stop;
+        this.app._addLog(battle, text);
+        result = { text, round: battle.round, phase: battle.phase, activeId: battle.turn?.activeShipId ?? null };
+        return true;
+      }, { reason: "advance-to-decision", renderParts: [] });
+      if (result && saved?.id === request.id && saved.revision > request.revision
+        && saved.round === result.round && saved.phase === result.phase
+        && (saved.turn?.activeShipId ?? null) === result.activeId) {
+        this.advanceNotice = { id: saved.id, revision: saved.revision, text: result.text };
+        if (this.app.selectedShipId === request.selectedId) {
+          this.app.selectedShipId = this.getActiveShip(saved)?.id ?? request.selectedId;
+          this.app.selectedTargetId = null;
+          this.app.aimSection = null;
+        }
+        this.app.deployMode = false;
+        this.app.terrainMode = null;
+        return true;
+      }
+      if (result) ui.notifications.warn("Переход не сохранён. Проверьте очередь.");
+      return false;
+    } catch (error) {
+      this.app.renderBattleSnapshot = null;
+      ui.notifications.error("Не удалось сохранить переход по очереди.");
+      console.error("Sailships Combat | Advance to decision failed", error);
       return false;
     } finally {
       this.busy = false;

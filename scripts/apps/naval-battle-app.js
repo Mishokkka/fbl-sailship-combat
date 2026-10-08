@@ -76,6 +76,8 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       clearBattleLog: this._onClearBattleLog,
       showLayoutPane: this._onShowLayoutPane,
       nextPhase: this._onNextPhase,
+      advanceToDecision: this._onAdvanceToDecision,
+      selectTurnUnit: this._onSelectTurnUnit,
       continueBattle: this._onContinueBattle,
       passTurn: this._onPassTurn,
       confirmMovementPlan: this._onConfirmMovementPlan,
@@ -322,6 +324,15 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
   getSelectedShip(battle) {
     return battle.ships.find(s => s.id === this.selectedShipId) ?? null;
+  }
+  static async _onAdvanceToDecision(event, target) {
+    event.preventDefault();
+    return this.phase.advanceToDecision(target ?? event.target?.closest("[data-action]"));
+  }
+  static _onSelectTurnUnit(event, target) {
+    event.preventDefault();
+    const id = (target ?? event.target?.closest("[data-action]"))?.dataset.shipId;
+    if (id) return this._selectShip(id);
   }
   static _onSelectActiveShip(event) {
     event.preventDefault();
