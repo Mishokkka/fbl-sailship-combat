@@ -5,7 +5,7 @@
     <span class="ssc-crew-ap">{{crewControl.remainingAP}} ОД</span>
   </header>
   <p class="ssc-hint">{{#if crewControl.boosted}}Аварийные партии: усиленный ремонт и два ОД.{{else}}Каждая работа стоит 1 ОД.{{/if}} Один вид работ доступен один раз за фазу; помпы и пробоины делят одну команду, расчистка и ремонт системы — другую.</p>
-  {{#if crewControl.noProblems}}<p class="ssc-crew-empty">Пожаров, течей и повреждённых систем нет. Ядро и мораль в порядке.</p>{{/if}}
+  {{#if crewControl.noProblems}}<p class="ssc-crew-empty">Работ по тушению, откачке и восстановлению сейчас нет.</p>{{/if}}
   <div class="ssc-crew-tasks">
     {{#each crewControl.tasks as |task|}}
     <article class="ssc-crew-task {{#if task.urgent}}is-urgent{{/if}}" data-task-id="{{task.id}}">

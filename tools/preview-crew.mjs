@@ -196,7 +196,7 @@ try {
     await page.screenshot({ path: "artifacts/interface/crew-result-" + width + "-" + height + ".png" });
     await page.evaluate(() => window.crewTest.reset());
     await page.evaluate(() => window.crewTest.change("clear"));
-    assert.match(await page.locator(".ssc-guidance h2").textContent(), /Корабль в порядке/);
+    assert.match(await page.locator(".ssc-guidance h2").textContent(), /Аварийных работ нет/);
     assert.equal(await page.locator(".ssc-crew-task").count(), 0);
     await action(page, '.ssc-guidance [data-action="passTurn"]');
     assert.notEqual(await page.evaluate(() => window.previewApp.selectedShipId), "ship-blue");

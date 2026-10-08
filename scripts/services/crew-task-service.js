@@ -21,6 +21,12 @@ export class CrewTaskService {
     });
     for (const [sectionId, section] of Object.entries(ship.sections ?? {})) {
       const location = section.label ?? SECTION_LABELS[sectionId] ?? sectionId;
+      const hull = Number(section.hp?.value ?? 0), maxHull = Number(section.hp?.max ?? 0);
+      if (hull < maxHull) add("hull", sectionId, {
+        title: "Корпус секции", location, before: hull, after: hull, max: maxHull,
+        repairable: false, priority: 0,
+        blockedReason: "Прочность корпуса " + hull + "/" + maxHull + ". Аварийные партии устраняют последствия повреждений, но не восстанавливают HP корпуса."
+      });
       const fire = Number(section.fire ?? 0);
       if (fire > 0) {
         const after = Math.max(0, fire - amount.level);

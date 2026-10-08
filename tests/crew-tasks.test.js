@@ -303,3 +303,14 @@ test("stale abandonment button cannot apply to the newly selected ship", async (
   assert.equal(state.commits, 0);
   assert.deepEqual(state.read(), before);
 });
+
+test("hull damage is disclosed as unrepairable instead of claiming a healthy ship", () => {
+  const state = harness();
+  const battle = state.read(), ship = battle.ships[0];
+  ship.sections.bow.fire = ship.sections.stern.fire = 0;
+  ship.sections.midship.hp.value = 0;
+  const context = CrewContextBuilder.build(battle, ship, state.app._getActionState(battle, ship), state.app);
+  assert.equal(context.noUsefulAction, true);
+  assert.equal(context.noProblems, false);
+  assert.ok(context.unavailable.some(task => task.mode === "hull" && /не восстанавливают HP/.test(task.blockedReason)));
+});

@@ -53,7 +53,7 @@ export class BattleGuidanceBuilder {
         : guide("Сейчас нет доступного выстрела", "У каждой батареи показана причина ограничения. Выберите другую цель или завершите активацию.");
     }
     if (phase === "crew") {
-      if (crewControl?.noUsefulAction) return guide(crewControl.noProblems ? "Корабль в порядке" : "Сейчас нет доступных работ",
+      if (crewControl?.noUsefulAction) return guide(crewControl.noProblems ? "Аварийных работ нет" : "Сейчас нет доступных работ",
         "Полезных действий экипажа сейчас нет. Можно передать ход следующему участнику.",
         crewControl.canFinish ? { action: "passTurn", actionLabel: "Завершить работу экипажа", tone: "ready" } : {});
       return guide("Распределите работу экипажа", "Выберите конкретную аварию. Карточка показывает результат, риск и стоимость до выполнения.");
