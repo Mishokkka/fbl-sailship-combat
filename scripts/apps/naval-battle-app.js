@@ -121,6 +121,7 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       creatureExtinguish: this._onCreatureExtinguish,
       creatureRally: this._onCreatureRally,
       creatureManualDamage: this._onCreatureManualDamage,
+      crewTask: this._onCrewTask,
       repair: this._onRepair,
       repairFire: this._onRepairFire,
       repairFlooding: this._onRepairFlooding,
@@ -445,20 +446,45 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onCreatureExtinguish(event) { event.preventDefault(); return this.creatures.recover("extinguish"); }
   static async _onCreatureRally(event) { event.preventDefault(); return this.creatures.recover("steady"); }
   static async _onCreatureManualDamage(event, target) { event.preventDefault(); const button = target ?? event.currentTarget; return this.creatures.manualDamage(button?.dataset?.sectionId, Number(button?.dataset?.damage ?? 0)); }
+  static async _onCrewTask(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.performTask(button?.dataset?.taskId, button);
+  }
   static async _onRepair(event) { event.preventDefault(); return this.crew.repair("auto"); }
   static async _onRepairFire(event) { event.preventDefault(); return this.crew.repair("fire"); }
   static async _onRepairFlooding(event) { event.preventDefault(); return this.crew.repair("flooding"); }
   static async _onRepairSystem(event) { event.preventDefault(); return this.crew.repair("system"); }
   static async _onCoolCrystalCore(event) { event.preventDefault(); return this.crew.repair("crystal"); }
   static async _onRallyCrew(event) { event.preventDefault(); return this.crew.repair("rally"); }
-  static async _onAbandonShip(event) { event.preventDefault(); return this.crew.abandonShip(); }
+  static async _onAbandonShip(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.abandonShip(button);
+  }
   static async _onManualDamage(event) { event.preventDefault(); return this.crew.manualDamage("damage"); }
   static async _onManualFire(event) { event.preventDefault(); return this.crew.manualDamage("fire"); }
   static async _onManualFlooding(event) { event.preventDefault(); return this.crew.manualDamage("flooding"); }
-  static async _onGrapple(event) { event.preventDefault(); return this.crew.boarding("Сцепка", "grapple"); }
-  static async _onBoarding(event) { event.preventDefault(); return this.crew.boarding("Абордаж", "board"); }
-  static async _onReleaseGrapple(event) { event.preventDefault(); return this.crew.boarding("Разрыв сцепки", "release"); }
-  static async _onRepelCreature(event) { event.preventDefault(); return this.crew.repelCreature(); }
+  static async _onGrapple(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.boarding("Сцепка", "grapple", button);
+  }
+  static async _onBoarding(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.boarding("Абордаж", "board", button);
+  }
+  static async _onReleaseGrapple(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.boarding("Разрыв сцепки", "release", button);
+  }
+  static async _onRepelCreature(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.repelCreature(button);
+  }
   static async _onCycleBoardSize(event) { return this.setup.cycleBoardSize(event); }
   static async _onSetAmmo(event, target) { event.preventDefault(); return this.gunnery.setAmmo(event, target); }
   static async _onSetFireMode(event, target) { event.preventDefault(); return this.gunnery.setFireMode(event, target); }

@@ -1,3 +1,4 @@
+import { CrewContextBuilder } from "./crew-context-builder.js";
 import { BattleReportService } from "../services/battle-report-service.js";
 import { AIR_ONLY_TERRAIN_TYPES, DECISION_PHASES, SEA_ONLY_TERRAIN_TYPES, TERRAIN_LABELS } from "../utils/constants.js";
 import { BoardContextBuilder } from "./board-context-builder.js";
@@ -257,14 +258,17 @@ export class BattleContextBuilder {
       ? this.combatPanels.getShotPreviews(battle, detail.detailShip, state.selectedTarget)
       : [];
 
+    const crewControl = detail.detailShip ? CrewContextBuilder.build(battle, detail.detailShip, detail.actionState, this.app) : null;
     return {
       ...this.getTurnFields(battle, state),
+      crewControl,
       actionState: detail.actionState,
       guidance: BattleGuidanceBuilder.build({
         battle, selectedShip: state.selectedShip, activeShip: state.activeShip,
         actionState: detail.actionState, canViewDetails: detail.canViewSelectedShipDetails,
         isGM: game.user.isGM, canSubmitOrder: detail.playerControl.canSubmitOrder,
         pendingOrder: Boolean(detail.playerControl.selectedPendingOrder),
+        crewControl,
         hasSelectedTarget: Boolean(state.selectedTarget),
         hasShotPreview: shotPreviews.some(shot => shot.canFireNow)
       }),
@@ -297,7 +301,7 @@ export class BattleContextBuilder {
       weaponControls: detail.detailShip
         ? this.combatPanels.getWeaponControls(battle, detail.detailShip)
         : [],
-      phaseFlags: detail.phaseFlags,
+      phaseFlags: { ...detail.phaseFlags, showTargets: detail.phaseFlags.showTargets && !(detail.detailShip && battle.phase === "crew") },
       targets: detail.detailShip
         ? this.combatPanels.getAvailableTargets(battle, detail.detailShip)
         : detail.detailCreature

@@ -301,3 +301,26 @@
 .sailships-combat .ssc-report-toast { grid-column: 1 / -1; }
 .sailships-combat .ssc-report-toast strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sailships-combat .ssc-report-toast .ssc-toast-change { color: var(--ssc-muted); }
+
+/* Crew decisions pair a concrete problem with its forecast and action. */
+.sailships-combat .ssc-crew-heading { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-top: 16px; }
+.sailships-combat .ssc-crew-heading h3 { margin: 4px 0; }
+.sailships-combat .ssc-crew-ap { flex: 0 0 auto; color: var(--ssc-accent); border: 1px solid var(--ssc-border); padding: 5px 9px; border-radius: 7px; font-weight: 700; }
+.sailships-combat .ssc-crew-tasks { display: grid; gap: 10px; margin: 12px 0; }
+.sailships-combat .ssc-crew-task { padding: 12px; border: 1px solid var(--ssc-border); border-radius: 9px; background: #172532; min-width: 0; overflow-wrap: anywhere; }
+.sailships-combat .ssc-crew-task.is-urgent { border-left: 3px solid #dba286; }
+.sailships-combat .ssc-crew-task header { display: flex; gap: 6px; flex-wrap: wrap; justify-content: space-between; color: var(--ssc-muted); font-size: 10px; }
+.sailships-combat .ssc-crew-priority { color: var(--ssc-accent); }
+.sailships-combat .ssc-crew-task h4 { font-size: 15px; margin: 6px 0 8px; }
+.sailships-combat .ssc-crew-task p { margin: 7px 0; font-size: 12px; line-height: 1.45; }
+.sailships-combat .ssc-crew-consequence { color: var(--ssc-muted); }
+.sailships-combat .ssc-crew-forecast { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 12px; padding: 9px 0; border-block: 1px solid #ffffff12; font-size: 12px; }
+.sailships-combat .ssc-crew-forecast strong { font-size: 15px; color: #cfe5cf; font-variant-numeric: tabular-nums; }
+.sailships-combat .ssc-crew-forecast small { font-size: 11px; color: var(--ssc-muted); }
+.sailships-combat .ssc-crew-risk { color: #e5c5a8; }
+.sailships-combat .ssc-crew-blocked { color: var(--ssc-muted); font-style: italic; }
+.sailships-combat .ssc-crew-task button { width: 100%; margin-top: 8px; }
+.sailships-combat .ssc-crew-task button span { font-weight: 400; }
+.sailships-combat .ssc-crew-empty { border: 1px solid #58776c; border-radius: 8px; padding: 12px; background: #1b2b29; color: #cfe5cf; }
+.sailships-combat .ssc-crew-boarding-action { padding: 8px 0; border-bottom: 1px solid var(--ssc-border); font-size: 12px; }
+.sailships-combat .ssc-crew-boarding-action button { width: 100%; }

@@ -3,7 +3,7 @@ import { PHASE_LABELS } from "../utils/constants.js";
 /** Build guidance only from the battle projection and permitted action state. */
 export class BattleGuidanceBuilder {
   static build({ battle, selectedShip, activeShip, actionState = {}, canViewDetails = false,
-    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false, hasSelectedTarget = false }) {
+    isGM = false, canSubmitOrder = false, pendingOrder = false, hasShotPreview = false, hasSelectedTarget = false, crewControl = null }) {
     const phase = battle.phase;
     const guide = (title, description, extra = {}) => ({
       eyebrow: battle.setupConfirmed ? `Раунд ${battle.round} · ${PHASE_LABELS[phase] ?? phase}` : "Подготовка боя",
@@ -52,7 +52,12 @@ export class BattleGuidanceBuilder {
       return ready ? guide("Проверьте залп", "Выберите боеприпас и проверьте прогноз. Кнопка «Залп» применит результат и передаст ход.", { tone: "ready" })
         : guide("Сейчас нет доступного выстрела", "У каждой батареи показана причина ограничения. Выберите другую цель или завершите активацию.");
     }
-    if (phase === "crew") return guide("Выберите задачу экипажа", "Устраните наиболее опасную аварию или подготовьте абордаж. Причины ограничений указаны у действий.");
+    if (phase === "crew") {
+      if (crewControl?.noUsefulAction) return guide(crewControl.noProblems ? "Аварийных работ нет" : "Сейчас нет доступных работ",
+        "Полезных действий экипажа сейчас нет. Можно передать ход следующему участнику.",
+        crewControl.canFinish ? { action: "passTurn", actionLabel: "Завершить работу экипажа", tone: "ready" } : {});
+      return guide("Распределите работу экипажа", "Выберите конкретную аварию. Карточка показывает результат, риск и стоимость до выполнения.");
+    }
     return guide("Следите за обстановкой", "Состояние корабля и доступные действия показаны ниже.");
   }
 }

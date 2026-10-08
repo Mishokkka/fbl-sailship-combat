@@ -1,3 +1,5 @@
+import { CrewTaskService } from "../services/crew-task-service.js";
+import { BattleReportService } from "../services/battle-report-service.js";
 import { DamageEngine } from "../engine/damage-engine.js";
 import { BoardingEngine } from "../engine/boarding-engine.js";
 import { CreatureGrappleEngine } from "../engine/creature-grapple-engine.js";
@@ -13,32 +15,86 @@ export class ShipCrewController {
 
   finishCrewActivation(battle, ship) {
     const remaining = this.app._getRemainingAP(battle, ship, "crew");
-    if (remaining > 0) {
-      this.app._addLog(battle, `${ship.name}: осталось ОД экипажа ${remaining}.`);
+    if (remaining > 0 && !ship.flags?.struck) {
+      this.app._addLog(battle, ship.name + ": осталось ОД экипажа " + remaining + ".");
       return;
     }
     this.app._completeShipActivation(battle, ship, "crew");
     const next = this.app._getActiveShip(battle);
-    if (next) {
-      this.app.selectedShipId = next.id;
-      this.app._addLog(battle, `Ход корабля: ${next.name}.`);
-    } else {
-      this.app._addLog(battle, "Все корабли завершили фазу. Можно перейти дальше.");
+    this.app._addLog(battle, next ? "Ход корабля: " + next.name + "." : "Работа экипажей завершена. Можно завершить раунд.");
+  }
+
+  /** Execute the shown decision once, and change local selection only after a verified save. */
+  async execute({ reason, button = null, usesTarget = false }, resolve) {
+    if (!game.user.isGM || this.busy) return false;
+    const shown = this.app.renderBattleSnapshot ?? this.battle;
+    const request = { id: shown.id, revision: Number(button?.dataset?.revision ?? shown.revision),
+      round: shown.round, shipId: button?.dataset?.shipId ?? this.app.selectedShipId, targetId: button?.dataset?.targetId || this.app.selectedTargetId };
+    this.busy = true;
+    let reportId = null;
+    try {
+      const saved = await this.app._updateBattleAndRender(battle => {
+        if (battle.id !== request.id || battle.revision !== request.revision || battle.round !== request.round
+          || !battle.setupConfirmed || battle.outcome?.resolved || this.app.selectedShipId !== request.shipId
+          || (usesTarget && this.app.selectedTargetId !== request.targetId)) {
+          ui.notifications.warn("Обстановка изменилась. Проверьте задачу экипажа заново.");
+          return false;
+        }
+        const ship = battle.ships.find(unit => unit.id === request.shipId);
+        if (ship?.unitType === "creature" || !this.app._requireActivePhase(battle, ship, "crew", "Работа экипажа")) return false;
+        const before = BattleReportService.capture(battle);
+        const result = resolve(battle, ship, request);
+        if (!result.ok) { ui.notifications.warn(result.text); return false; }
+        this.app._addLog(battle, result.text);
+        this.finishCrewActivation(battle, ship);
+        reportId = BattleReportService.record(battle, before, {
+          kind: "crew", outcome: "worked", title: ship.name + " · " + result.label,
+          sourceId: ship.id, targetId: result.targetId ?? ship.id, details: [result.text]
+        }).id;
+        return true;
+      }, { reason, renderParts: [] });
+      if (reportId && saved?.lastReport?.id === reportId && saved.revision > request.revision) {
+        if (this.app.selectedShipId === request.shipId) {
+          const next = this.app._getActiveShip(saved);
+          this.app.selectedShipId = next?.id ?? request.shipId;
+          if (next?.id !== request.shipId) this.app.selectedTargetId = null;
+        }
+        return true;
+      }
+      if (reportId) ui.notifications.warn("Работа экипажа не сохранена. Проверьте состояние боя.");
+      return false;
+    } catch (error) {
+      this.app.renderBattleSnapshot = null;
+      ui.notifications.error("Не удалось сохранить работу экипажа. Проверьте состояние боя перед повтором.");
+      console.error("Sailships Combat | Crew action failed", error);
+      return false;
+    } finally {
+      this.busy = false;
+      await this.app.renderBattleState();
     }
   }
 
+  async performTask(taskId, button = null) {
+    return this.execute({ reason: "crew-task", button }, (battle, ship) => {
+      const task = CrewTaskService.tasks(battle, ship).find(task => task.id === taskId);
+      if (!task?.repairable) return { ok: false, text: task?.blockedReason ?? "Выбранная авария уже устранена или изменилась." };
+      if (!this.app._markTurnAction(battle, ship, task.actionKey)) return { ok: false, text: "Этот вид работ уже выполнен или не осталось ОД экипажа." };
+      const result = CrewTaskService.resolve(battle, ship, task.id);
+      if (!result.ok) this.app._refundTurnAction(battle, ship, task.actionKey);
+      return { ...result, label: task.title };
+    });
+  }
+
+  // Older action IDs remain usable, but now resolve to a concrete task before entering the queue.
   async repair(mode) {
-    await this.app._updateBattleAndRender(battle => {
-      const ship = this.app.getSelectedShip(battle);
-      if (!this.app._requireActivePhase(battle, ship, "crew", "Борьба за живучесть")) return false;
-      const actionKey = `crewRepair:${mode ?? "auto"}`;
-      if (!this.app._markTurnAction(battle, ship, actionKey)) {
-        ui.notifications.warn(`${ship.name} уже выполнял эту команду экипажа в этой фазе или исчерпал ОД.`);
-        return false;
-      }
-      this.app._addLog(battle, DamageEngine.repair(ship, mode));
-      this.finishCrewActivation(battle, ship);
-    }, { reason: `crew-repair-${mode ?? "auto"}` });
+    const battle = this.app.renderBattleSnapshot ?? this.battle;
+    const ship = this.app.getSelectedShip(battle);
+    const tasks = CrewTaskService.tasks(battle, ship).filter(task => task.repairable);
+    const modes = mode === "auto" ? ["fire", "flooding", "breaches", "wreckage", "system"]
+      : mode === "flooding" ? ["flooding", "breaches"] : mode === "system" ? ["wreckage", "system"] : [mode];
+    const task = modes.map(mode => tasks.find(task => task.mode === mode)).find(Boolean);
+    if (!task) return ui.notifications.warn("Подходящих задач для этого вида работ нет.");
+    return this.performTask(task.id);
   }
 
   async manualDamage(kind) {
@@ -55,73 +111,34 @@ export class ShipCrewController {
     }, { reason: `manual-${kind}` });
   }
 
-  async abandonShip() {
-    await this.app._updateBattleAndRender(battle => {
-      const ship = this.app.getSelectedShip(battle);
-      if (!this.app._requireActivePhase(battle, ship, "crew", "Оставить корабль")) return false;
-      const actionKey = "crewAbandonShip";
-      if (!this.app._markTurnAction(battle, ship, actionKey)) {
-        ui.notifications.warn(`${ship.name} уже выполнял эту команду экипажа в этой фазе или исчерпал ОД.`);
-        return false;
-      }
+  async abandonShip(button = null) {
+    return this.execute({ reason: "abandon-ship", button }, (battle, ship) => {
+      if (!this.app._markTurnAction(battle, ship, "crewAbandonShip")) return { ok: false, text: "Недостаточно ОД экипажа." };
       const result = DamageEngine.abandonShip(ship);
-      this.app._addLog(battle, result.text);
-      if (!result.ok) {
-        this.app._refundTurnAction(battle, ship, actionKey);
-        return;
-      }
-      this.app._completeShipActivation(battle, ship, "crew");
-      const next = this.app._getActiveShip(battle);
-      if (next) {
-        this.app.selectedShipId = next.id;
-        this.app._addLog(battle, `Ход корабля: ${next.name}.`);
-      } else {
-        this.app._addLog(battle, "Все корабли завершили фазу. Можно перейти дальше.");
-      }
-    }, { reason: "abandon-ship" });
+      if (!result.ok) this.app._refundTurnAction(battle, ship, "crewAbandonShip");
+      return { ...result, label: "Оставить корабль" };
+    });
   }
 
-  async repelCreature() {
-    await this.app._updateBattleAndRender(battle => {
-      const ship = this.app.getSelectedShip(battle);
-      if (!this.app._requireActivePhase(battle, ship, "crew", "Отбить чудовище")) return false;
+  async repelCreature(button = null) {
+    return this.execute({ reason: "crew-repel-creature", button, usesTarget: !button?.dataset?.targetId }, (battle, ship, request) => {
       const actionKey = "crewRepelCreature";
-      if (!this.app._markTurnAction(battle, ship, actionKey)) {
-        ui.notifications.warn(`${ship.name}: не хватает ОД или попытка уже предпринималась.`);
-        return false;
-      }
-      const result = CreatureGrappleEngine.repel(battle, ship.id, this.app.selectedTargetId);
-      if (!result.ok) {
-        this.app._refundTurnAction(battle, ship, actionKey);
-        ui.notifications.warn(result.text);
-        return false;
-      }
-      this.app._addLog(battle, result.text);
-      this.finishCrewActivation(battle, ship);
-    }, { reason: "crew-repel-creature" });
+      if (!this.app._markTurnAction(battle, ship, actionKey)) return { ok: false, text: "Попытка уже использована или не осталось ОД." };
+      const result = CreatureGrappleEngine.repel(battle, ship.id, request.targetId);
+      if (!result.ok) this.app._refundTurnAction(battle, ship, actionKey);
+      return { ...result, label: "Отбить чудовище" };
+    });
   }
 
-  async boarding(label, action) {
-    await this.app._updateBattleAndRender(battle => {
-      const ship = this.app.getSelectedShip(battle);
-      if (!this.app._requireActivePhase(battle, ship, "crew", label)) return false;
-      const actionKey = `crewBoarding:${action}`;
-      if (!this.app._markTurnAction(battle, ship, actionKey)) {
-        ui.notifications.warn(`${ship.name} уже выполнял эту команду экипажа в этой фазе или исчерпал ОД.`);
-        return false;
-      }
-      const targetId = action === "board" ? BoardingEngine.getGrappledWith(ship) : this.app.selectedTargetId;
-      const result = action === "grapple"
-        ? BoardingEngine.grapple(battle, ship.id, targetId)
-        : action === "board"
-          ? BoardingEngine.board(battle, ship.id, targetId)
-          : BoardingEngine.release(battle, ship.id);
-      this.app._addLog(battle, result.text);
-      if (!result.ok) {
-        this.app._refundTurnAction(battle, ship, actionKey);
-        return;
-      }
-      this.finishCrewActivation(battle, ship);
-    }, { reason: `crew-${action}` });
+  async boarding(label, action, button = null) {
+    return this.execute({ reason: "crew-" + action, button, usesTarget: action === "grapple" }, (battle, ship, request) => {
+      const actionKey = "crewBoarding:" + action;
+      if (!this.app._markTurnAction(battle, ship, actionKey)) return { ok: false, text: "Эта команда уже выполнена или не осталось ОД." };
+      const targetId = action === "grapple" ? request.targetId : BoardingEngine.getGrappledWith(ship);
+      const result = action === "grapple" ? BoardingEngine.grapple(battle, ship.id, targetId)
+        : action === "board" ? BoardingEngine.board(battle, ship.id, targetId) : BoardingEngine.release(battle, ship.id);
+      if (!result.ok) this.app._refundTurnAction(battle, ship, actionKey);
+      return { ...result, label, targetId };
+    });
   }
 }
