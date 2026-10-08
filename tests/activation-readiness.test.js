@@ -55,8 +55,8 @@ function harness(battle = fixture()) {
   const app = new NavalBattleApp();
   const state = { app, commits: 0, mode: "allow", beforeMutation: null,
     read: () => structuredClone(stored), change: fn => fn(stored) };
-  app.selectedShipId = battle.ships[0].id;
-  app.selectedTargetId = battle.ships[1].id;
+  app.selectedShipId = battle.ships[0]?.id ?? null;
+  app.selectedTargetId = battle.ships[1]?.id ?? null;
   app.renderBattleState = async () => {};
   game.sailshipsCombat = { storage: {
     getBattleForUser: () => structuredClone(stored),
@@ -333,4 +333,36 @@ test("queue reveals readiness only to GM and caches assessments per battle revis
   assert.equal(calls, 2, "Player context never assesses private weapon state");
   battle.projection = { kind: "player" };
   assert.equal(readiness(battle).canSkip, false);
+});
+
+test("spent crew AP still settles fire, descent and cooldowns exactly as manual navigation", async t => {
+  t.mock.method(Math, "random", () => 0.5);
+  const battle = waiting(fixture("crew"));
+  battle.ships[0].sections.bow.fire = 2;
+  battle.ships[0].verticalVelocity = -1;
+  for (const ship of battle.ships) actions(battle, ship)._apSpent = 2;
+  const fast = harness(battle);
+  await fast.app.phase.advanceToDecision();
+  const after = fast.read();
+  const manual = harness(battle);
+  for (let i = 0; i < battle.ships.length; i++) await manual.app.phase.passTurn();
+  await manual.app.phase.nextPhase();
+  assert.deepEqual(after.ships, manual.read().ships);
+  assert.deepEqual(after.lastReport.groups, manual.read().lastReport.groups);
+  assert.ok(after.lastReport.groups.length > 0);
+  assert.ok(after.ships[0].sections.bow.hp.value < battle.ships[0].sections.bow.hp.value);
+});
+
+test("legacy checkpoints and an empty battle are bounded by one round", async t => {
+  t.mock.method(VictoryEngine, "evaluate", () => ({ resolved: false }));
+  for (const phase of ["damage", "end", "orders"]) {
+    const battle = waiting(fixture(phase));
+    battle.ships = [];
+    battle.turn.activeShipId = null;
+    const state = harness(battle);
+    await state.app.phase.advanceToDecision();
+    assert.equal(state.read().round, 2, phase);
+    assert.equal(state.read().phase, "orders", phase);
+    assert.equal(state.commits, 1, phase);
+  }
 });

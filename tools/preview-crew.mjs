@@ -198,7 +198,8 @@ try {
     await page.evaluate(() => window.crewTest.change("clear"));
     assert.match(await page.locator(".ssc-guidance h2").textContent(), /Сейчас участник ждёт/);
     assert.equal(await page.locator(".ssc-crew-task").count(), 0);
-    await action(page, '.ssc-turn-box [data-action="passTurn"]');
+    await page.evaluate(() => window.previewApp.layout.showPane("board"));
+    await action(page, '.ssc-board-control-dock [data-action="passTurn"]');
     assert.notEqual(await page.evaluate(() => window.previewApp.selectedShipId), "ship-blue");
     if (width === 1500) {
       await page.evaluate(() => window.crewTest.reset());
