@@ -31,7 +31,7 @@
                 {{#if ship.status.flooding}}<b class="water">Вода {{ship.status.flooding}}</b>{{/if}}
                 {{#if ship.status.breaches}}<b>Пробоины {{ship.status.breaches}}</b>{{/if}}
                 {{#if ship.showAltitudeCore}}<b class="crystal">H{{ship.status.altitude}} · Я{{ship.status.coreHeat}}/{{ship.status.coreMaxHeat}}</b>{{/if}}
-                {{#if ship.reloads}}<b>Перезарядка {{ship.reloads}}</b>{{/if}}
+                {{#if ship.reloads}}<b title="Количество батарей, которые сейчас перезаряжаются">Батарей на зарядке: {{ship.reloads}}</b>{{/if}}
                 {{#if ship.grappled}}<b>Сцеплен</b>{{/if}}
                 {{#if ship.attachedCreatureCount}}<b class="danger">Чудовищ на корпусе: {{ship.attachedCreatureCount}}</b>{{/if}}
               {{/if}}

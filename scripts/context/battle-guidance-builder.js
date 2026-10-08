@@ -14,7 +14,7 @@ export class BattleGuidanceBuilder {
       isGM ? "Откройте подготовку, расставьте корабли и подтвердите начало боя." : "Ведущий готовит поле и участников.",
       isGM ? { action: "openBattleSetup", actionLabel: "Подготовка боя" } : {});
     if (isGM && pacing?.available) return guide(activeShip ? "Сейчас участник ждёт" : "Фаза завершена",
-      pacing.reason + " Команда «К следующему решению» пропустит пустые активации и остановится перед доступным действием или после расчёта раунда.",
+      pacing.reason,
       { tone: "ready" });
     if (isGM && !activeShip && ["orders", "movement", "gunnery", "crew"].includes(phase)) {
       return guide(phase === "crew" ? "Раунд готов к завершению" : "Все участники завершили фазу",

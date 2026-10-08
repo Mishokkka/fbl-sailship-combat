@@ -176,7 +176,6 @@ try {
     await checkLayout(page, "Queue " + width + "x" + height);
     await queue.scrollIntoViewIfNeeded();
     await page.screenshot({ path: "artifacts/interface/pacing-queue-" + width + "-" + height + ".png" });
-    if (width === 1500 || height === 650) console.log("PACING_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 65 })).toString("base64"));
     const initial = await page.evaluate(() => window.pacingTest.read());
     // A queue row inspects another actor, never steals the activation.
     await action(page, '.ssc-turn-row[data-ship-id="ship-red-2"]');
