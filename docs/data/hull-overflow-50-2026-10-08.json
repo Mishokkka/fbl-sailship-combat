@@ -1,0 +1,693 @@
+{
+  "transferRate": 0.5,
+  "roundCap": 12,
+  "seeds": [
+    7,
+    41,
+    20261008
+  ],
+  "results": [
+    {
+      "scenario": "stationary",
+      "seed": 7,
+      "roundsSettled": 12,
+      "activations": {
+        "orders": 33,
+        "movement": 33,
+        "gunnery": 31,
+        "crew": 31
+      },
+      "empty": {
+        "movement": 33,
+        "gunnery": 18,
+        "crew": 18
+      },
+      "phaseTransitions": 48,
+      "shots": 13,
+      "hits": 8,
+      "hullDamageShots": 8,
+      "reloadOnlyPasses": 5,
+      "otherGunneryPasses": 13,
+      "hitsAgainstDestroyedSection": 2,
+      "crewTaskModes": {
+        "fire": 5,
+        "rally": 4,
+        "wreckage": 1,
+        "system": 3,
+        "breaches": 1
+      },
+      "crewTasks": 14,
+      "movementPlans": 0,
+      "manualPasses": 69,
+      "firstHitRound": 1,
+      "firstHullDamageRound": 1,
+      "firstTenPercentHullLossRound": 1,
+      "firstStruckRound": 4,
+      "batteryShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        1
+      ],
+      "shipShotIntervals": [
+        1,
+        2,
+        2,
+        1,
+        2,
+        1,
+        1,
+        2,
+        1
+      ],
+      "damagingShotIntervals": [
+        2,
+        1,
+        2,
+        2
+      ],
+      "outcome": "draw",
+      "activeShips": 2,
+      "finalShips": [
+        {
+          "id": "blue-brig",
+          "hull": 14,
+          "crew": 82,
+          "morale": 10,
+          "x": 10,
+          "y": 20,
+          "speed": 0,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        },
+        {
+          "id": "blue-sloop",
+          "hull": 7,
+          "crew": 0,
+          "morale": 0,
+          "x": 10,
+          "y": 25,
+          "speed": 0,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "red-brig",
+          "hull": 1,
+          "crew": 0,
+          "morale": 0,
+          "x": 14,
+          "y": 20,
+          "speed": 0,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "red-sloop",
+          "hull": 14,
+          "crew": 85,
+          "morale": 10,
+          "x": 5,
+          "y": 29,
+          "speed": 0,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        }
+      ]
+    },
+    {
+      "scenario": "stationary",
+      "seed": 41,
+      "roundsSettled": 5,
+      "activations": {
+        "orders": 18,
+        "movement": 18,
+        "gunnery": 17,
+        "crew": 16
+      },
+      "empty": {
+        "movement": 18,
+        "gunnery": 7,
+        "crew": 7
+      },
+      "phaseTransitions": 20,
+      "shots": 10,
+      "hits": 6,
+      "hullDamageShots": 6,
+      "reloadOnlyPasses": 7,
+      "otherGunneryPasses": 0,
+      "hitsAgainstDestroyedSection": 3,
+      "crewTaskModes": {
+        "fire": 4,
+        "system": 4,
+        "breaches": 1,
+        "rally": 1
+      },
+      "crewTasks": 10,
+      "movementPlans": 0,
+      "manualPasses": 32,
+      "firstHitRound": 1,
+      "firstHullDamageRound": 1,
+      "firstTenPercentHullLossRound": 1,
+      "firstStruckRound": 3,
+      "batteryShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "shipShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "damagingShotIntervals": [
+        2,
+        2,
+        2
+      ],
+      "outcome": "elimination",
+      "activeShips": 2,
+      "finalShips": [
+        {
+          "id": "blue-brig",
+          "hull": 4,
+          "crew": 0,
+          "morale": 0,
+          "x": 8,
+          "y": 21,
+          "speed": 0,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "blue-sloop",
+          "hull": 2,
+          "crew": 0,
+          "morale": 0,
+          "x": 10,
+          "y": 25,
+          "speed": 0,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "red-brig",
+          "hull": 18,
+          "crew": 82,
+          "morale": 9,
+          "x": 14,
+          "y": 20,
+          "speed": 0,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        },
+        {
+          "id": "red-sloop",
+          "hull": 28,
+          "crew": 90,
+          "morale": 10,
+          "x": 14,
+          "y": 25,
+          "speed": 0,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        }
+      ]
+    },
+    {
+      "scenario": "stationary",
+      "seed": 20261008,
+      "roundsSettled": 7,
+      "activations": {
+        "orders": 26,
+        "movement": 26,
+        "gunnery": 24,
+        "crew": 24
+      },
+      "empty": {
+        "movement": 26,
+        "gunnery": 12,
+        "crew": 7
+      },
+      "phaseTransitions": 28,
+      "shots": 12,
+      "hits": 8,
+      "hullDamageShots": 8,
+      "reloadOnlyPasses": 11,
+      "otherGunneryPasses": 1,
+      "hitsAgainstDestroyedSection": 3,
+      "crewTaskModes": {
+        "system": 8,
+        "fire": 1,
+        "breaches": 2,
+        "rally": 6
+      },
+      "crewTasks": 17,
+      "movementPlans": 0,
+      "manualPasses": 45,
+      "firstHitRound": 1,
+      "firstHullDamageRound": 1,
+      "firstTenPercentHullLossRound": 1,
+      "firstStruckRound": 5,
+      "batteryShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "shipShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "damagingShotIntervals": [
+        2,
+        2,
+        4,
+        2
+      ],
+      "outcome": "elimination",
+      "activeShips": 2,
+      "finalShips": [
+        {
+          "id": "blue-brig",
+          "hull": 2,
+          "crew": 0,
+          "morale": 0,
+          "x": 10,
+          "y": 20,
+          "speed": 0,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "blue-sloop",
+          "hull": 0,
+          "crew": 0,
+          "morale": 0,
+          "x": 10,
+          "y": 25,
+          "speed": 0,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "red-brig",
+          "hull": 17,
+          "crew": 82,
+          "morale": 10,
+          "x": 14,
+          "y": 20,
+          "speed": 0,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        },
+        {
+          "id": "red-sloop",
+          "hull": 15,
+          "crew": 82,
+          "morale": 9,
+          "x": 14,
+          "y": 25,
+          "speed": 0,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        }
+      ]
+    },
+    {
+      "scenario": "parallel",
+      "seed": 7,
+      "roundsSettled": 12,
+      "activations": {
+        "orders": 41,
+        "movement": 41,
+        "gunnery": 40,
+        "crew": 40
+      },
+      "empty": {
+        "movement": 11,
+        "gunnery": 25,
+        "crew": 31
+      },
+      "phaseTransitions": 48,
+      "shots": 15,
+      "hits": 5,
+      "hullDamageShots": 5,
+      "reloadOnlyPasses": 5,
+      "otherGunneryPasses": 20,
+      "hitsAgainstDestroyedSection": 1,
+      "crewTaskModes": {
+        "fire": 5,
+        "rally": 3,
+        "wreckage": 1,
+        "system": 1
+      },
+      "crewTasks": 10,
+      "movementPlans": 30,
+      "manualPasses": 67,
+      "firstHitRound": 1,
+      "firstHullDamageRound": 1,
+      "firstTenPercentHullLossRound": 1,
+      "firstStruckRound": 5,
+      "batteryShotIntervals": [
+        2,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1
+      ],
+      "shipShotIntervals": [
+        1,
+        2,
+        2,
+        1,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "damagingShotIntervals": [
+        2,
+        3,
+        1
+      ],
+      "outcome": "decision",
+      "activeShips": 3,
+      "finalShips": [
+        {
+          "id": "blue-brig",
+          "hull": 31,
+          "crew": 85,
+          "morale": 10,
+          "x": 10,
+          "y": 8,
+          "speed": 1,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        },
+        {
+          "id": "blue-sloop",
+          "hull": 28,
+          "crew": 90,
+          "morale": 10,
+          "x": 10,
+          "y": 13,
+          "speed": 1,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        },
+        {
+          "id": "red-brig",
+          "hull": 0,
+          "crew": 0,
+          "morale": 0,
+          "x": 14,
+          "y": 15,
+          "speed": 1,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "red-sloop",
+          "hull": 8,
+          "crew": 83,
+          "morale": 10,
+          "x": 3,
+          "y": 29,
+          "speed": 0,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        }
+      ]
+    },
+    {
+      "scenario": "parallel",
+      "seed": 41,
+      "roundsSettled": 7,
+      "activations": {
+        "orders": 24,
+        "movement": 24,
+        "gunnery": 22,
+        "crew": 22
+      },
+      "empty": {
+        "movement": 4,
+        "gunnery": 11,
+        "crew": 9
+      },
+      "phaseTransitions": 28,
+      "shots": 11,
+      "hits": 7,
+      "hullDamageShots": 7,
+      "reloadOnlyPasses": 10,
+      "otherGunneryPasses": 1,
+      "hitsAgainstDestroyedSection": 4,
+      "crewTaskModes": {
+        "fire": 5,
+        "system": 6,
+        "breaches": 2,
+        "wreckage": 1
+      },
+      "crewTasks": 14,
+      "movementPlans": 20,
+      "manualPasses": 24,
+      "firstHitRound": 1,
+      "firstHullDamageRound": 1,
+      "firstTenPercentHullLossRound": 1,
+      "firstStruckRound": 3,
+      "batteryShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "shipShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "damagingShotIntervals": [
+        2,
+        2,
+        2,
+        4
+      ],
+      "outcome": "elimination",
+      "activeShips": 2,
+      "finalShips": [
+        {
+          "id": "blue-brig",
+          "hull": 4,
+          "crew": 0,
+          "morale": 0,
+          "x": 6,
+          "y": 19,
+          "speed": 0,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "blue-sloop",
+          "hull": 0,
+          "crew": 0,
+          "morale": 0,
+          "x": 10,
+          "y": 22,
+          "speed": 1,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "red-brig",
+          "hull": 11,
+          "crew": 79,
+          "morale": 5,
+          "x": 14,
+          "y": 13,
+          "speed": 1,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        },
+        {
+          "id": "red-sloop",
+          "hull": 28,
+          "crew": 90,
+          "morale": 10,
+          "x": 14,
+          "y": 18,
+          "speed": 1,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        }
+      ]
+    },
+    {
+      "scenario": "parallel",
+      "seed": 20261008,
+      "roundsSettled": 7,
+      "activations": {
+        "orders": 26,
+        "movement": 26,
+        "gunnery": 24,
+        "crew": 24
+      },
+      "empty": {
+        "movement": 0,
+        "gunnery": 12,
+        "crew": 7
+      },
+      "phaseTransitions": 28,
+      "shots": 12,
+      "hits": 8,
+      "hullDamageShots": 8,
+      "reloadOnlyPasses": 11,
+      "otherGunneryPasses": 1,
+      "hitsAgainstDestroyedSection": 3,
+      "crewTaskModes": {
+        "system": 8,
+        "fire": 1,
+        "breaches": 2,
+        "rally": 6
+      },
+      "crewTasks": 17,
+      "movementPlans": 26,
+      "manualPasses": 19,
+      "firstHitRound": 1,
+      "firstHullDamageRound": 1,
+      "firstTenPercentHullLossRound": 1,
+      "firstStruckRound": 5,
+      "batteryShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "shipShotIntervals": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "damagingShotIntervals": [
+        2,
+        2,
+        4,
+        2
+      ],
+      "outcome": "elimination",
+      "activeShips": 2,
+      "finalShips": [
+        {
+          "id": "blue-brig",
+          "hull": 2,
+          "crew": 0,
+          "morale": 0,
+          "x": 10,
+          "y": 15,
+          "speed": 1,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "blue-sloop",
+          "hull": 0,
+          "crew": 0,
+          "morale": 0,
+          "x": 10,
+          "y": 18,
+          "speed": 1,
+          "altitude": 4,
+          "struck": true,
+          "withdrawn": false
+        },
+        {
+          "id": "red-brig",
+          "hull": 17,
+          "crew": 82,
+          "morale": 10,
+          "x": 14,
+          "y": 13,
+          "speed": 1,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        },
+        {
+          "id": "red-sloop",
+          "hull": 15,
+          "crew": 82,
+          "morale": 9,
+          "x": 14,
+          "y": 18,
+          "speed": 1,
+          "altitude": 4,
+          "struck": false,
+          "withdrawn": false
+        }
+      ]
+    }
+  ]
+}

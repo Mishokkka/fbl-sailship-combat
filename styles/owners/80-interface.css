@@ -333,3 +333,5 @@
 .sailships-combat .ssc-hull-preview dl { margin: 8px 0; }
 .sailships-combat .ssc-hull-preview dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
 .sailships-combat .ssc-hull-preview dd { margin: 0; font-variant-numeric: tabular-nums; color: #cfe5cf; }
+
+.sailships-combat .ssc-report-hull-transfer { padding: 8px 10px; border-left: 3px solid #dba286; background: #ffffff05; color: #e5c5a8; overflow-wrap: anywhere; }

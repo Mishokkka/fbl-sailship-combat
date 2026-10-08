@@ -284,6 +284,8 @@ try {
     assert.equal(damaged.midship.hp.value, 0);
     assert.ok(damaged.bow.hp.value < 20 && damaged.stern.hp.value < 20);
     assert.match(overflowResult.lastReport.details.join(" "), /Сквозные повреждения: 50%/);
+    await page.locator(".ssc-report-hull-transfer").waitFor({ state: "visible" });
+    assert.match(await page.locator(".ssc-report-hull-transfer").textContent(), /Сквозные повреждения/);
     await page.evaluate(() => window.previewApp.layout.showPane("board"));
     await action(page, '[data-action="showBattleReport"]');
     assert.match(await page.locator(".ssc-battle-report").textContent(), /Сквозные повреждения: 50%/);

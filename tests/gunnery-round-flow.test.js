@@ -343,4 +343,11 @@ test("confirmed fire into a ruined section transfers hull HP once and reports bo
   const changes = saved.lastReport.groups.find(group => group.unitId === target.id).changes;
   assert.equal(changes.filter(row => row.label.endsWith(" · HP")).length, 2);
   assert.match(saved.lastReport.details.join(" "), /Сквозные повреждения: 50%/);
+  assert.match(saved.lastReport.hullTransferText, /Сквозные повреждения/);
+  const normalized = BattleNormalizer.normalize(saved);
+  assert.equal(normalized.lastReport.hullTransferText, saved.lastReport.hullTransferText);
+  const sourceView = BattleReportService.project(normalized.lastReport, new Set([saved.ships[0].id]), saved.ships);
+  assert.equal(sourceView.hullTransferText, "");
+  const targetView = BattleReportService.project(normalized.lastReport, new Set([target.id]), saved.ships);
+  assert.equal(targetView.hullTransferText, saved.lastReport.hullTransferText);
 });

@@ -49,14 +49,20 @@ export class ShipGunneryController {
           return false;
         }
         const details = [result.text];
+        let hullTransferText = "";
         this.app._addLog(battle, result.text);
         if (result.hit) {
           const damage = DamageEngine.applyAttackResult(result, battle);
           if (damage) { details.push(damage.text); this.app._addLog(battle, damage.text); }
+          if (damage?.hull?.transferred) {
+            hullTransferText = "Сквозные повреждения: " + damage.hull.changes
+              .filter(row => !row.primary && row.damage > 0)
+              .map(row => row.label + " −" + row.damage + " HP").join("; ") + ".";
+          }
         }
         const report = BattleReportService.record(battle, before, {
           kind: "salvo", outcome: result.delayed ? "prepared" : result.hit ? "hit" : "miss",
-          title: `${ship.name} → ${target.name}`, sourceId: ship.id, targetId: target.id, details
+          title: `${ship.name} → ${target.name}`, sourceId: ship.id, targetId: target.id, details, hullTransferText
         });
         reportId = report.id;
         if (!result.delayed) {
