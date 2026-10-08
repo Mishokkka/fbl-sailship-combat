@@ -23,7 +23,7 @@ export class ActivationReadinessService {
     if (battle.phase === "movement") {
       const copy = foundry.utils.deepClone(battle);
       const moving = copy.ships.find(ship => ship.id === unit.id);
-      const resolution = MovementEngine.getHorizontalResolutionState(copy, moving, { actions, checkRoutes: true });
+      const resolution = MovementEngine.getHorizontalResolutionState(copy, moving, { actions });
       return resolution.mustMove
         ? state("required", "Обязательное движение", "Инерция: минимум " + resolution.requiredAdvance + " гекс. Манёвр выбирает ведущий.")
         : state("manual", "Решение о манёвре", "Манёвр и завершение движения остаются под контролем ведущего.");

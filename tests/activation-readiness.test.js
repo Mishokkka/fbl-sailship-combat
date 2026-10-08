@@ -3,16 +3,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createCreature } from "../scripts/data/creature-factory.js";
 import { createDefaultBattle } from "../scripts/data/default-battle.js";
-import { StorageService } from "../scripts/services/storage-service.js";
-import { DocumentStateStore, DOCUMENT_STORAGE_ROLES } from "../scripts/services/document-state-store.js";
 import { BattleNormalizer } from "../scripts/normalizers/battle-normalizer.js";
-import { BattleReportService } from "../scripts/services/battle-report-service.js";
-import { BattleProjectionService } from "../scripts/services/battle-projection-service.js";
-import { CombatPanelContextBuilder } from "../scripts/context/combat-panel-context-builder.js";
 import { ActivationReadinessService } from "../scripts/services/activation-readiness-service.js";
 import { CreatureGrappleEngine } from "../scripts/engine/creature-grapple-engine.js";
 import { GunneryEngine } from "../scripts/engine/gunnery-engine.js";
-import { DamageEngine } from "../scripts/engine/damage-engine.js";
 import { MovementEngine } from "../scripts/engine/movement-engine.js";
 import { VictoryEngine } from "../scripts/engine/victory-engine.js";
 
@@ -120,6 +114,7 @@ test("orders and movement never skip, including spent AP and unresolved inertia"
     assert.equal(readiness(battle, battle.ships[0], 0).canSkip, false);
   }
   const battle = fixture("movement");
+  battle.ships[0].speed = 5;
   assert.equal(readiness(battle).kind, "required");
   battle.ships[0].speed = 0;
   assert.equal(readiness(battle).canSkip, false);
