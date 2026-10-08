@@ -277,7 +277,6 @@ try {
     await checkLayout(page, "Overflow preview " + width + "x" + height);
     await hullPreview.scrollIntoViewIfNeeded();
     await page.screenshot({ path: "artifacts/interface/hull-overflow-choice-" + width + "-" + height + ".png" });
-    if (width === 1500) console.log("OVERFLOW_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 80 })).toString("base64"));
     await action(page, '[data-action="fireBow"]');
     const overflowResult = await page.evaluate(() => window.gunneryTest.read());
     const damaged = overflowResult.ships[1].sections;
@@ -292,7 +291,6 @@ try {
     assert.equal(await page.locator(".ssc-battle-report details").getAttribute("open"), "");
     await checkLayout(page, "Overflow result " + width + "x" + height);
     await page.screenshot({ path: "artifacts/interface/hull-overflow-result-" + width + "-" + height + ".png" });
-    if (width === 800 && height === 650) console.log("OVERFLOW_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 80 })).toString("base64"));
     assert.deepEqual(errors, [], "Browser errors");
     console.log("Gunnery/round workflow passed at " + width + "x" + height);
     await page.close();
