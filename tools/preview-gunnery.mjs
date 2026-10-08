@@ -122,6 +122,15 @@ async function install(page) {
       if (mode === "miss") Math.random = () => 0.999;
       if (mode === "hit") Math.random = () => 0.15;
       if (mode === "reload") GunneryEngine.getBattery(stored.ships[0], "bow").reload = 2;
+      if (mode === "overflow") {
+        Math.random = () => 0.15;
+        app.aimSection = "midship";
+        for (const [id, section] of Object.entries(stored.ships[1].sections)) {
+          section.hp = { value: id === "midship" ? 0 : 20, max: 20 };
+          section.dr = id === "midship" ? 0 : 100;
+          section.systems = [];
+        }
+      }
       if (mode === "round") {
         stored.ships[0].sections.bow.fire = 1;
         stored.ships[0].verticalVelocity = -1;
@@ -257,6 +266,31 @@ try {
       await action(page, '[data-action="fireBow"]');
       assert.equal(await page.evaluate(() => window.gunneryTest.read().lastReport), undefined);
     }
+    // Destroyed-section forecast and committed multi-section consequences.
+    await page.evaluate(() => window.gunneryTest.reset());
+    await page.locator('.ssc-target-picker [data-target-id="ship-red"]').click();
+    await page.evaluate(() => window.previewApp._renderDrainPromise);
+    await page.evaluate(() => window.gunneryTest.change("overflow"));
+    const hullPreview = page.locator(".arc-bow .ssc-hull-preview");
+    assert.match(await hullPreview.textContent(), /секция разрушена/);
+    assert.match(await hullPreview.textContent(), /50% избытка/);
+    await checkLayout(page, "Overflow preview " + width + "x" + height);
+    await hullPreview.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: "artifacts/interface/hull-overflow-choice-" + width + "-" + height + ".png" });
+    if (width === 1500) console.log("OVERFLOW_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 80 })).toString("base64"));
+    await action(page, '[data-action="fireBow"]');
+    const overflowResult = await page.evaluate(() => window.gunneryTest.read());
+    const damaged = overflowResult.ships[1].sections;
+    assert.equal(damaged.midship.hp.value, 0);
+    assert.ok(damaged.bow.hp.value < 20 && damaged.stern.hp.value < 20);
+    assert.match(overflowResult.lastReport.details.join(" "), /Сквозные повреждения: 50%/);
+    await page.evaluate(() => window.previewApp.layout.showPane("board"));
+    await action(page, '[data-action="showBattleReport"]');
+    assert.match(await page.locator(".ssc-battle-report").textContent(), /Сквозные повреждения: 50%/);
+    assert.equal(await page.locator(".ssc-battle-report details").getAttribute("open"), "");
+    await checkLayout(page, "Overflow result " + width + "x" + height);
+    await page.screenshot({ path: "artifacts/interface/hull-overflow-result-" + width + "-" + height + ".png" });
+    if (width === 800 && height === 650) console.log("OVERFLOW_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 80 })).toString("base64"));
     assert.deepEqual(errors, [], "Browser errors");
     console.log("Gunnery/round workflow passed at " + width + "x" + height);
     await page.close();
