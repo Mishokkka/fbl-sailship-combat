@@ -2,11 +2,12 @@ import { installTestEnvironment } from "./test-env.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createDefaultBattle } from "../scripts/data/default-battle.js";
-import { DocumentStateStore, DOCUMENT_STORAGE_ROLES } from "../scripts/services/document-state-store.js";
 import { BattleNormalizer } from "../scripts/normalizers/battle-normalizer.js";
 import { BattleProjectionService } from "../scripts/services/battle-projection-service.js";
 import { CrewTaskService } from "../scripts/services/crew-task-service.js";
 import { CrewContextBuilder } from "../scripts/context/crew-context-builder.js";
+import { createCreature } from "../scripts/data/creature-factory.js";
+import { CreatureGrappleEngine } from "../scripts/engine/creature-grapple-engine.js";
 import { DamageEngine } from "../scripts/engine/damage-engine.js";
 
 foundry.applications = { api: {
@@ -247,4 +248,58 @@ test("legacy untargeted repair still chooses the first burning section", () => {
   DamageEngine.repair(battle.ships[0], "fire");
   assert.equal(battle.ships[0].sections.bow.fire, 0);
   assert.equal(battle.ships[0].sections.stern.fire, 4);
+});
+
+test("boarding reports both sides of a grapple and release without changing the target", async () => {
+  const state = harness();
+  state.change(battle => {
+    Object.assign(battle.ships[0], { x: 10, y: 10, altitude: 4, speed: 0 });
+    Object.assign(battle.ships[1], { x: 10, y: 9, altitude: 4, speed: 0 });
+  });
+  await state.app.crew.boarding("Сцепка", "grapple");
+  let battle = state.read();
+  assert.equal(battle.ships[0].flags.grappledWith, battle.ships[1].id);
+  assert.equal(battle.lastReport.groups.length, 2);
+  assert.ok(battle.lastReport.groups.every(group => group.changes.some(row => row.label === "Сцепка" && row.after === "да")));
+  await state.app.crew.boarding("Разрыв сцепки", "release");
+  battle = state.read();
+  assert.equal(Boolean(battle.ships[0].flags.grappledWith), false);
+  assert.equal(Boolean(battle.ships[1].flags.grappledWith), false);
+  assert.ok(battle.lastReport.groups.every(group => group.changes.some(row => row.label === "Сцепка" && row.after === "нет")));
+});
+
+test("repel buttons target their own attached creature despite another selected target", async t => {
+  t.mock.method(Math, "random", () => 0);
+  const state = harness();
+  state.change(battle => {
+    const ship = battle.ships[0];
+    Object.assign(ship, { x: 10, y: 10, altitude: 4 });
+    ship.stats.crewQuality = 20;
+    for (const id of ["creature-a", "creature-b"]) {
+      const creature = createCreature({ id, name: id, side: "red", x: 10, y: 9, altitude: 4 });
+      battle.ships.push(creature);
+      assert.equal(CreatureGrappleEngine.attach(battle, id, ship.id).ok, true);
+    }
+  });
+  const before = state.read();
+  const context = CrewContextBuilder.build(before, before.ships[0], state.app._getActionState(before, before.ships[0]), state.app);
+  assert.equal(context.boarding.filter(entry => entry.action === "repelCreature").length, 2);
+  const button = { dataset: { shipId: before.ships[0].id, revision: String(before.revision), targetId: "creature-b" } };
+  await state.app.crew.repelCreature(button);
+  const after = state.read();
+  assert.equal(after.ships.find(unit => unit.id === "creature-a").flags.attachedTo, before.ships[0].id);
+  assert.equal(Boolean(after.ships.find(unit => unit.id === "creature-b").flags.attachedTo), false);
+  assert.ok(after.lastReport.groups.find(group => group.unitId === "creature-b").changes.some(row => row.label === "Прицепился к кораблю" && row.after === "нет"));
+  // The same work category cannot be repeated on a different creature.
+  await state.app.crew.repelCreature({ dataset: { ...button.dataset, revision: String(after.revision), targetId: "creature-a" } });
+  assert.equal(state.commits, 1);
+});
+
+test("stale abandonment button cannot apply to the newly selected ship", async () => {
+  const state = harness();
+  const before = state.read();
+  state.app.selectedShipId = before.ships[1].id;
+  await state.app.crew.abandonShip({ dataset: { shipId: before.ships[0].id, revision: String(before.revision) } });
+  assert.equal(state.commits, 0);
+  assert.deepEqual(state.read(), before);
 });

@@ -29,7 +29,7 @@ export class ShipCrewController {
     if (!game.user.isGM || this.busy) return false;
     const shown = this.app.renderBattleSnapshot ?? this.battle;
     const request = { id: shown.id, revision: Number(button?.dataset?.revision ?? shown.revision),
-      round: shown.round, shipId: button?.dataset?.shipId ?? this.app.selectedShipId, targetId: this.app.selectedTargetId };
+      round: shown.round, shipId: button?.dataset?.shipId ?? this.app.selectedShipId, targetId: button?.dataset?.targetId || this.app.selectedTargetId };
     this.busy = true;
     let reportId = null;
     try {
@@ -111,8 +111,8 @@ export class ShipCrewController {
     }, { reason: `manual-${kind}` });
   }
 
-  async abandonShip() {
-    return this.execute({ reason: "abandon-ship" }, (battle, ship) => {
+  async abandonShip(button = null) {
+    return this.execute({ reason: "abandon-ship", button }, (battle, ship) => {
       if (!this.app._markTurnAction(battle, ship, "crewAbandonShip")) return { ok: false, text: "Недостаточно ОД экипажа." };
       const result = DamageEngine.abandonShip(ship);
       if (!result.ok) this.app._refundTurnAction(battle, ship, "crewAbandonShip");
@@ -120,8 +120,8 @@ export class ShipCrewController {
     });
   }
 
-  async repelCreature() {
-    return this.execute({ reason: "crew-repel-creature", usesTarget: true }, (battle, ship, request) => {
+  async repelCreature(button = null) {
+    return this.execute({ reason: "crew-repel-creature", button, usesTarget: !button?.dataset?.targetId }, (battle, ship, request) => {
       const actionKey = "crewRepelCreature";
       if (!this.app._markTurnAction(battle, ship, actionKey)) return { ok: false, text: "Попытка уже использована или не осталось ОД." };
       const result = CreatureGrappleEngine.repel(battle, ship.id, request.targetId);
@@ -130,8 +130,8 @@ export class ShipCrewController {
     });
   }
 
-  async boarding(label, action) {
-    return this.execute({ reason: "crew-" + action, usesTarget: action === "grapple" }, (battle, ship, request) => {
+  async boarding(label, action, button = null) {
+    return this.execute({ reason: "crew-" + action, button, usesTarget: action === "grapple" }, (battle, ship, request) => {
       const actionKey = "crewBoarding:" + action;
       if (!this.app._markTurnAction(battle, ship, actionKey)) return { ok: false, text: "Эта команда уже выполнена или не осталось ОД." };
       const targetId = action === "grapple" ? request.targetId : BoardingEngine.getGrappledWith(ship);

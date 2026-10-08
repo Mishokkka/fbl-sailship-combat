@@ -26,13 +26,17 @@ export class CrewContextBuilder {
     const attached = CreatureGrappleEngine.getAttachedCreatures(battle, ship);
     const boarding = [
       { action: "grapple", key: "crewBoarding:grapple", label: "Сцепиться", visible: !host,
-        possible: actionState.canGrappleAction, text: "Соседняя цель на той же высоте. Сцепка сразу свяжет корабли." },
+        possible: actionState.canGrappleAction, text: "Соседняя цель на той же высоте. При разнице SM меньше 2 оба корабля остановятся; иначе больший сможет буксировать меньший." },
       { action: "boarding", key: "crewBoarding:board", label: "Абордажная атака", visible: Boolean(host),
         possible: actionState.canBoardAction, text: host ? "Атака на " + host.name + ". Сила сторон: " + BoardingEngine.getBoardingPower(ship) + " / " + BoardingEngine.getBoardingPower(host) + ". Потери определит бросок." : "" },
       { action: "releaseGrapple", key: "crewBoarding:release", label: "Разорвать сцепку", visible: Boolean(host),
         possible: actionState.canReleaseGrappleAction, text: "Корабли смогут двигаться независимо." },
-      { action: "repelCreature", key: "crewRepelCreature", label: "Отбить чудовище", visible: attached.length > 0,
-        possible: actionState.canRepelCreature, text: "На корпусе: " + attached.map(unit => unit.name).join(", ") + ". Исход определит проверка команды." }
+      ...attached.map(creature => ({
+        action: "repelCreature", key: "crewRepelCreature", targetId: creature.id,
+        label: "Отбить: " + creature.name, visible: true,
+        possible: actionState.canRepelCreature,
+        text: "На корпусе: " + creature.name + ". Исход определит проверка команды; при неудаче возможны потери и снижение морали."
+      }))
     ].filter(entry => entry.visible).map(entry => {
       const blockedReason = block(entry.key) || (!entry.possible ? "Выберите подходящую цель или проверьте условия действия." : "");
       return { ...entry, canUse: !blockedReason, blockedReason };

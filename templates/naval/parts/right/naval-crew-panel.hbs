@@ -40,7 +40,7 @@
     <div class="ssc-crew-boarding-action">
       <p>{{text}}</p>
       {{#if blockedReason}}<p class="ssc-hint">{{blockedReason}}</p>{{/if}}
-      <button type="button" data-action="{{action}}" {{#unless canUse}}disabled{{/unless}}>{{label}} · 1 ОД</button>
+      <button type="button" data-action="{{action}}" data-target-id="{{targetId}}" data-ship-id="{{../selectedShip.id}}" data-revision="{{../battle.revision}}" {{#unless canUse}}disabled{{/unless}}>{{label}} · 1 ОД</button>
     </div>
     {{/each}}
   {{else}}<p class="ssc-hint">Рядом нет цели для сцепки. Абордаж доступен после сцепки с противником на той же высоте.</p>{{/if}}
@@ -49,6 +49,6 @@
 <details class="ssc-action-box ssc-disclosure" data-ui-section="crew-abandon">
   <summary>Оставить корабль</summary>
   <p class="ssc-hint">{{crewControl.abandonText}}</p>
-  <button type="button" class="danger" data-action="abandonShip" {{#unless crewControl.canAbandon}}disabled{{/unless}}>Оставить корабль · 1 ОД</button>
+  <button type="button" class="danger" data-action="abandonShip" data-ship-id="{{selectedShip.id}}" data-revision="{{battle.revision}}" {{#unless crewControl.canAbandon}}disabled{{/unless}}>Оставить корабль · 1 ОД</button>
 </details>
 {{/if}}

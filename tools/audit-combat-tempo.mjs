@@ -67,7 +67,7 @@ function shotChoices(battle, ship, ignoreReload = false) {
     GunneryEngine.getTargets(copy, source, weapon.arc).map(entry => ({
       weaponId: weapon.id, arc: weapon.arc, targetId: entry.target.id,
       range: entry.range, chance: entry.preview.hitChance,
-      expectedDamage: entry.preview.expectedDamage,
+      expectedDamage: entry.preview.expectedDamage, targetSection: entry.preview.targetSection,
       score: entry.preview.hitChance * entry.preview.expectedDamage
     }))
   ).sort((a, b) => b.score - a.score || a.range - b.range || a.targetId.localeCompare(b.targetId));
@@ -98,11 +98,11 @@ async function run(scenario, seed) {
     scenario, seed, roundsSettled: 0, activations: { orders: 0, movement: 0, gunnery: 0, crew: 0 },
     empty: { movement: 0, gunnery: 0, crew: 0 }, phaseTransitions: 0,
     shots: 0, hits: 0, hullDamageShots: 0, reloadOnlyPasses: 0, otherGunneryPasses: 0,
-    crewTasks: 0, movementPlans: 0, manualPasses: 0, firstHitRound: null,
+    hitsAgainstDestroyedSection: 0, crewTaskModes: {}, crewTasks: 0, movementPlans: 0, manualPasses: 0, firstHitRound: null,
     firstHullDamageRound: null, firstTenPercentHullLossRound: null, firstStruckRound: null,
-    batteryShotIntervals: [], shipShotIntervals: []
+    batteryShotIntervals: [], shipShotIntervals: [], damagingShotIntervals: []
   };
-  const trace = [], previousBatteryShots = new Map(), previousShipShots = new Map();
+  const trace = [], previousBatteryShots = new Map(), previousShipShots = new Map(), previousDamagingShots = new Map();
   let steps = 0;
   const scanDamage = round => {
     for (const ship of stored.ships) {
@@ -156,15 +156,20 @@ async function run(scenario, seed) {
     } else if (phase === "gunnery") {
       const shot = shotChoices(stored, ship)[0];
       if (shot) {
-        const beforeHull = hull(stored.ships.find(unit => unit.id === shot.targetId));
+        const targetBefore = stored.ships.find(unit => unit.id === shot.targetId);
+        const beforeHull = hull(targetBefore);
+        const sectionWasDestroyed = Number(targetBefore.sections[shot.targetSection]?.hp?.value) <= 0;
         app.selectedTargetId = shot.targetId;
         await app.gunnery.fireArc(shot.arc, { dataset: { weaponId: shot.weaponId, targetId: shot.targetId } });
         assert.equal(stored.lastReport?.kind, "salvo");
         assert.equal(stored.lastReport.sourceId, id);
         summary.shots++;
-        if (stored.lastReport.outcome === "hit") { summary.hits++; summary.firstHitRound ??= round; }
+        if (stored.lastReport.outcome === "hit") { summary.hits++; summary.firstHitRound ??= round;
+          if (sectionWasDestroyed) summary.hitsAgainstDestroyedSection++; }
         if (hull(stored.ships.find(unit => unit.id === shot.targetId)) < beforeHull) {
           summary.hullDamageShots++; summary.firstHullDamageRound ??= round;
+          if (previousDamagingShots.has(id)) summary.damagingShotIntervals.push(round - previousDamagingShots.get(id));
+          previousDamagingShots.set(id, round);
         }
         for (const [map, key, values] of [
           [previousBatteryShots, id + ":" + shot.weaponId, summary.batteryShotIntervals],
@@ -173,7 +178,7 @@ async function run(scenario, seed) {
           if (map.has(key)) values.push(round - map.get(key));
           map.set(key, round);
         }
-        event.actions.push({ shot, outcome: stored.lastReport.outcome, details: stored.lastReport.details });
+        event.actions.push({ shot, hullBefore: beforeHull, hullAfter: hull(stored.ships.find(unit => unit.id === shot.targetId)), sectionWasDestroyed, outcome: stored.lastReport.outcome, details: stored.lastReport.details });
       } else {
         const reason = shotChoices(stored, ship, true).length ? "reload-only" : "geometry-or-damage";
         summary.empty.gunnery++;
@@ -191,6 +196,7 @@ async function run(scenario, seed) {
         await app.crew.performTask(task.id, { dataset: { shipId: id, revision: String(beforeRevision) } });
         assert.ok(stored.revision > beforeRevision, "Crew task must commit");
         summary.crewTasks++;
+        summary.crewTaskModes[task.mode] = (summary.crewTaskModes[task.mode] ?? 0) + 1;
         event.actions.push({ task: task.id, details: stored.lastReport.details });
       }
       if (!event.actions.length) summary.empty.crew++;

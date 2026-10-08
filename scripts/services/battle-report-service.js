@@ -39,6 +39,7 @@ export class BattleReportService {
         }
       }
       for (const [key, label] of Object.entries({
+        grappledWith: "Сцепка", attachedTo: "Прицепился к кораблю", towingId: "Буксирует", towedById: "На буксире",
         immobilized: "Обездвижен", uncontrolledFire: "Неконтролируемый пожар", abandoned: "Корабль оставлен",
         falling: "Падение", struck: "Выбыл из боя", withdrawn: "Отступление",
         suppressed: "Подавление", coreExploded: "Взрыв ядра", burning: "Горит"

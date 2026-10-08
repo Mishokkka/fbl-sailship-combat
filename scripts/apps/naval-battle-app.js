@@ -457,14 +457,34 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onRepairSystem(event) { event.preventDefault(); return this.crew.repair("system"); }
   static async _onCoolCrystalCore(event) { event.preventDefault(); return this.crew.repair("crystal"); }
   static async _onRallyCrew(event) { event.preventDefault(); return this.crew.repair("rally"); }
-  static async _onAbandonShip(event) { event.preventDefault(); return this.crew.abandonShip(); }
+  static async _onAbandonShip(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.abandonShip(button);
+  }
   static async _onManualDamage(event) { event.preventDefault(); return this.crew.manualDamage("damage"); }
   static async _onManualFire(event) { event.preventDefault(); return this.crew.manualDamage("fire"); }
   static async _onManualFlooding(event) { event.preventDefault(); return this.crew.manualDamage("flooding"); }
-  static async _onGrapple(event) { event.preventDefault(); return this.crew.boarding("Сцепка", "grapple"); }
-  static async _onBoarding(event) { event.preventDefault(); return this.crew.boarding("Абордаж", "board"); }
-  static async _onReleaseGrapple(event) { event.preventDefault(); return this.crew.boarding("Разрыв сцепки", "release"); }
-  static async _onRepelCreature(event) { event.preventDefault(); return this.crew.repelCreature(); }
+  static async _onGrapple(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.boarding("Сцепка", "grapple", button);
+  }
+  static async _onBoarding(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.boarding("Абордаж", "board", button);
+  }
+  static async _onReleaseGrapple(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.boarding("Разрыв сцепки", "release", button);
+  }
+  static async _onRepelCreature(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.repelCreature(button);
+  }
   static async _onCycleBoardSize(event) { return this.setup.cycleBoardSize(event); }
   static async _onSetAmmo(event, target) { event.preventDefault(); return this.gunnery.setAmmo(event, target); }
   static async _onSetFireMode(event, target) { event.preventDefault(); return this.gunnery.setFireMode(event, target); }
