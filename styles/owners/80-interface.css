@@ -324,3 +324,14 @@
 .sailships-combat .ssc-crew-empty { border: 1px solid #58776c; border-radius: 8px; padding: 12px; background: #1b2b29; color: #cfe5cf; }
 .sailships-combat .ssc-crew-boarding-action { padding: 8px 0; border-bottom: 1px solid var(--ssc-border); font-size: 12px; }
 .sailships-combat .ssc-crew-boarding-action button { width: 100%; }
+
+/* Actual section HP and the single hull transfer share the existing salvo forecast. */
+.sailships-combat .ssc-hull-preview { padding: 10px; margin: 8px 0; border: 1px solid var(--ssc-border); border-radius: 7px; background: #ffffff05; overflow-wrap: anywhere; font-size: 12px; }
+.sailships-combat .ssc-hull-preview.is-destroyed { border-left: 3px solid #dba286; }
+.sailships-combat .ssc-hull-preview p { margin: 6px 0; }
+.sailships-combat .ssc-hull-transfer { color: #e5c5a8; }
+.sailships-combat .ssc-hull-preview dl { margin: 8px 0; }
+.sailships-combat .ssc-hull-preview dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
+.sailships-combat .ssc-hull-preview dd { margin: 0; font-variant-numeric: tabular-nums; color: #cfe5cf; }
+
+.sailships-combat .ssc-report-hull-transfer { padding: 8px 10px; border-left: 3px solid #dba286; background: #ffffff05; color: #e5c5a8; overflow-wrap: anywhere; }

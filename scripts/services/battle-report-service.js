@@ -56,7 +56,7 @@ export class BattleReportService {
     });
   }
 
-  static record(battle, before, { kind = "salvo", outcome = "resolved", title = "", sourceId = null, targetId = null, details = [], round = battle.round } = {}) {
+  static record(battle, before, { kind = "salvo", outcome = "resolved", title = "", sourceId = null, targetId = null, details = [], hullTransferText = "", round = battle.round } = {}) {
     const previous = new Map(before.map(unit => [unit.id, unit]));
     const groups = [];
     for (const unit of this.capture(battle)) {
@@ -68,7 +68,7 @@ export class BattleReportService {
     }
     battle.lastReport = this.normalize({
       id: "report-" + battle.id + "-" + (Number(battle.revision ?? 0) + 1),
-      battleId: battle.id, round, kind, outcome, title, sourceId, targetId, groups, details
+      battleId: battle.id, round, kind, outcome, title, sourceId, targetId, groups, details, hullTransferText
     }, battle);
     return battle.lastReport;
   }
@@ -81,6 +81,7 @@ export class BattleReportService {
       round: boundedInteger(value.round, { fallback: battle.round, min: 1, max: 1_000_000 }),
       kind: value.kind,
       outcome: Object.hasOwn(OUTCOMES, value.outcome) ? value.outcome : "resolved",
+      hullTransferText: value.kind === "salvo" ? text(value.hullTransferText, 512) : "",
       title: text(value.title), sourceId: value.sourceId ? text(value.sourceId, 128) : null,
       targetId: value.targetId ? text(value.targetId, 128) : null,
       groups: boundedArray(value.groups, { maxLength: 200 }).filter(isPlainObject).map(group => ({
@@ -105,6 +106,7 @@ export class BattleReportService {
         : (visible.get(report.sourceId)?.name ?? "Неизвестный участник") + " → " + (visible.get(report.targetId)?.name ?? "Неизвестная цель"),
       sourceId: visible.has(report.sourceId) ? report.sourceId : null,
       targetId: visible.has(report.targetId) ? report.targetId : null,
+      hullTransferText: controlledIds.has(report.targetId) ? report.hullTransferText ?? "" : "",
       groups, details: []
     };
   }

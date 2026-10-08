@@ -321,3 +321,33 @@ test("reports survive the real storage normalization, split documents and snapsh
   assert.deepEqual(restored.battle.lastReport, report);
   assert.deepEqual(DocumentStateStore.readAuthoritativeBattle().lastReport, report);
 });
+
+test("confirmed fire into a ruined section transfers hull HP once and reports both receiving sections", async t => {
+  t.mock.method(Math, "random", () => 0.15);
+  const state = harness();
+  state.change(battle => {
+    const target = battle.ships[1];
+    for (const [id, section] of Object.entries(target.sections)) {
+      section.hp = { value: id === "midship" ? 0 : 40, max: 40 };
+      section.dr = 0;
+      section.systems = [];
+    }
+  });
+  state.app.aimSection = "midship";
+  await Promise.all([fire(state), fire(state)]);
+  const saved = state.read(), target = saved.ships[1];
+  assert.equal(state.commits, 1);
+  assert.equal(target.sections.midship.hp.value, 0);
+  assert.ok(target.sections.bow.hp.value < 40);
+  assert.ok(target.sections.stern.hp.value < 40);
+  const changes = saved.lastReport.groups.find(group => group.unitId === target.id).changes;
+  assert.equal(changes.filter(row => row.label.endsWith(" · HP")).length, 2);
+  assert.match(saved.lastReport.details.join(" "), /Сквозные повреждения: 50%/);
+  assert.match(saved.lastReport.hullTransferText, /Сквозные повреждения/);
+  const normalized = BattleNormalizer.normalize(saved);
+  assert.equal(normalized.lastReport.hullTransferText, saved.lastReport.hullTransferText);
+  const sourceView = BattleReportService.project(normalized.lastReport, new Set([saved.ships[0].id]), saved.ships);
+  assert.equal(sourceView.hullTransferText, "");
+  const targetView = BattleReportService.project(normalized.lastReport, new Set([target.id]), saved.ships);
+  assert.equal(targetView.hullTransferText, saved.lastReport.hullTransferText);
+});

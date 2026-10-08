@@ -1,5 +1,5 @@
 import { angleBetween, bearingBetween, distanceCells } from "../board/board-geometry.js";
-import { ALTITUDE_MAX, ALTITUDE_MIN, AMMO_LABELS, CRYSTAL_BLAST_RADIUS_HEXES, STRIKE_HP_RATIO } from "../utils/constants.js";
+import { ALTITUDE_MAX, ALTITUDE_MIN, AMMO_LABELS, CRYSTAL_BLAST_RADIUS_HEXES, HULL_OVERFLOW_TRANSFER_RATE, STRIKE_HP_RATIO } from "../utils/constants.js";
 import { chance, d6, randomChoice } from "../utils/random.js";
 import { CombatantRules } from "../rules/combatant-rules.js";
 import { getCombatants } from "../utils/combatants.js";
@@ -131,15 +131,97 @@ export class DamageEngine {
     return ` Продольный огонь проходит сквозь батарейную палубу.${systemText}`;
   }
 
+
+  /** Direct artillery hull damage, after the struck section's protection; no rolls or mutation. */
+  static getGunneryHullProfile(ship, sectionId, damage, ammo = "roundShot") {
+    const section = ship?.sections?.[sectionId];
+    if (ship?.unitType === "creature" || !section?.hp || ammo === "grapeShot") return null;
+    const armor = ["chainShot", "shellBomb"].includes(ammo) ? Math.ceil(Number(section.dr ?? 0) / 2) : Number(section.dr ?? 0);
+    const braceReduction = this.getBraceReduction(ship);
+    const penetrating = Math.max(0, Number(damage ?? 0) - armor - braceReduction);
+    return { armor, braceReduction, penetrating,
+      hullDamage: ammo === "chainShot" ? Math.floor(penetrating / 2) : penetrating };
+  }
+
+  /** Plan direct loss and one transfer, fairly capped by each receiving section's remaining HP. */
+  static getHullDamagePlan(ship, sectionId, damage) {
+    const section = ship?.sections?.[sectionId];
+    if (ship?.unitType === "creature" || !section?.hp) return null;
+    const hp = section => {
+      const value = Number(section.hp?.value ?? 0);
+      return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+    };
+    const incoming = Number.isFinite(Number(damage)) ? Math.max(0, Math.floor(Number(damage))) : 0;
+    const before = hp(section);
+    const directDamage = Math.min(before, incoming);
+    const excess = incoming - directDamage;
+    const transferBudget = Math.floor(excess * HULL_OVERFLOW_TRANSFER_RATE);
+    const order = ["bow", "midship", "stern"];
+    const recipients = Object.entries(ship.sections)
+      .filter(([id, target]) => id !== sectionId && hp(target) > 0)
+      .sort(([a], [b]) => {
+        const ai = order.includes(a) ? order.indexOf(a) : order.length;
+        const bi = order.includes(b) ? order.indexOf(b) : order.length;
+        return ai - bi || a.localeCompare(b);
+      })
+      .map(([id, target]) => ({ sectionId: id, label: target.label ?? this.sectionLabel(id),
+        before: hp(target), after: hp(target), damage: 0, primary: false }));
+    let remaining = Math.min(transferBudget, recipients.reduce((sum, row) => sum + row.before, 0));
+    // A capped recipient leaves the pool; otherwise this pass distributes the entire remainder.
+    // The loop is bounded by the number of sections, not the damage amount.
+    while (remaining > 0) {
+      const available = recipients.filter(row => row.after > 0);
+      if (!available.length) break;
+      const share = Math.floor(remaining / available.length);
+      const extra = remaining % available.length;
+      for (const [index, row] of available.entries()) {
+        const loss = Math.min(row.after, share + (index < extra ? 1 : 0));
+        row.damage += loss;
+        row.after -= loss;
+        remaining -= loss;
+      }
+    }
+    const changes = [{ sectionId, label: section.label ?? this.sectionLabel(sectionId),
+      before, after: before - directDamage, damage: directDamage, primary: true },
+    ...recipients.filter(row => row.damage > 0)];
+    const transferred = recipients.reduce((sum, row) => sum + row.damage, 0);
+    return { sectionId, directDamage, excess, transferBudget, transferred,
+      totalDamage: directDamage + transferred, ratePercent: HULL_OVERFLOW_TRANSFER_RATE * 100, changes };
+  }
+
+  /** Apply only the planned HP loss; systems, critical rolls and protection are not repeated. */
+  static applyHullDamage(ship, sectionId, damage) {
+    const plan = this.getHullDamagePlan(ship, sectionId, damage);
+    if (!plan) return null;
+    for (const row of plan.changes) ship.sections[row.sectionId].hp.value = row.after;
+    return plan;
+  }
+
+  static getHullTransferText(plan) {
+    if (!plan?.transferred) return "";
+    const recipients = plan.changes.filter(row => !row.primary).map(row =>
+      row.label + " " + row.before + " → " + row.after + " HP").join("; ");
+    return " Сквозные повреждения: " + plan.ratePercent + "% от избытка " + plan.excess
+      + " = " + plan.transferBudget + "; передано " + plan.transferred + " урона корпусу (" + recipients + ").";
+  }
+
+  /** Missing section data means an enemy contact, not a known zero-HP section. */
+  static getGunneryHullPreview(ship, sectionId, damage, ammo) {
+    const profile = this.getGunneryHullProfile(ship, sectionId, damage, ammo);
+    if (!profile) return null;
+    const plan = this.getHullDamagePlan(ship, sectionId, profile.hullDamage);
+    return { ...profile, ...plan, sectionLabel: this.sectionLabel(sectionId),
+      sectionHP: plan.changes[0].before, destroyed: plan.changes[0].before === 0,
+      hasTransfer: plan.transferred > 0 };
+  }
+
   static applyRoundShot(result) {
     const sectionId = this.resolveHitSection(result);
     const section = result.target.sections[sectionId];
     if (!section) return null;
 
-    const dr = Number(section.dr ?? 0);
-    const braceReduction = this.getBraceReduction(result.target);
-    const penetrating = Math.max(0, Number(result.damage ?? 0) - dr - braceReduction);
-    section.hp.value = Math.max(0, Number(section.hp.value ?? 0) - penetrating);
+    const { armor: dr, braceReduction, penetrating, hullDamage } = this.getGunneryHullProfile(result.target, sectionId, result.damage, result.ammo);
+    const hull = this.applyHullDamage(result.target, sectionId, hullDamage);
 
     let systemText = "";
     let criticalText = "";
@@ -174,8 +256,9 @@ export class DamageEngine {
     return {
       sectionId,
       section,
+      hull,
       penetrating,
-      text: `${result.target.name}: ${this.sectionLabel(sectionId)} получает ${penetrating} после DR ${dr}${braceReduction ? ` и готовности к удару ${braceReduction}` : ""} (${severity}).${aimedText}${systemText}${criticalText}${breachText}${moraleText}${coreText}${selfRiskText}${this.getStruckText(result.target)}`
+      text: `${result.target.name}: ${this.sectionLabel(sectionId)} получает ${penetrating} после DR ${dr}${braceReduction ? ` и готовности к удару ${braceReduction}` : ""} (${severity}).${aimedText}${systemText}${criticalText}${breachText}${moraleText}${coreText}${selfRiskText}${this.getHullTransferText(hull)}${this.getStruckText(result.target)}`
     };
   }
 
@@ -184,14 +267,11 @@ export class DamageEngine {
     const section = result.target.sections[sectionId];
     if (!section) return null;
 
-    const dr = Number(section.dr ?? 0);
-    const braceReduction = this.getBraceReduction(result.target);
-    const penetrating = Math.max(0, Number(result.damage ?? 0) - Math.ceil(dr / 2) - braceReduction);
-    const hullDamage = Math.max(0, Math.floor(penetrating / 2));
-    section.hp.value = Math.max(0, Number(section.hp.value ?? 0) - hullDamage);
+    const { braceReduction, penetrating, hullDamage } = this.getGunneryHullProfile(result.target, sectionId, result.damage, "chainShot");
+    const hull = this.applyHullDamage(result.target, sectionId, hullDamage);
 
     const riggingHit = this.pickRiggingSystem(result.target, section) ?? this.pickHitSystem(section);
-    const rigging = riggingHit.system ?? riggingHit;
+    const rigging = riggingHit.system;
     const systemText = this.damageSystem(rigging, Math.max(2, Math.ceil(Number(result.damage ?? 0) / 4)), riggingHit.slotRoll ? riggingHit : null);
     const criticalText = this.resolveCritical(result.target, sectionId, section, rigging, penetrating, result, { riggingBias: true });
     const aimedText = result.aimedSection ? " Прицельный залп." : "";
@@ -199,8 +279,9 @@ export class DamageEngine {
     return {
       sectionId,
       section,
+      hull,
       penetrating: hullDamage,
-      text: `${result.target.name}: ${AMMO_LABELS.chainShot} рвут рангоут и такелаж. Корпус получает ${hullDamage}${braceReduction ? `, готовность к удару снижает эффект на ${braceReduction}` : ""}.${aimedText}${systemText}${criticalText}${this.getStruckText(result.target)}`
+      text: `${result.target.name}: ${AMMO_LABELS.chainShot} рвут рангоут и такелаж. Корпус получает ${hullDamage}${braceReduction ? `, готовность к удару снижает эффект на ${braceReduction}` : ""}.${aimedText}${systemText}${criticalText}${this.getHullTransferText(hull)}${this.getStruckText(result.target)}`
     };
   }
 
@@ -208,10 +289,8 @@ export class DamageEngine {
     const sectionId = this.resolveHitSection(result);
     const section = result.target.sections[sectionId];
     if (!section) return null;
-    const dr = Math.ceil(Number(section.dr ?? 0) / 2);
-    const braceReduction = this.getBraceReduction(result.target);
-    const penetrating = Math.max(0, Number(result.damage ?? 0) - dr - braceReduction);
-    section.hp.value = Math.max(0, Number(section.hp.value ?? 0) - penetrating);
+    const { armor: dr, braceReduction, penetrating, hullDamage } = this.getGunneryHullProfile(result.target, sectionId, result.damage, "shellBomb");
+    const hull = this.applyHullDamage(result.target, sectionId, hullDamage);
     section.fire = Number(section.fire ?? 0) + (penetrating >= 8 ? 2 : 1);
     const losses = Math.max(1, Math.ceil(penetrating / 5));
     this.applyCrewLoss(result.target, losses, penetrating >= 8);
@@ -228,8 +307,9 @@ export class DamageEngine {
     return {
       sectionId,
       section,
+      hull,
       penetrating,
-      text: `${result.target.name}: бомба рвется в секции ${this.sectionLabel(sectionId)}. Корпус получает ${penetrating} после DR ${dr}${braceReduction ? ` и готовности к удару ${braceReduction}` : ""}; пожар +${penetrating >= 8 ? 2 : 1}; потери экипажа ${losses}.${breachText}${magazineText}${moraleText}${this.getStruckText(result.target)}`
+      text: `${result.target.name}: бомба рвется в секции ${this.sectionLabel(sectionId)}. Корпус получает ${penetrating} после DR ${dr}${braceReduction ? ` и готовности к удару ${braceReduction}` : ""}; пожар +${penetrating >= 8 ? 2 : 1}; потери экипажа ${losses}.${breachText}${magazineText}${moraleText}${this.getHullTransferText(hull)}${this.getStruckText(result.target)}`
     };
   }
 

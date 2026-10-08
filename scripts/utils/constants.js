@@ -21,6 +21,7 @@ export const CRYSTAL_BLAST_RADIUS_HEXES = 2;
 export const SHIP_DURABILITY_SCALE = 0.5;
 export const SHIP_DURABILITY_REVISION = 2;
 export const WEAPON_DAMAGE_MULTIPLIER = 2.5;
+export const HULL_OVERFLOW_TRANSFER_RATE = 0.5;
 export const STRIKE_HP_RATIO = 0.25;
 export const BOARD_LIMITS = Object.freeze({
   minWidth: 8,

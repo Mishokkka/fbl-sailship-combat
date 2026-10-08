@@ -3,6 +3,7 @@
   <span class="ssc-eyebrow">{{label}}</span>
   <h3>{{title}}</h3>
   <p class="ssc-report-outcome">{{outcomeLabel}}</p>
+  {{#if hullTransferText}}<p class="ssc-report-hull-transfer">{{hullTransferText}}</p>{{/if}}
   {{#if highlights.length}}
   <div class="ssc-report-highlights">
     {{#each highlights}}<div><span>{{name}} · {{label}}</span><strong>{{before}} <i aria-label="стало">→</i> {{after}}</strong></div>{{/each}}
