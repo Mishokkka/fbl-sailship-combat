@@ -2,7 +2,7 @@ import { MovementEngine } from "../engine/movement-engine.js";
 import { SECTION_LABELS, STATUS_LABELS } from "../utils/constants.js";
 import { boundedArray, boundedInteger, boundedString, isPlainObject } from "../utils/schema.js";
 
-const OUTCOMES = { hit: "Попадание", miss: "Промах", prepared: "Батарея подготовлена · +2 к следующему залпу", resolved: "Эффекты раунда обработаны" };
+const OUTCOMES = { worked: "Работа экипажа выполнена", hit: "Попадание", miss: "Промах", prepared: "Батарея подготовлена · +2 к следующему залпу", resolved: "Эффекты раунда обработаны" };
 
 /** Reports describe actual before/after state; they never simulate damage or roll dice. */
 export class BattleReportService {
@@ -18,6 +18,7 @@ export class BattleReportService {
         add("vertical", "Вертикальная инерция", unit.verticalVelocity ?? 0);
       }
       add("crew", unit.unitType === "creature" ? "Жизненная сила" : "Экипаж", unit.vitality?.current ?? unit.crew?.current);
+      add("rescued", "Спасено команды", unit.crew?.rescued ?? 0);
       add("morale", "Мораль", unit.vitality?.morale ?? unit.crew?.morale);
       if (MovementEngine.usesCore(battle) && unit.crystal) {
         add("coreHeat", "Нагрев ядра", unit.crystal.heat);
@@ -27,13 +28,18 @@ export class BattleReportService {
         const name = section.label ?? SECTION_LABELS[id] ?? id;
         for (const [field, label, value] of [
           ["hp", "HP", section.hp?.value], ["fire", "пожар", section.fire ?? 0],
+          ["wreckage", "завалы", section.mastWreckage ?? 0],
           ["flooding", "затопление", section.flooding ?? 0], ["breaches", "пробоины", section.breaches ?? 0]
         ]) add(id + ":" + field, name + " · " + label, value);
         for (const [index, system] of (section.systems ?? []).entries()) {
-          add(id + ":system:" + (system.id ?? index), system.name ?? "Система", STATUS_LABELS[system.status ?? "intact"] ?? system.status);
+          const key = id + ":system:" + (system.id ?? index);
+          const systemName = name + " · " + (system.name ?? "Система");
+          add(key, systemName, STATUS_LABELS[system.status ?? "intact"] ?? system.status);
+          add(key + ":hp", systemName + " · HP", system.hp?.value);
         }
       }
       for (const [key, label] of Object.entries({
+        immobilized: "Обездвижен", uncontrolledFire: "Неконтролируемый пожар", abandoned: "Корабль оставлен",
         falling: "Падение", struck: "Выбыл из боя", withdrawn: "Отступление",
         suppressed: "Подавление", coreExploded: "Взрыв ядра", burning: "Горит"
       })) add("flag:" + key, label, unit.flags?.[key] ? "да" : "нет");
@@ -67,7 +73,7 @@ export class BattleReportService {
   }
 
   static normalize(value, battle) {
-    if (!isPlainObject(value) || !value.id || value.battleId !== battle.id || !["salvo", "round"].includes(value.kind)) return null;
+    if (!isPlainObject(value) || !value.id || value.battleId !== battle.id || !["salvo", "round", "crew"].includes(value.kind)) return null;
     const text = (value, maxLength = 256) => boundedString(value, { maxLength });
     return {
       id: text(value.id, 180), battleId: text(battle.id, 128),
@@ -94,6 +100,7 @@ export class BattleReportService {
     return {
       ...report,
       title: report.kind === "round" ? "Итоги раунда " + report.round
+        : report.kind === "crew" ? "Работа экипажа · " + (visible.get(report.sourceId)?.name ?? "Неизвестный участник")
         : (visible.get(report.sourceId)?.name ?? "Неизвестный участник") + " → " + (visible.get(report.targetId)?.name ?? "Неизвестная цель"),
       sourceId: visible.has(report.sourceId) ? report.sourceId : null,
       targetId: visible.has(report.targetId) ? report.targetId : null,
@@ -106,7 +113,7 @@ export class BattleReportService {
     const primary = report.groups.find(group => group.unitId === report.targetId) ?? report.groups[0];
     return {
       ...report,
-      label: report.kind === "round" ? "Раунд завершён" : "Последняя атака · раунд " + report.round,
+      label: report.kind === "round" ? "Раунд завершён" : report.kind === "crew" ? "Экипаж · раунд " + report.round : "Последняя атака · раунд " + report.round,
       outcomeLabel: OUTCOMES[report.outcome] ?? OUTCOMES.resolved,
       leadChange: primary?.changes[0] ? { ...primary.changes[0], name: primary.name } : null,
       highlights: primary ? primary.changes.slice(0, 3).map(row => ({ ...row, name: primary.name })) : [],

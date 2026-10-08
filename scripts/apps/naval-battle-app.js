@@ -121,6 +121,7 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       creatureExtinguish: this._onCreatureExtinguish,
       creatureRally: this._onCreatureRally,
       creatureManualDamage: this._onCreatureManualDamage,
+      crewTask: this._onCrewTask,
       repair: this._onRepair,
       repairFire: this._onRepairFire,
       repairFlooding: this._onRepairFlooding,
@@ -445,6 +446,11 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onCreatureExtinguish(event) { event.preventDefault(); return this.creatures.recover("extinguish"); }
   static async _onCreatureRally(event) { event.preventDefault(); return this.creatures.recover("steady"); }
   static async _onCreatureManualDamage(event, target) { event.preventDefault(); const button = target ?? event.currentTarget; return this.creatures.manualDamage(button?.dataset?.sectionId, Number(button?.dataset?.damage ?? 0)); }
+  static async _onCrewTask(event, target) {
+    event.preventDefault();
+    const button = target ?? event.target?.closest?.("[data-action]");
+    return this.crew.performTask(button?.dataset?.taskId, button);
+  }
   static async _onRepair(event) { event.preventDefault(); return this.crew.repair("auto"); }
   static async _onRepairFire(event) { event.preventDefault(); return this.crew.repair("fire"); }
   static async _onRepairFlooding(event) { event.preventDefault(); return this.crew.repair("flooding"); }

@@ -630,26 +630,35 @@ export class DamageEngine {
     return { value, max };
   }
 
-  static repair(ship, mode = "auto") {
+  /** Shared amounts for task forecasts and actual repairs. */
+  static getRepairAmounts(ship) {
+    const boosted = ship?.selectedOrder === "damageControl";
+    const ratio = Number(ship?.crew?.required ?? 0) > 0 ? Number(ship.crew.current ?? 0) / Number(ship.crew.required) : 1;
+    return { boosted, level: boosted ? 2 : 1, system: boosted ? 4 : 2,
+      cooling: boosted ? 4 : 3, integrity: boosted ? 2 : 1,
+      morale: Number(ship?.crew?.morale ?? 10) <= 0 ? 0 : boosted || ratio >= 0.75 ? 2 : 1 };
+  }
+
+  /** Optional targets restrict work to one section/system; omitted targets retain legacy priority. */
+  static repair(ship, mode = "auto", { sectionId = null, systemIndex = null } = {}) {
     if (!ship) return "Корабль не выбран.";
-    const boosted = ship.selectedOrder === "damageControl";
-    const repairAmount = boosted ? 2 : 1;
-    const systemRepair = boosted ? 4 : 2;
+    const { boosted, level: repairAmount, system: systemRepair, morale: moraleGain } = this.getRepairAmounts(ship);
+    const sections = sectionId == null ? Object.values(ship.sections ?? {}) : [ship.sections?.[sectionId]].filter(Boolean);
+    if (sectionId != null && !sections.length) return ship.name + ": выбранная секция не найдена.";
 
     if (mode === "crystal") return this.repairCrystalCore(ship, boosted);
 
     if (mode === "rally") {
       ship.crew ??= { current: 0, required: 0, casualties: 0, morale: 10 };
       const before = Number(ship.crew.morale ?? 10);
-      const crewRatio = Number(ship.crew.required ?? 0) > 0 ? Number(ship.crew.current ?? 0) / Number(ship.crew.required ?? 1) : 1;
-      const gain = before <= 0 ? 0 : (boosted || crewRatio >= 0.75 ? 2 : 1);
+      const gain = moraleGain;
       ship.crew.morale = Math.min(10, before + gain);
       if (ship.crew.morale === before) return `${ship.name}: команда не приходит в порядок. Мораль ${ship.crew.morale}/10.`;
       return `${ship.name}: офицеры собирают команду. Мораль ${before}/10 → ${ship.crew.morale}/10${boosted ? " по приказу аварийных партий" : ""}.`;
     }
 
     if (mode === "fire" || mode === "auto") {
-      for (const section of Object.values(ship.sections ?? {})) {
+      for (const section of sections) {
         if (section.fire > 0) {
           const before = Number(section.fire ?? 0);
           section.fire = Math.max(0, before - repairAmount);
@@ -668,27 +677,29 @@ export class DamageEngine {
       if (mode === "fire") return `${ship.name}: пожаров для тушения нет.`;
     }
 
-    if (mode === "flooding" || mode === "auto") {
-      for (const section of Object.values(ship.sections ?? {})) {
-        if (section.flooding > 0) {
+    if (["flooding", "breaches", "auto"].includes(mode)) {
+      for (const section of sections) {
+        if (mode !== "breaches" && section.flooding > 0) {
           const before = Number(section.flooding ?? 0);
           section.flooding = Math.max(0, before - repairAmount);
+          this.updateCrisisFlags(ship);
           return `${ship.name}: помпы снижают затопление на ${before - section.flooding} уровень${before - section.flooding > 1 ? "я" : ""}${boosted ? " по приказу аварийных партий" : ""}.`;
         }
       }
-      for (const section of Object.values(ship.sections ?? {})) {
-        if (Number(section.breaches ?? 0) > 0) {
+      for (const section of sections) {
+        if ((mode !== "flooding" || sectionId == null) && Number(section.breaches ?? 0) > 0) {
           const before = Number(section.breaches ?? 0);
           section.breaches = Math.max(0, before - repairAmount);
+          this.updateCrisisFlags(ship);
           return `${ship.name}: плотники заделывают пробоины на ${before - section.breaches} уровень${before - section.breaches > 1 ? "я" : ""}${boosted ? " по приказу аварийных партий" : ""}.`;
         }
       }
-      if (mode === "flooding") return `${ship.name}: опасного затопления и открытых пробоин нет.`;
+      if (["flooding", "breaches"].includes(mode)) return `${ship.name}: опасного затопления и открытых пробоин нет.`;
     }
 
-    if (mode === "system" || mode === "auto") {
-      for (const section of Object.values(ship.sections ?? {})) {
-        if (Number(section.mastWreckage ?? 0) > 0) {
+    if (["system", "wreckage", "auto"].includes(mode)) {
+      for (const section of sections) {
+        if ((mode !== "system" || systemIndex == null) && Number(section.mastWreckage ?? 0) > 0) {
           const before = Number(section.mastWreckage ?? 0);
           section.mastWreckage = Math.max(0, before - 1);
           ship.flags ??= {};
@@ -697,15 +708,17 @@ export class DamageEngine {
           return `${ship.name}: команда расчищает обломки рангоута (${before} → ${section.mastWreckage}).`;
         }
       }
-      for (const section of Object.values(ship.sections ?? {})) {
-        const system = section.systems?.find(s => s.status === "damaged");
-        if (system) {
+      for (const section of sections) {
+        const system = mode === "wreckage" ? null : systemIndex == null
+          ? section.systems?.find(s => s.status === "damaged") : section.systems?.[systemIndex];
+        if (system?.status === "damaged") {
           system.hp.value = Math.min(Number(system.hp.max ?? 6), Number(system.hp.value ?? 0) + systemRepair);
           if (system.hp.value > Math.ceil(Number(system.hp.max ?? 6) / 2)) system.status = "intact";
+          this.updateCrisisFlags(ship);
           return `${ship.name}: аварийная партия ремонтирует ${system.name}${boosted ? " с усилением по приказу" : ""}.`;
         }
       }
-      if (mode === "system") return `${ship.name}: поврежденных, но ремонтопригодных систем нет.`;
+      if (["system", "wreckage"].includes(mode)) return `${ship.name}: поврежденных, но ремонтопригодных систем нет.`;
     }
 
     return `${ship.name}: аварийные работы не нашли срочных задач.`;
