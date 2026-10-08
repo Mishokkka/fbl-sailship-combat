@@ -22,6 +22,15 @@ jobs:
           node-version: 22
           package-manager-cache: false
       - run: npm run check
+      - name: Audit four-ship combat tempo
+        run: node tools/audit-combat-tempo.mjs
+      - name: Save tempo audit
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: combat-tempo
+          path: artifacts/tempo/
+          retention-days: 14
   interface:
     runs-on: ubuntu-latest
     timeout-minutes: 10

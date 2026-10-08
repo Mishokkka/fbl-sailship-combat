@@ -168,7 +168,6 @@ try {
     await checkLayout(page);
     await page.locator(".ssc-right-panel").evaluate(panel => { panel.scrollTop = 250; });
     await page.screenshot({ path: "artifacts/interface/crew-tasks-" + width + "-" + height + ".png" });
-    if (width === 1500) console.log("CREW_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
     if (width === 1500) {
       const before = await page.evaluate(() => window.crewTest.read());
       await page.evaluate(() => { window.crewTest.mode = "deny"; });
@@ -195,7 +194,6 @@ try {
     await checkLayout(page);
     await page.locator(".ssc-right-panel").evaluate(panel => { panel.scrollTop = 0; });
     await page.screenshot({ path: "artifacts/interface/crew-result-" + width + "-" + height + ".png" });
-    if (width === 800 && height === 650) console.log("CREW_IMAGE:" + (await page.screenshot({ type: "jpeg", quality: 45 })).toString("base64"));
     await page.evaluate(() => window.crewTest.reset());
     await page.evaluate(() => window.crewTest.change("clear"));
     assert.match(await page.locator(".ssc-guidance h2").textContent(), /Корабль в порядке/);
