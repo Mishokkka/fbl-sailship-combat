@@ -177,13 +177,13 @@ export class BattleAnimationController {
     const media = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
     document.addEventListener("visibilitychange", update);
     globalThis.addEventListener?.("ssc-visual-settings", settings);
-    media?.addEventListener?.("change", update);
+    media?.addEventListener?.("change", settings);
     const observer = typeof MutationObserver === "function" ? new MutationObserver(update) : null;
     if (this.app.element) observer?.observe(this.app.element, { attributes: true, attributeFilter: ["style","class","hidden"] });
     this.cleanupListeners = () => {
       document.removeEventListener("visibilitychange", update);
       globalThis.removeEventListener?.("ssc-visual-settings", settings);
-      media?.removeEventListener?.("change", update); observer?.disconnect();
+      media?.removeEventListener?.("change", settings); observer?.disconnect();
     };
   }
 

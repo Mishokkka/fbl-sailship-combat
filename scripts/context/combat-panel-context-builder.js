@@ -1,4 +1,5 @@
 import { AMMO_LABELS, AMMO_TOOLTIPS, ARC_LABELS, FIRE_MODE_LABELS, FIRE_MODE_TOOLTIPS, HEX_SCALE_METERS, WEAPON_TYPE_LABELS } from "../utils/constants.js";
+import { MovementReadoutBuilder } from "./movement-readout-builder.js";
 import { WindEngine } from "../engine/wind-engine.js";
 import { MovementEngine } from "../engine/movement-engine.js";
 import { GunneryEngine } from "../engine/gunnery-engine.js";
@@ -73,6 +74,7 @@ export class CombatPanelContextBuilder {
     const coreAdvice = MovementEngine.getCoreAdvice(selectedShip, battle);
     return {
       pointOfSail,
+      motion: MovementReadoutBuilder.build(battle, selectedShip),
       effectiveMaxSpeed,
       effectiveMaxSpeedTitle,
       speedModifier,
@@ -195,6 +197,7 @@ export class CombatPanelContextBuilder {
     const speed = MovementEngine.getEffectiveMaxSpeedDetails(battle, creature);
     return {
       pointOfSail: null,
+      motion: MovementReadoutBuilder.build(battle, creature),
       effectiveMaxSpeed: speed.value,
       effectiveMaxSpeedTitle: speed.title,
       speedModifier: 100,

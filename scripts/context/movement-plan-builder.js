@@ -1,5 +1,6 @@
 import { cellToPixel, normalizeAngle } from "../board/board-geometry.js";
 import { MovementEngine } from "../engine/movement-engine.js";
+import { MovementReadoutBuilder } from "./movement-readout-builder.js";
 import { WindEngine } from "../engine/wind-engine.js";
 
 /** Read-only forecast: never execute damage, rolls, reservations or movement events. */
@@ -39,6 +40,8 @@ export class MovementPlanBuilder {
       warnings.push("Нос против ветра: ход упадёт до 0.");
     }
     const projected = { ...ship, ...stop, heading, speed: speedAfter };
+    const endOfRound = MovementReadoutBuilder.forecast(battle, projected);
+    warnings.push(...endOfRound.warnings);
     const altitudeNow = Number(ship.altitude ?? 0);
     const altitudeEnd = creature
       ? this.creatureAltitude(projected)
@@ -57,7 +60,7 @@ export class MovementPlanBuilder {
       destination: `${stop.x + 1}:${stop.y + 1}`, heading,
       renderHeading: normalizeAngle(heading - 90),
       distance: path.length, speedBefore, speedAfter, apCost,
-      showAltitude, altitudeNow, altitudeEnd,
+      showAltitude, altitudeNow, altitudeEnd, endOfRound,
       warnings, hasWarnings: warnings.length > 0, collision: Boolean(collision),
       routePoints: points.map(point => `${point.cx},${point.cy}`).join(" "),
       steps: path.map((step, i) => ({ ...cellToPixel(battle.board, step.x, step.y), number: i + 1 })),

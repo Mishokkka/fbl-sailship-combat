@@ -72,6 +72,16 @@
             <line class="ssc-target-line" x1="{{board.targetLine.x1}}" y1="{{board.targetLine.y1}}" x2="{{board.targetLine.x2}}" y2="{{board.targetLine.y2}}"></line>
           {{/if}}
 
+          <g class="ssc-wind-camera" transform="{{board.windCameraTransform}}" aria-hidden="true">
+            <g class="ssc-wind-particles" opacity="{{board.windParticleOpacity}}" transform="rotate({{board.windParticleAngle}})">
+              {{#each board.windParticles as |p|}}
+                <line x1="{{p.x1}}" y1="{{p.y}}" x2="{{p.x2}}" y2="{{p.y}}" stroke-width="{{p.width}}" vector-effect="non-scaling-stroke">
+                  <animateTransform attributeName="transform" type="translate" from="0 0" to="{{../board.windParticleTravel}} 0" dur="{{p.duration}}s" begin="{{p.delay}}s" repeatCount="indefinite"></animateTransform>
+                </line>
+              {{/each}}
+            </g>
+          </g>
+
           {{#each board.ships as |ship|}}
             <g class="ssc-ship-token {{#if ship.isCreature}}ssc-creature-token{{/if}} {{#if ship.attached}}attached{{/if}} {{#if ship.camouflaged}}camouflaged{{/if}} side-{{ship.side}} {{#if ship.contactState}}contact contact-{{ship.contactState}}{{/if}} {{#if ship.selected}}selected{{/if}} {{#if ship.active}}active-turn{{/if}} {{#if ship.phaseDone}}phase-done{{/if}} {{#if ship.targetable}}targetable{{/if}} {{#if ship.isTarget}}target-selected{{/if}}" style="--ssc-side-color: {{ship.sideColor}}; --ssc-creature-tint: {{ship.tokenTint}};" data-ship-id="{{ship.id}}" data-unit-type="{{ship.unitType}}" transform="translate({{ship.cx}} {{ship.cy}}) rotate({{ship.renderHeading}})">
               <ellipse class="ssc-ship-halo" cx="0" cy="0" rx="26" ry="23" transform="scale({{ship.visual.cellScale}})"></ellipse>
@@ -117,6 +127,9 @@
               </g>
             </g>
           {{/each}}
+        {{#unless board.movementPlan.preview}}{{#with board.turnCue}}
+        <g class="ssc-turn-cue" aria-hidden="true"><polyline points="{{points}}"></polyline><circle cx="{{cx}}" cy="{{cy}}" r="7"></circle><text x="{{cx}}" y="{{cy}}" dy="-16" text-anchor="middle">Поворот после {{delay}} гекс.</text></g>
+        {{/with}}{{/unless}}
         {{#with board.movementPlan.preview}}
         <g class="ssc-movement-route {{#if collision}}has-collision{{/if}}" aria-hidden="true">
           <polyline class="ssc-route-line" points="{{routePoints}}"></polyline>
@@ -133,14 +146,14 @@
             <text y="41" text-anchor="middle">Остановка · {{destination}}</text>
           </g>
         </g>
+        {{#with endOfRound}}{{#if hasPath}}
+        <g class="ssc-drift-cue" aria-hidden="true">
+          <polyline points="{{points}}"></polyline>
+          <g transform="translate({{cx}} {{cy}})"><circle r="19"></circle><path d="M 12 0 L -7 -6 L -3 0 L -7 6 Z" transform="rotate({{renderHeading}})"></path><text y="-29" text-anchor="middle">Снос · конец раунда</text></g>
+        </g>
+        {{/if}}{{/with}}
         {{/with}}
-        <g class="ssc-wind-particles" opacity="{{board.windParticleOpacity}}" transform="rotate({{board.windParticleAngle}} {{board.windParticleCenterX}} {{board.windParticleCenterY}})">
-          {{#each board.windParticles as |p|}}
-            <line x1="{{p.x1}}" y1="{{p.y}}" x2="{{p.x2}}" y2="{{p.y}}" stroke-width="{{p.width}}">
-              <animateTransform attributeName="transform" type="translate" from="0 0" to="{{../board.windParticleTravel}} 0" dur="{{p.duration}}s" begin="{{p.delay}}s" repeatCount="indefinite"></animateTransform>
-            </line>
-          {{/each}}
-        </g></svg>
+        </svg>
 
         <div class="ssc-terrain-tooltip hidden" role="tooltip" aria-live="polite"></div>
 
@@ -175,12 +188,12 @@
             <span>Видимость</span>
             <strong>{{sscVisibility battle.sea.visibility}}</strong>
           </div>
-          <div class="ssc-wind-widget" style="--ssc-wind-angle: {{battle.wind.direction}}deg" title="Ветер: {{sscHeading battle.wind.direction}} · {{sscWindStrengthTitle battle.wind.strength}}">
+          <div class="ssc-wind-widget {{#if board.windInfo.calm}}is-calm{{/if}}" style="--ssc-wind-angle: {{battle.wind.direction}}deg" title="{{board.windInfo.title}}" aria-label="{{board.windInfo.title}}">
             <span class="ssc-wind-widget-label">Ветер</span>
             <span class="ssc-wind-widget-compass">
               <span class="ssc-wind-widget-arrow"></span>
             </span>
-            <span class="ssc-wind-widget-heading">{{sscHeading battle.wind.direction}} · {{sscWindStrength battle.wind.strength}}</span>
+            <span class="ssc-wind-widget-heading">{{board.windInfo.flow}}</span><span class="ssc-wind-strength">{{board.windInfo.strength}}</span>
           </div>
         </div>
 
@@ -192,11 +205,12 @@
             <div class="ssc-plan-heading"><span>План манёвра</span><strong>{{shipName}}</strong></div>
             <p class="ssc-plan-destination">Остановка {{destination}} <span>· курс {{heading}}° · путь {{distance}} гекс.</span></p>
             <div class="ssc-plan-stats">
-              <span>Прогноз хода* <strong>{{speedBefore}} → {{speedAfter}}</strong></span>
+              <span>После манёвра* <strong>{{speedBefore}} → {{speedAfter}}</strong></span>
               <span>Стоимость <strong>{{apCost}} ОД</strong></span>
               {{#if showAltitude}}<span>Высота сейчас <strong>H{{altitudeNow}}</strong></span>
               <span>К концу раунда* <strong>H{{altitudeEnd}}</strong></span>{{/if}}
             </div>
+            <p class="ssc-plan-drift"><b>Конец раунда*</b> · {{endOfRound.driftText}}{{#if endOfRound.hasPath}} · клетка {{endOfRound.destination}}{{/if}}</p>
             {{#if collision}}<p class="ssc-plan-danger">Столкновение: корабль остановится перед клеткой контакта.</p>{{/if}}
             {{#if hasWarnings}}
             <details class="ssc-plan-risks" {{#if collision}}open{{/if}}>

@@ -64,6 +64,8 @@ jobs:
         run: node tools/preview-visuals.mjs
       - name: Check attack effects and cleanup
         run: node tools/preview-effects.mjs
+      - name: Check wind visibility and inertia readouts
+        run: node tools/preview-wind-inertia.mjs
       - name: Save interface previews
         if: always()
         uses: actions/upload-artifact@v7

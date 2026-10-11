@@ -5,15 +5,10 @@
               <div class="ssc-maneuver-advice {{#if selectedInfo.maneuverAdvice.inIrons}}danger{{/if}}">
                 <div class="ssc-maneuver-advice-head">
                   <strong>Ветер и маневр</strong>
-                  <span title="Безопасный ход для поворота без проверки.">Безопасный поворот: ход ≤ {{selectedInfo.maneuverAdvice.safeTurnSpeed}}</span>
+                  <span title="Поворот кнопкой доступен при этом ходе или ниже; выход из положения носом против ветра может требовать проверки.">Поворот кнопкой: ход ≤ {{selectedInfo.maneuverAdvice.safeTurnSpeed}}</span>
                 </div>
                 <p>{{selectedInfo.maneuverAdvice.notice}}</p>
-                <div class="ssc-inertia-summary" title="Скорость задаёт фактическое продвижение за раунд. Короткий допустимый путь уменьшает скорость до реально пройденной дистанции.">
-                  <span><b>Обязательный путь</b><strong>{{selectedInfo.maneuverAdvice.inertia.requiredAdvance}}–{{selectedInfo.maneuverAdvice.inertia.speed}} гекс.</strong></span>
-                  <span><b>Ускорение</b><strong>+{{selectedInfo.maneuverAdvice.inertia.acceleration}}</strong></span>
-                  <span><b>Торможение</b><strong>−{{selectedInfo.maneuverAdvice.inertia.braking}}</strong></span>
-                  <span><b>Конус курса</b><strong>{{selectedInfo.maneuverAdvice.inertia.turnText}}</strong></span>
-                </div>
+                {{> "modules/sailships-combat/templates/naval/parts/right/naval-motion-readout.hbs"}}
                 {{#if selectedInfo.maneuverAdvice.inertia.modifiersText}}<p class="ssc-inertia-modifiers">{{selectedInfo.maneuverAdvice.inertia.modifiersText}}</p>{{/if}}
                 <div class="ssc-turn-preview-grid">
                   {{#if selectedInfo.maneuverAdvice.left}}
@@ -90,6 +85,6 @@
             </div>
             {{/if}}
             {{#if actionState.movementState.mustMove}}<p class="ssc-hint danger"><strong>Инерция:</strong> до завершения активации корабль обязан пройти не менее {{actionState.movementState.requiredAdvance}} гекс.</p>{{/if}}
-            <p class="ssc-hint">Клик по подсвеченной клетке тратит действие движения и завершает активацию корабля в фазе маневра. 1 гекс ≈ 50 м. {{#if selectedInfo.coreAdvice}}Подъем/снижение задают вертикальную инерцию; высота меняется в конце раунда вместе с дрейфом.{{/if}}</p>
+            <p class="ssc-hint">Клик по подсвеченной клетке показывает маршрут и последствия. «Выполнить манёвр» тратит ОД и завершает активацию. 1 гекс ≈ 50 м. {{#if selectedInfo.coreAdvice}}Подъем/снижение задают вертикальную инерцию; высота меняется в конце раунда вместе с дрейфом.{{/if}}</p>
           </section>
         {{/if}}
