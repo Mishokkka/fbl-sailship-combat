@@ -36,10 +36,13 @@ export function attackGeometry(battle, report) {
   const hit = tokenLocalPoint(b, event.target.heading, sectionX, 0, targetScale);
   let end = hit;
   if (report.outcome === "miss") {
-    const dx = b.cx-start.x, dy = b.cy-start.y, length = Math.max(1, Math.hypot(dx,dy));
+    const dx = b.cx-start.x, dy = b.cy-start.y, length = Math.hypot(dx,dy);
+    const course = event.source.heading * Math.PI / 180;
+    const nx = length > .001 ? dx / length : Math.sin(course);
+    const ny = length > .001 ? dy / length : -Math.cos(course);
     const clearance = Math.max(42 * Number(battle.board.cellSize ?? 48) / 48, 45 * targetScale);
     // The illustrative miss terminates beside the target, with no hit flash.
-    end = { x: b.cx + (dx-dy) / length * clearance, y: b.cy + (dy+dx) / length * clearance };
+    end = { x: b.cx - ny * clearance, y: b.cy + nx * clearance };
   }
   return { start, end, hit: report.outcome === "hit", type: event.type, arc: event.arc,
     angle: Math.atan2(end.y-start.y, end.x-start.x) * 180 / Math.PI };

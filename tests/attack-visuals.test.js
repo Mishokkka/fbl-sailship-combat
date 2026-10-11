@@ -50,3 +50,11 @@ test("Visuals survive normalization but hidden and lost participants cannot leak
   assert.equal(normalizeAttackVisual({...report.visual,source:{x:NaN,y:0,heading:0}}),null);
   assert.equal(normalizeAttackVisual({...report.visual,type:"<script>"}),null);
 });
+
+test("Co-located all-around misses still end beside the target", () => {
+  const a={id:"a",x:4,y:4,heading:60},b={id:"b",x:4,y:4,heading:0};
+  const battle={board:{cellSize:48},ships:[a,b]},center=cellToPixel(battle.board,4,4);
+  const visual=captureAttackVisual(a,b,{arc:"all",type:"natural"});
+  const result=attackGeometry(battle,{sourceId:"a",targetId:"b",outcome:"miss",visual});
+  assert.ok(Math.hypot(result.end.x-center.cx,result.end.y-center.cy)>40);
+});

@@ -195,7 +195,6 @@ try {
   assert.equal(saved.lastReport.visual.arc,"bow");
   await page.waitForTimeout(150);
   await page.screenshot({path:"artifacts/interface/cannon-flight.png"});
-  console.log("EFFECT_IMAGE:"+(await page.screenshot({type:"jpeg",quality:70})).toString("base64"));
   await page.waitForTimeout(850);
   assert.equal(await page.locator(".ssc-attack-effect").count(),0);
   await page.evaluate(()=>previewApp.render({parts:["board"]}));
@@ -261,7 +260,6 @@ try {
     assert.equal(await page.locator(".ssc-attack-effect.type-sonic").count(),1);
     assert.equal(await page.locator('.ssc-unit-art[data-family="bird"]').count(),1);
     await page.screenshot({path:"artifacts/interface/creature-"+method+".png"});
-    if (method==="attack") console.log("CREATURE_IMAGE:"+(await page.screenshot({type:"jpeg",quality:70})).toString("base64"));
   }
   const metrics=[];
   for (const count of [4,12,30]) {
