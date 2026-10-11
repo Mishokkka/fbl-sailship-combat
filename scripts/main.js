@@ -1,3 +1,4 @@
+import { VisualSettingsService } from "./services/visual-settings-service.js";
 import { APP_PARTIAL_TEMPLATES, MODULE_ID } from "./utils/constants.js";
 import { registerHandlebarsHelpers } from "./utils/helpers.js";
 import { StorageService } from "./services/storage-service.js";
@@ -45,6 +46,7 @@ Hooks.on?.("renderJournalDirectory", (_app, html) => {
 Hooks.once("init", async () => {
   StorageService.registerSettings();
   SoundService.registerSettings();
+  VisualSettingsService.registerSettings();
   registerHandlebarsHelpers();
   await loadTemplates(APP_PARTIAL_TEMPLATES);
 });

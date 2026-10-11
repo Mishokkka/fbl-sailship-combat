@@ -47,6 +47,7 @@ export class BattleLayoutController {
     if (!main) return;
     const pane = LAYOUT_PANES.includes(this.pane) ? this.pane : "board";
     main.dataset.narrowPane = pane;
+    this.app.animation?.syncVisibility?.();
     for (const button of main.querySelectorAll(".ssc-narrow-nav [data-pane]")) {
       button.setAttribute("aria-pressed", String(button.dataset.pane === pane));
     }

@@ -25,3 +25,25 @@
 .ssc-unit-detail { display: var(--ssc-art-details, inline); }
 .ssc-unit-seam { display: var(--ssc-art-seams, var(--ssc-art-details, inline)); }
 .sailships-combat .ssc-board-svg[data-lod="far"] .ssc-unit-heading { stroke-width: 2.5; }
+
+/* Committed attack cues: bounded geometry, short lifetime, no blur or screen shake. */
+.sailships-combat .ssc-attack-effect { pointer-events: none; --ssc-shot-color: #edc991; }
+.sailships-combat .ssc-attack-effect.type-fire,
+.sailships-combat .ssc-attack-effect.type-breath { --ssc-shot-color: #f39968; }
+.sailships-combat .ssc-attack-effect.type-spit { --ssc-shot-color: #c2d884; }
+.sailships-combat .ssc-attack-effect.type-magic,
+.sailships-combat .ssc-attack-effect.type-sonic { --ssc-shot-color: #9fcbea; }
+.sailships-combat .ssc-shot-flash { fill: var(--ssc-shot-color); }
+.sailships-combat .ssc-shot-tracer { fill: none; stroke: var(--ssc-shot-color); stroke-width: 2; stroke-linecap: round; }
+.sailships-combat .type-chain .ssc-shot-tracer { stroke-dasharray: 2 2; stroke-width: 3; }
+.sailships-combat .type-breath .ssc-shot-tracer { stroke-width: 5; }
+.sailships-combat .type-sonic .ssc-shot-tracer { stroke-width: 1; }
+.sailships-combat .ssc-shot-impact { fill: none; stroke: #fff0bb; stroke-width: 2; }
+.sailships-combat .ssc-shot-miss { fill: none; stroke: #b2c6d1; stroke-width: 1; }
+.sailships-combat .ssc-shot-smoke { fill: #a2adb1; }
+.sailships-combat .ssc-wind-particles line { filter: none; }
+.sailships-combat .ssc-unit-damage { fill: none; stroke: #edab81; stroke-width: 1.8; }
+.sailships-combat .ssc-unit-fire { fill: #e89558; stroke: #ffd696; stroke-width: .8; }
+.sailships-combat .ssc-unit-core { fill: #86cadd; stroke: #d6edf3; stroke-width: .7; }
+.sailships-combat .ssc-unit-core.is-hot { fill: #efa275; stroke: #ffe2b5; }
+.sailships-combat .ssc-unit-disabled { opacity: .48; }

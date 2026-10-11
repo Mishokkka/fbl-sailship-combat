@@ -1,3 +1,4 @@
+import { captureAttackVisual } from "../visuals/attack-visuals.js";
 import { BattleReportService } from "../services/battle-report-service.js";
 import { AMMO_LABELS, FIRE_MODE_LABELS } from "../utils/constants.js";
 import { GunneryEngine } from "../engine/gunnery-engine.js";
@@ -42,6 +43,7 @@ export class ShipGunneryController {
         if (blocked) { ui.notifications.warn(blocked); return false; }
         if (!this.app._markTurnAction(battle, ship, "gunnery")) return false;
         const before = BattleReportService.capture(battle);
+        const visual = captureAttackVisual(ship, target, { arc, ammo: battery.ammo });
         const result = await GunneryEngine.fire(battle, ship.id, arc, target.id, { aimedSection: request.aim });
         if (!result.ok) {
           this.app._refundTurnAction(battle, ship, "gunnery");
@@ -62,7 +64,8 @@ export class ShipGunneryController {
         }
         const report = BattleReportService.record(battle, before, {
           kind: "salvo", outcome: result.delayed ? "prepared" : result.hit ? "hit" : "miss",
-          title: `${ship.name} → ${target.name}`, sourceId: ship.id, targetId: target.id, details, hullTransferText
+          title: `${ship.name} → ${target.name}`, sourceId: ship.id, targetId: target.id, details, hullTransferText,
+          visual: result.delayed ? null : { ...visual, section: result.targetSection }
         });
         reportId = report.id;
         if (!result.delayed) {

@@ -1,3 +1,4 @@
+import { normalizeAttackVisual } from "../visuals/attack-visuals.js";
 import { MovementEngine } from "../engine/movement-engine.js";
 import { SECTION_LABELS, STATUS_LABELS } from "../utils/constants.js";
 import { boundedArray, boundedInteger, boundedString, isPlainObject } from "../utils/schema.js";
@@ -56,7 +57,7 @@ export class BattleReportService {
     });
   }
 
-  static record(battle, before, { kind = "salvo", outcome = "resolved", title = "", sourceId = null, targetId = null, details = [], hullTransferText = "", round = battle.round } = {}) {
+  static record(battle, before, { kind = "salvo", outcome = "resolved", title = "", sourceId = null, targetId = null, details = [], hullTransferText = "", visual = null, round = battle.round } = {}) {
     const previous = new Map(before.map(unit => [unit.id, unit]));
     const groups = [];
     for (const unit of this.capture(battle)) {
@@ -68,7 +69,7 @@ export class BattleReportService {
     }
     battle.lastReport = this.normalize({
       id: "report-" + battle.id + "-" + (Number(battle.revision ?? 0) + 1),
-      battleId: battle.id, round, kind, outcome, title, sourceId, targetId, groups, details, hullTransferText
+      battleId: battle.id, round, kind, outcome, title, sourceId, targetId, groups, details, hullTransferText, visual
     }, battle);
     return battle.lastReport;
   }
@@ -80,6 +81,8 @@ export class BattleReportService {
       id: text(value.id, 180), battleId: text(battle.id, 128),
       round: boundedInteger(value.round, { fallback: battle.round, min: 1, max: 1_000_000 }),
       kind: value.kind,
+      ...(value.kind === "salvo" && ["hit","miss"].includes(value.outcome) && normalizeAttackVisual(value.visual)
+        ? { visual: normalizeAttackVisual(value.visual) } : {}),
       outcome: Object.hasOwn(OUTCOMES, value.outcome) ? value.outcome : "resolved",
       hullTransferText: value.kind === "salvo" ? text(value.hullTransferText, 512) : "",
       title: text(value.title), sourceId: value.sourceId ? text(value.sourceId, 128) : null,
@@ -99,8 +102,17 @@ export class BattleReportService {
     const groups = report.groups.filter(group => controlledIds.has(group.unitId));
     if (report.kind !== "round" && !controlledIds.has(report.sourceId) && !controlledIds.has(report.targetId) && !groups.length) return null;
     const visible = new Map(ships.filter(ship => ship.contactState !== "lost").map(ship => [ship.id, ship]));
+    const knownPosition = (id, snapshot) => {
+      if (controlledIds.has(id)) return snapshot;
+      const unit = visible.get(id);
+      return { x: Number(unit.x), y: Number(unit.y), heading: Number(unit.heading) };
+    };
     return {
       ...report,
+      visual: report.visual && visible.has(report.sourceId) && visible.has(report.targetId)
+        ? { ...report.visual, source: knownPosition(report.sourceId, report.visual.source),
+          target: knownPosition(report.targetId, report.visual.target),
+          section: controlledIds.has(report.targetId) ? report.visual.section : "" } : null,
       title: report.kind === "round" ? "Итоги раунда " + report.round
         : report.kind === "crew" ? "Работа экипажа · " + (visible.get(report.sourceId)?.name ?? "Неизвестный участник")
         : (visible.get(report.sourceId)?.name ?? "Неизвестный участник") + " → " + (visible.get(report.targetId)?.name ?? "Неизвестная цель"),

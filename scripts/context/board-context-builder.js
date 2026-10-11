@@ -1,3 +1,4 @@
+import { VisualSettingsService } from "../services/visual-settings-service.js";
 import {
   boardPixelSize,
   buildHexGridPath,
@@ -78,9 +79,9 @@ export class BoardContextBuilder {
 
   prepareWindParticles(battle, pixelWidth, pixelHeight, lod = "near") {
     const rating = ({ calm: 0, light: 1, moderate: 2, strong: 3, storm: 4 }[battle.wind?.strength] ?? 2);
-    const baseCount = [0, 24, 38, 54, 70][rating] ?? 38;
+    const baseCount = [0, 8, 12, 16, 20][rating] ?? 12;
     const lodFactor = lod === "far" ? 0.45 : lod === "medium" ? 0.72 : 1;
-    const count = rating === 0 ? 0 : Math.max(12, Math.round(baseCount * lodFactor));
+    const count = rating === 0 || !VisualSettingsService.wind() ? 0 : Math.max(4, Math.round(baseCount * lodFactor));
     const span = Math.max(pixelWidth, pixelHeight);
     const travel = Math.ceil(span * 2.6);
     const durationBase = Math.max(0.9, 3.0 - rating * 0.5);
