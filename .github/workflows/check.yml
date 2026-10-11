@@ -25,6 +25,15 @@ jobs:
       - run: npm run check
       - name: Audit four-ship combat tempo
         run: node tools/audit-combat-tempo.mjs
+      - name: Audit existing inertia rules
+        run: node tools/audit-inertia.mjs
+      - name: Save inertia audit
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: inertia-audit
+          path: artifacts/inertia/
+          retention-days: 14
       - name: Save tempo audit
         if: always()
         uses: actions/upload-artifact@v7

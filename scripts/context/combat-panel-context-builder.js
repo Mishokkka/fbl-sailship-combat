@@ -74,7 +74,7 @@ export class CombatPanelContextBuilder {
     const coreAdvice = MovementEngine.getCoreAdvice(selectedShip, battle);
     return {
       pointOfSail,
-      motion: MovementReadoutBuilder.build(battle, selectedShip),
+      motion: battle.phase === "movement" ? MovementReadoutBuilder.build(battle, selectedShip, maneuverAdvice.inertia) : null,
       effectiveMaxSpeed,
       effectiveMaxSpeedTitle,
       speedModifier,
@@ -197,7 +197,7 @@ export class CombatPanelContextBuilder {
     const speed = MovementEngine.getEffectiveMaxSpeedDetails(battle, creature);
     return {
       pointOfSail: null,
-      motion: MovementReadoutBuilder.build(battle, creature),
+      motion: battle.phase === "movement" ? MovementReadoutBuilder.build(battle, creature) : null,
       effectiveMaxSpeed: speed.value,
       effectiveMaxSpeedTitle: speed.title,
       speedModifier: 100,

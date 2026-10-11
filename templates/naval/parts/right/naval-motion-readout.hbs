@@ -3,7 +3,7 @@
   <div class="ssc-motion-heading"><strong>Ход {{speed}}</strong><span>путь {{requiredAdvance}}–{{speed}} гекс.</span></div>
   <p class="ssc-motion-turn">{{turnText}}</p>
   {{#if overCap}}<p>Накопленный ход выше предела разгона {{effectiveMax}}. Он сохраняется до торможения.</p>{{/if}}
-  <div class="ssc-motion-brake">Торможение: <b>{{speed}} → {{brakeSpeed}}</b> · затем путь от {{brakeMinimum}} гекс.</div>
+  <div class="ssc-motion-brake">Торможение (1 ОД): <b>{{speed}} → {{brakeSpeed}}</b> · затем путь от {{brakeMinimum}} гекс.</div>
   {{#if @root.actionState.movementState.resolved}}<p>Перемещение уже выполнено. Ход сохраняется к следующему раунду.</p>
   {{else}}{{#if @root.actionState.movementState.forcedStop}}<p class="danger">Маршрутов нет. «Завершить» вызовет аварийную остановку с уроном.</p>
   {{else}}{{#if @root.actionState.movementState.mustMove}}<p>«Завершить»: сначала пройти обязательный путь или затормозить.</p>

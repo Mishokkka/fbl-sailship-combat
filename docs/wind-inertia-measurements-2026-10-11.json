@@ -1,0 +1,409 @@
+{
+  "coverage": [
+    {
+      "board": "500x350",
+      "direction": 0,
+      "zoom": 0.45,
+      "old": 0.63,
+      "new": 9.38
+    },
+    {
+      "board": "500x350",
+      "direction": 0,
+      "zoom": 1,
+      "old": 0.88,
+      "new": 9.38
+    },
+    {
+      "board": "500x350",
+      "direction": 0,
+      "zoom": 4,
+      "old": 0.06,
+      "new": 9.38
+    },
+    {
+      "board": "500x350",
+      "direction": 60,
+      "zoom": 0.45,
+      "old": 0.19,
+      "new": 5.31
+    },
+    {
+      "board": "500x350",
+      "direction": 60,
+      "zoom": 1,
+      "old": 0.69,
+      "new": 5.31
+    },
+    {
+      "board": "500x350",
+      "direction": 60,
+      "zoom": 4,
+      "old": 0.13,
+      "new": 5.31
+    },
+    {
+      "board": "500x350",
+      "direction": 120,
+      "zoom": 0.45,
+      "old": 0.63,
+      "new": 5.19
+    },
+    {
+      "board": "500x350",
+      "direction": 120,
+      "zoom": 1,
+      "old": 0.88,
+      "new": 5.19
+    },
+    {
+      "board": "500x350",
+      "direction": 120,
+      "zoom": 4,
+      "old": 0.13,
+      "new": 5.19
+    },
+    {
+      "board": "500x350",
+      "direction": 180,
+      "zoom": 0.45,
+      "old": 1.63,
+      "new": 9.38
+    },
+    {
+      "board": "500x350",
+      "direction": 180,
+      "zoom": 1,
+      "old": 1.19,
+      "new": 9.38
+    },
+    {
+      "board": "500x350",
+      "direction": 180,
+      "zoom": 4,
+      "old": 0.13,
+      "new": 9.38
+    },
+    {
+      "board": "500x350",
+      "direction": 240,
+      "zoom": 0.45,
+      "old": 2.75,
+      "new": 5.31
+    },
+    {
+      "board": "500x350",
+      "direction": 240,
+      "zoom": 1,
+      "old": 1.19,
+      "new": 5.31
+    },
+    {
+      "board": "500x350",
+      "direction": 240,
+      "zoom": 4,
+      "old": 0.19,
+      "new": 5.31
+    },
+    {
+      "board": "500x350",
+      "direction": 300,
+      "zoom": 0.45,
+      "old": 2.5,
+      "new": 5.19
+    },
+    {
+      "board": "500x350",
+      "direction": 300,
+      "zoom": 1,
+      "old": 1.06,
+      "new": 5.19
+    },
+    {
+      "board": "500x350",
+      "direction": 300,
+      "zoom": 4,
+      "old": 0.13,
+      "new": 5.19
+    },
+    {
+      "board": "1500x2000",
+      "direction": 0,
+      "zoom": 0.45,
+      "old": 0,
+      "new": 9.5
+    },
+    {
+      "board": "1500x2000",
+      "direction": 0,
+      "zoom": 1,
+      "old": 0,
+      "new": 9.5
+    },
+    {
+      "board": "1500x2000",
+      "direction": 0,
+      "zoom": 4,
+      "old": 0,
+      "new": 9.5
+    },
+    {
+      "board": "1500x2000",
+      "direction": 60,
+      "zoom": 0.45,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 60,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 60,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 120,
+      "zoom": 0.45,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 120,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 120,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 180,
+      "zoom": 0.45,
+      "old": 2.19,
+      "new": 9.5
+    },
+    {
+      "board": "1500x2000",
+      "direction": 180,
+      "zoom": 1,
+      "old": 0,
+      "new": 9.5
+    },
+    {
+      "board": "1500x2000",
+      "direction": 180,
+      "zoom": 4,
+      "old": 0,
+      "new": 9.5
+    },
+    {
+      "board": "1500x2000",
+      "direction": 240,
+      "zoom": 0.45,
+      "old": 2.81,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 240,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 240,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 300,
+      "zoom": 0.45,
+      "old": 1.31,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 300,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "1500x2000",
+      "direction": 300,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.06
+    },
+    {
+      "board": "5000x4000",
+      "direction": 0,
+      "zoom": 0.45,
+      "old": 0,
+      "new": 9.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 0,
+      "zoom": 1,
+      "old": 0,
+      "new": 9.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 0,
+      "zoom": 4,
+      "old": 0,
+      "new": 9.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 60,
+      "zoom": 0.45,
+      "old": 0,
+      "new": 5.31
+    },
+    {
+      "board": "5000x4000",
+      "direction": 60,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.31
+    },
+    {
+      "board": "5000x4000",
+      "direction": 60,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.31
+    },
+    {
+      "board": "5000x4000",
+      "direction": 120,
+      "zoom": 0.45,
+      "old": 0,
+      "new": 5.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 120,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 120,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 180,
+      "zoom": 0.45,
+      "old": 1.94,
+      "new": 9.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 180,
+      "zoom": 1,
+      "old": 0,
+      "new": 9.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 180,
+      "zoom": 4,
+      "old": 0,
+      "new": 9.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 240,
+      "zoom": 0.45,
+      "old": 3.69,
+      "new": 5.31
+    },
+    {
+      "board": "5000x4000",
+      "direction": 240,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.31
+    },
+    {
+      "board": "5000x4000",
+      "direction": 240,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.31
+    },
+    {
+      "board": "5000x4000",
+      "direction": 300,
+      "zoom": 0.45,
+      "old": 1,
+      "new": 5.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 300,
+      "zoom": 1,
+      "old": 0,
+      "new": 5.25
+    },
+    {
+      "board": "5000x4000",
+      "direction": 300,
+      "zoom": 4,
+      "old": 0,
+      "new": 5.25
+    }
+  ],
+  "samples": [
+    {
+      "kind": "old",
+      "nodes": 30,
+      "taskMs": 41.38,
+      "frameP95": 16.8
+    },
+    {
+      "kind": "new",
+      "nodes": 34,
+      "taskMs": 26.09,
+      "frameP95": 16.8
+    },
+    {
+      "kind": "new",
+      "nodes": 34,
+      "taskMs": 20.79,
+      "frameP95": 16.8
+    },
+    {
+      "kind": "old",
+      "nodes": 30,
+      "taskMs": 37.87,
+      "frameP95": 16.8
+    }
+  ],
+  "caveat": "Chromium CI, isolated ambient SVG; timings are observations, not an FPS guarantee for Foundry."
+}

@@ -149,7 +149,7 @@
         {{#with endOfRound}}{{#if hasPath}}
         <g class="ssc-drift-cue" aria-hidden="true">
           <polyline points="{{points}}"></polyline>
-          <g transform="translate({{cx}} {{cy}})"><circle r="19"></circle><path d="M 12 0 L -7 -6 L -3 0 L -7 6 Z" transform="rotate({{renderHeading}})"></path><text y="-29" text-anchor="middle">Снос · конец раунда</text></g>
+          <g transform="translate({{cx}} {{cy}})"><circle r="19"></circle><path d="M 12 0 L -7 -6 L -3 0 L -7 6 Z" transform="rotate({{renderHeading}})"></path></g>
         </g>
         {{/if}}{{/with}}
         {{/with}}
@@ -205,12 +205,12 @@
             <div class="ssc-plan-heading"><span>План манёвра</span><strong>{{shipName}}</strong></div>
             <p class="ssc-plan-destination">Остановка {{destination}} <span>· курс {{heading}}° · путь {{distance}} гекс.</span></p>
             <div class="ssc-plan-stats">
-              <span>После манёвра* <strong>{{speedBefore}} → {{speedAfter}}</strong></span>
+              <span>Ход после манёвра* <strong>{{speedBefore}} → {{speedAfter}}</strong></span>
               <span>Стоимость <strong>{{apCost}} ОД</strong></span>
               {{#if showAltitude}}<span>Высота сейчас <strong>H{{altitudeNow}}</strong></span>
               <span>К концу раунда* <strong>H{{altitudeEnd}}</strong></span>{{/if}}
             </div>
-            <p class="ssc-plan-drift"><b>Конец раунда*</b> · {{endOfRound.driftText}}{{#if endOfRound.hasPath}} · клетка {{endOfRound.destination}}{{/if}}</p>
+            <p class="ssc-plan-drift"><span class="ssc-drift-key" aria-hidden="true"></span><b>Конец раунда*</b> · {{endOfRound.driftText}}{{#if endOfRound.hasPath}} · клетка {{endOfRound.destination}}{{/if}}</p>
             {{#if collision}}<p class="ssc-plan-danger">Столкновение: корабль остановится перед клеткой контакта.</p>{{/if}}
             {{#if hasWarnings}}
             <details class="ssc-plan-risks" {{#if collision}}open{{/if}}>

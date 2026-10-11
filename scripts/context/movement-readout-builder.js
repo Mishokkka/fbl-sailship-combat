@@ -6,8 +6,7 @@ import { HEADING_LABELS } from "../utils/constants.js";
 
 /** Conditional, read-only forecasts. Never roll, apply damage or reserve cells. */
 export class MovementReadoutBuilder {
-  static build(battle, unit) {
-    const inertia = MovementEngine.getInertiaProfile(battle, unit);
+  static build(battle, unit, inertia = MovementEngine.getInertiaProfile(battle, unit)) {
     const brakeSpeed = Math.max(0, inertia.speed - inertia.braking);
     const afterBrake = MovementEngine.getInertiaProfile(battle, unit, { speed: brakeSpeed });
     const creature = unit.unitType === "creature";

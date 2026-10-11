@@ -73,7 +73,7 @@ test("landing and attachment suppress a misleading exact drift position", () => 
   const b = fixture(), unit = b.ships[0]; unit.altitude = 1; unit.verticalVelocity = -2;
   assert.equal(Readout.forecast(b, unit).landing, true);
   assert.equal(Readout.forecast(b, unit).hasPath, false);
-  const creature = createCreature("skyRay"); creature.flags.attachedTo = unit.id;
+  const creature = createCreature({ template: "skyRay" }); creature.flags.attachedTo = unit.id;
   assert.match(Readout.forecast(b, creature).driftText, /носителем/);
   unit.flags.coreExploded = true;
   assert.equal(Readout.forecast(b, unit).altitudeEnd, unit.altitude);
@@ -82,7 +82,7 @@ test("landing and attachment suppress a misleading exact drift position", () => 
 test("non-hovering creatures stall instead of drifting; hovering creatures drift normally", () => {
   for (const hover of [false, true]) {
     const b = fixture();
-    const creature = createCreature("skyRay");
+    const creature = createCreature({ template: "skyRay" });
     Object.assign(creature, { x: 12, y: 10, altitude: 4, speed: 0 });
     creature.movement.canHover = hover; creature.movement.windResponse = "drifting";
     b.ships = [creature];
