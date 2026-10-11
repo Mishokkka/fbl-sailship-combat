@@ -7,8 +7,39 @@ export function windCameraTransform(camera) {
   return "translate(" + (Number(camera.x ?? 0) + width / 2) + " " +
     (Number(camera.y ?? 0) + height / 2) + ") scale(" + Math.max(width, height) / 1000 + ")";
 }
+/** SVG 'meet' can expose extra world space outside its nominal viewBox. */
+export function visibleWindCamera(camera, viewport) {
+  if (!(viewport?.width > 0 && viewport?.height > 0)) return camera;
+  const scale = Math.min(viewport.width / camera.viewWidth, viewport.height / camera.viewHeight);
+  const viewWidth = viewport.width / scale, viewHeight = viewport.height / scale;
+  return { ...camera, x: camera.x + (camera.viewWidth - viewWidth) / 2,
+    y: camera.y + (camera.viewHeight - viewHeight) / 2, viewWidth, viewHeight };
+}
 export function syncWindCamera(svg, camera) {
-  svg?.querySelector?.(".ssc-wind-camera")?.setAttribute("transform", windCameraTransform(camera));
+  const node = svg?.querySelector?.(".ssc-wind-camera");
+  if (!node) return;
+  const view = camera ?? (svg.viewBox?.baseVal && {
+    x: svg.viewBox.baseVal.x, y: svg.viewBox.baseVal.y,
+    viewWidth: svg.viewBox.baseVal.width, viewHeight: svg.viewBox.baseVal.height
+  });
+  if (!(view?.viewWidth > 0 && view?.viewHeight > 0)) return;
+  const visible = visibleWindCamera(view, svg.getBoundingClientRect?.());
+  node.setAttribute("transform", windCameraTransform(visible));
+  const aspect = (visible.viewWidth / visible.viewHeight).toFixed(6);
+  if (node.dataset.windAspect === aspect || !node.dataset.windStrength) return;
+  node.dataset.windAspect = aspect;
+  // Resize only: retarget the existing bounded strokes, never rebuild on pan/zoom.
+  const lines = node.querySelectorAll("line");
+  const field = describeWindField({ direction: node.dataset.windDirection, strength: node.dataset.windStrength }, visible, { enabled: lines.length > 0 });
+  lines.forEach((line, i) => {
+    const particle = field.windParticles[i];
+    if (!particle) return;
+    for (const [key, value] of Object.entries({ x1: particle.x1, x2: particle.x2, y1: particle.y, y2: particle.y })) line.setAttribute(key, value);
+    const animation = line.querySelector("animateTransform");
+    animation?.setAttribute("to", field.windParticleTravel + " 0");
+    animation?.setAttribute("dur", particle.duration + "s");
+    animation?.setAttribute("begin", particle.delay + "s");
+  });
 }
 export function describeWindField(wind, camera, { enabled = true } = {}) {
   const direction = normalizeHeading(wind?.direction);

@@ -7,7 +7,7 @@ import { BattleNormalizer } from "../scripts/normalizers/battle-normalizer.js";
 import { MovementEngine } from "../scripts/engine/movement-engine.js";
 import { MovementPlanBuilder } from "../scripts/context/movement-plan-builder.js";
 import { MovementReadoutBuilder as Readout } from "../scripts/context/movement-readout-builder.js";
-import { describeWindField } from "../scripts/visuals/wind-field.js";
+import { describeWindField, visibleWindCamera } from "../scripts/visuals/wind-field.js";
 import { cellToPixel, headingToVector } from "../scripts/board/board-geometry.js";
 
 function fixture() {
@@ -124,4 +124,13 @@ test("wind direction agrees with world geometry and workload is independent of m
   const camera = { x: 0, y: 0, viewWidth: 1200, viewHeight: 900 };
   assert.equal(describeWindField({ strength: "calm" }, camera).windParticles.length, 0);
   assert.equal(describeWindField({ strength: "storm" }, camera, { enabled: false }).windParticles.length, 0);
+});
+
+test("wind covers extra world space exposed by a wide or tall SVG viewport without skewing", () => {
+  const camera = { x: 50, y: 100, viewWidth: 500, viewHeight: 2000 };
+  const visible = visibleWindCamera(camera, { width: 1000, height: 500 });
+  assert.deepEqual(visible, { x: -1700, y: 100, viewWidth: 4000, viewHeight: 2000 });
+  assert.equal(visible.x + visible.viewWidth / 2, camera.x + camera.viewWidth / 2);
+  assert.equal(visible.y + visible.viewHeight / 2, camera.y + camera.viewHeight / 2);
+  assert.equal(visibleWindCamera(camera, { width: 0, height: 0 }), camera);
 });

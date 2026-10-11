@@ -1,3 +1,4 @@
+import { syncWindCamera } from "../visuals/wind-field.js";
 import { BattleEffectsController } from "./battle-effects-controller.js";
 import { VisualSettingsService } from "../services/visual-settings-service.js";
 import { tokenRotation } from "../visuals/token-visuals.js";
@@ -193,6 +194,7 @@ export class BattleAnimationController {
     this.visible = !globalThis.document?.hidden && !this.app.minimized &&
       !(main?.dataset.layout === "narrow" && main.dataset.narrowPane !== "board") &&
       Boolean(svg?.getClientRects?.().length);
+    if (this.visible) syncWindCamera(svg);
     const wind = svg?.querySelector?.(".ssc-wind-particles");
     if (wind) wind.style.display = VisualSettingsService.wind() ? "" : "none";
     if (this.visible && VisualSettingsService.wind()) svg?.unpauseAnimations?.();

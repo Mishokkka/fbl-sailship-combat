@@ -72,7 +72,7 @@
             <line class="ssc-target-line" x1="{{board.targetLine.x1}}" y1="{{board.targetLine.y1}}" x2="{{board.targetLine.x2}}" y2="{{board.targetLine.y2}}"></line>
           {{/if}}
 
-          <g class="ssc-wind-camera" transform="{{board.windCameraTransform}}" aria-hidden="true">
+          <g class="ssc-wind-camera" transform="{{board.windCameraTransform}}" data-wind-direction="{{battle.wind.direction}}" data-wind-strength="{{battle.wind.strength}}" aria-hidden="true">
             <g class="ssc-wind-particles" opacity="{{board.windParticleOpacity}}" transform="rotate({{board.windParticleAngle}})">
               {{#each board.windParticles as |p|}}
                 <line x1="{{p.x1}}" y1="{{p.y}}" x2="{{p.x2}}" y2="{{p.y}}" stroke-width="{{p.width}}" vector-effect="non-scaling-stroke">

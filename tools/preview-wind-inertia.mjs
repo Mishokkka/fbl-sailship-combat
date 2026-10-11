@@ -225,12 +225,27 @@ try {
     return { changed: before !== node.getAttribute("transform"), sameNode: node === svg.querySelector(".ssc-wind-camera") };
   });
   assert.deepEqual(cameraResult, { changed: true, sameNode: true });
+  await page.evaluate(() => {
+    window.windNodeBeforeResize = document.querySelector(".ssc-wind-camera");
+    window.windLineBeforeResize = document.querySelector(".ssc-wind-camera line");
+  });
+  await page.setViewportSize({ width: 800, height: 650 });
+  await page.waitForFunction(() => document.querySelector(".ssc-main-grid").dataset.layout === "narrow");
+  await page.waitForFunction(() => {
+    const svg = document.querySelector(".ssc-board-svg"), rect = svg.getBoundingClientRect();
+    return Math.abs(Number(svg.querySelector(".ssc-wind-camera").dataset.windAspect) - rect.width / rect.height) < .001;
+  });
+  assert.equal(await page.evaluate(() => {
+    const node = document.querySelector(".ssc-wind-camera");
+    return node === windNodeBeforeResize && node.querySelector("line") === windLineBeforeResize;
+  }), true, "Resize reuses wind nodes");
+  await page.setViewportSize({ width: 1500, height: 900 });
   assert.deepEqual(errors, []);
 
   // Compare visible strokes with the old production builder, copied from the audited main.
   // The legacy function is embedded from that revision rather than approximated in the test.
   const coverage = await page.evaluate(async () => {
-    const { describeWindField, syncWindCamera } = await import("http://movement.test/scripts/visuals/wind-field.js");
+    const { describeWindField, syncWindCamera, visibleWindCamera } = await import("http://movement.test/scripts/visuals/wind-field.js");
     const { normalizeAngle } = await import("http://movement.test/scripts/board/board-geometry.js");
     const VisualSettingsService = { wind: () => true };
     const legacy = function (battle, pixelWidth, pixelHeight, lod = "near") {
@@ -269,7 +284,8 @@ try {
     const svg = document.querySelector("svg");
     function mount(kind, board, camera, direction, strength = "light") {
       const wind = { direction, strength };
-      const field = kind === "new" ? describeWindField(wind, camera)
+      const visible = visibleWindCamera(camera, svg.getBoundingClientRect());
+      const field = kind === "new" ? describeWindField(wind, visible)
         : legacy({ wind }, board.width, board.height, camera.zoom < .75 ? "far" : camera.zoom < 1.15 ? "medium" : "near");
       svg.setAttribute("viewBox", [camera.x, camera.y, camera.viewWidth, camera.viewHeight].join(" "));
       const rotation = kind === "new" ? 'rotate(' + field.windParticleAngle + ')' : 'rotate(' + field.windParticleAngle + ' ' + field.windParticleCenterX + ' ' + field.windParticleCenterY + ')';
@@ -279,7 +295,9 @@ try {
       return field;
     }
     function visibleCount() {
-      const view = svg.viewBox.baseVal;
+      const box = svg.viewBox.baseVal;
+      const camera = visibleWindCamera({ x: box.x, y: box.y, viewWidth: box.width, viewHeight: box.height }, svg.getBoundingClientRect());
+      const view = { x: camera.x, y: camera.y, width: camera.viewWidth, height: camera.viewHeight };
       let count = 0;
       for (const line of svg.querySelectorAll("line")) {
         const matrix = svg.getScreenCTM().inverse().multiply(line.getScreenCTM());
