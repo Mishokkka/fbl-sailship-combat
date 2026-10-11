@@ -57,6 +57,7 @@ export class CreatureNormalizer {
     const tint = boundedString(creature.token.tint, { fallback: "#d7d4c7", maxLength: 32 });
     creature.token.tint = /^#[0-9a-f]{3,8}$/i.test(tint) ? tint : "#d7d4c7";
     creature.token.silhouette = enumValue(creature.token.silhouette, SILHOUETTES, "beast");
+    creature.token.imageFacing = enumValue(creature.token.imageFacing, ["right", "up", "left", "down"], "right");
     creature.token.showName = creature.token.showName !== false;
 
     creature.stats = plainRecord(creature.stats);

@@ -29,7 +29,8 @@
     "styles/owners/60-battle-setup.css",
     "styles/owners/70-sound-settings.css",
     "styles/owners/80-interface.css",
-    "styles/owners/85-workbench.css"
+    "styles/owners/85-workbench.css",
+    "styles/owners/90-battle-visuals.css"
   ],
   "languages": [
     {

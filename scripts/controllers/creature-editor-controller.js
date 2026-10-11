@@ -20,6 +20,7 @@ export class CreatureEditorController {
     creature.token.scale = this.clamp(this.get("tokenScale"), 0.35, 3, Number(creature.token.scale ?? 1));
     creature.token.tint = String(this.get("tokenTint") ?? creature.token.tint ?? "#d7d4c7").trim().slice(0, 32) || "#d7d4c7";
     creature.token.silhouette = String(this.get("silhouette") ?? creature.token.silhouette ?? "beast");
+    creature.token.imageFacing = String(this.get("imageFacing") ?? creature.token.imageFacing ?? "right");
     creature.token.showName = this.getChecked("showName", creature.token.showName !== false);
 
     creature.stats ??= {};

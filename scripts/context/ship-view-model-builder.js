@@ -1,4 +1,5 @@
-import { cellToPixel, normalizeAngle } from "../board/board-geometry.js";
+import { tokenVisual } from "../visuals/token-visuals.js";
+import { cellToPixel } from "../board/board-geometry.js";
 import { ALTITUDE_BAND_METERS, ORDER_LABELS } from "../utils/constants.js";
 import { PlayerControlService } from "../services/player-control-service.js";
 import { CombatantRules } from "../rules/combatant-rules.js";
@@ -22,7 +23,8 @@ export class ShipViewModelBuilder {
         ? (ship.attacks ?? []).filter(attack => Number(attack.cooldown ?? 0) > 0).length
         : (ship.weapons ?? []).filter(weapon => Number(weapon.reload ?? 0) > 0).length
       : 0;
-    const renderHeading = normalizeAngle(Number(ship.heading ?? 0) - 90);
+    const visual = tokenVisual(ship, cellSize);
+    const renderHeading = visual.rotation;
     const assignedUserId = PlayerControlService.getAssignedUserId(battle, ship.id);
     const assignedUser = assignedUserId ? game.users?.get?.(assignedUserId) : null;
     const pendingOrder = battle.pendingOrders?.[ship.id] ?? null;
@@ -72,6 +74,7 @@ export class ShipViewModelBuilder {
       }[ship.contactState] ?? "",
       crewPct: canViewDetails ? this.percent(isCreature ? ship.vitality?.current : ship.crew?.current, isCreature ? ship.vitality?.max : ship.crew?.required) : 0,
       moralePct: canViewDetails ? this.percent(isCreature ? ship.vitality?.morale : ship.crew?.morale, 10) : 0,
+      visual,
       renderHeading,
       counterHeading: -renderHeading,
       struck: Boolean(ship.flags?.struck),
@@ -83,7 +86,7 @@ export class ShipViewModelBuilder {
       attachedCreatureCount,
       camouflaged: Boolean(isCreature && Number(ship.flags?.camouflaged ?? 0) > 0),
       tokenImage,
-      hasTokenImage: Boolean(tokenImage),
+      hasTokenImage: Boolean(tokenImage) && !ship.contactState,
       tokenScale: Number(ship.token?.scale ?? 1),
       tokenTint: String(ship.token?.tint ?? "#d7d4c7"),
       tokenShowName: ship.token?.showName !== false,
