@@ -205,7 +205,6 @@ try {
   assert.match(await page.locator(".ssc-plan-drift").textContent(), /Снос 1 гекс/);
   assert.deepEqual(await page.evaluate(() => movementTest.read()), before);
   await page.screenshot({ path: "artifacts/interface/wind-inertia-plan.png" });
-  console.log("WIND_PREVIEW_BASE64 " + (await page.screenshot({ type: "jpeg", quality: 80 })).toString("base64"));
   await page.keyboard.press("Escape");
   await page.evaluate(() => movementTest.setWind("calm"));
   assert.equal(await page.locator(".ssc-wind-particles line").count(), 0);

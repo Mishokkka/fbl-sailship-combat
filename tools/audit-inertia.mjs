@@ -47,7 +47,7 @@ edgeShip.y = 0; const beforeHp = edgeShip.sections.bow.hp.value;
 const edgeResult = MovementEngine.resolveHorizontalCompletion(edge, edgeShip);
 const creatureRows = [];
 for (const template of ["skyRay", "cloudJelly", "razorSwarm"]) {
-  const b = fixture(), creature = createCreature({ template, speed: 0, altitude: 4 });
+  const b = fixture(), creature = createCreature({ template, speed: 0, altitude: 4, x: 12, y: 10 });
   b.ships = [creature];
   creatureRows.push({ template, profile: creature.movement.profile, motion: MovementReadoutBuilder.build(b, creature) });
 }
