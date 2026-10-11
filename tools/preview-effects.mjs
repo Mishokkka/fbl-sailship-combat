@@ -141,6 +141,17 @@ async function install(page) {
       app.contextBuilder.invalidate();
       await app.renderBattleState();
     };
+    harness.creature = async () => {
+      const {createCreature} = await import("http://gunnery.test/scripts/data/creature-factory.js");
+      const a = stored.ships[0], b = stored.ships[1];
+      stored.ships[0] = createCreature({ id: a.id, side: a.side, x: a.x, y: a.y, heading: 0, altitude: 4,
+        template: "stormRoc", behavior: { controlledByAI: true } });
+      Object.assign(b, { x: a.x, y: a.y-2, altitude: 4 });
+      Math.random = () => .15;
+      app.renderBattleSnapshot = null; app.contextBuilder.invalidate();
+      await app.render({parts:Object.keys(NavalBattleApp.PARTS)});
+      app.layout.showPane("board");
+    };
     harness.units = async count => {
       stored.ships = Array.from({ length: count }, (_, i) => {
         const unit = structuredClone(fixture.ships[i % 2]);
@@ -184,6 +195,7 @@ try {
   assert.equal(saved.lastReport.visual.arc,"bow");
   await page.waitForTimeout(150);
   await page.screenshot({path:"artifacts/interface/cannon-flight.png"});
+  console.log("EFFECT_IMAGE:"+(await page.screenshot({type:"jpeg",quality:70})).toString("base64"));
   await page.waitForTimeout(850);
   assert.equal(await page.locator(".ssc-attack-effect").count(),0);
   await page.evaluate(()=>previewApp.render({parts:["board"]}));
@@ -235,6 +247,22 @@ try {
   });
   assert.deepEqual(lifecycle,{one:1,bounded:1,finished:true,empty:true,noReplay:true,noStale:true,clean:true});
 
+
+  for (const method of ["attack","runAI"]) {
+    await reset(); await page.evaluate(()=>gunneryTest.creature());
+    await page.evaluate(async method=>{
+      previewApp.selectedTargetId = gunneryTest.read().ships[1].id;
+      if(method==="attack") await previewApp.creatures.attack("thunderCry");
+      else await previewApp.creatures.runAI();
+    },method);
+    const report=await page.evaluate(()=>gunneryTest.read().lastReport);
+    assert.equal(report.visual.type,"sonic");
+    assert.equal(report.outcome,"hit");
+    assert.equal(await page.locator(".ssc-attack-effect.type-sonic").count(),1);
+    assert.equal(await page.locator('.ssc-unit-art[data-family="bird"]').count(),1);
+    await page.screenshot({path:"artifacts/interface/creature-"+method+".png"});
+    if (method==="attack") console.log("CREATURE_IMAGE:"+(await page.screenshot({type:"jpeg",quality:70})).toString("base64"));
+  }
   const metrics=[];
   for (const count of [4,12,30]) {
     await page.evaluate(count=>gunneryTest.units(count),count);

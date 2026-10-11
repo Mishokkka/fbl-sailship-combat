@@ -41,7 +41,10 @@ test("Visuals survive normalization but hidden and lost participants cannot leak
   assert.deepEqual(BattleNormalizer.normalize(battle).lastReport.visual,report.visual);
   assert.equal(BattleReportService.project(report,new Set([a.id]),[a]).visual,null);
   assert.equal(BattleReportService.project(report,new Set([a.id]),[a,{...b,contactState:"lost"}]).visual,null);
-  assert.equal(BattleReportService.project(report,new Set([a.id]),[a,{...b,contactState:"detected"}]).visual.section,"");
+  const projected=BattleReportService.project(report,new Set([a.id]),[a,{...b,x:99,heading:240,contactState:"detected"}]);
+  assert.equal(projected.visual.section,"");
+  assert.equal(projected.visual.target.x,99);
+  assert.equal(projected.visual.target.heading,240);
   assert.equal(BattleReportService.project(report,new Set([b.id]),[a,b]).visual.section,"stern");
   assert.equal(BattleReportService.normalize({...report,outcome:"prepared"},battle).visual,undefined);
   assert.equal(normalizeAttackVisual({...report.visual,source:{x:NaN,y:0,heading:0}}),null);

@@ -102,10 +102,17 @@ export class BattleReportService {
     const groups = report.groups.filter(group => controlledIds.has(group.unitId));
     if (report.kind !== "round" && !controlledIds.has(report.sourceId) && !controlledIds.has(report.targetId) && !groups.length) return null;
     const visible = new Map(ships.filter(ship => ship.contactState !== "lost").map(ship => [ship.id, ship]));
+    const knownPosition = (id, snapshot) => {
+      if (controlledIds.has(id)) return snapshot;
+      const unit = visible.get(id);
+      return { x: Number(unit.x), y: Number(unit.y), heading: Number(unit.heading) };
+    };
     return {
       ...report,
-      visual: visible.has(report.sourceId) && visible.has(report.targetId)
-        ? (report.visual ? { ...report.visual, section: controlledIds.has(report.targetId) ? report.visual.section : "" } : null) : null,
+      visual: report.visual && visible.has(report.sourceId) && visible.has(report.targetId)
+        ? { ...report.visual, source: knownPosition(report.sourceId, report.visual.source),
+          target: knownPosition(report.targetId, report.visual.target),
+          section: controlledIds.has(report.targetId) ? report.visual.section : "" } : null,
       title: report.kind === "round" ? "Итоги раунда " + report.round
         : report.kind === "crew" ? "Работа экипажа · " + (visible.get(report.sourceId)?.name ?? "Неизвестный участник")
         : (visible.get(report.sourceId)?.name ?? "Неизвестный участник") + " → " + (visible.get(report.targetId)?.name ?? "Неизвестная цель"),
