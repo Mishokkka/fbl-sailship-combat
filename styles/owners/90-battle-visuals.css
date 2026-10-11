@@ -1,25 +1,27 @@
 /* Token artwork: bounded SVG geometry, shared definitions, no idle animation or filters. */
-.sailships-combat .ssc-unit-art { pointer-events: none; stroke-linejoin: round; stroke-linecap: round; }
-.sailships-combat .ssc-unit-hull { fill: #48372c; stroke: #c29c68; stroke-width: 1.4; }
-.sailships-combat .ssc-unit-deck { fill: #896e4b; stroke: #302a26; stroke-width: .8; }
-.sailships-combat .ssc-unit-rail { fill: none; stroke: #c2a77a; stroke-width: .55; opacity: .6; }
-.sailships-combat .ssc-unit-guns { fill: none; stroke: #1d2730; stroke-width: 2.4; }
-.sailships-combat .ssc-unit-spar { fill: none; stroke: #d0ad73; stroke-width: 1.2; }
-.sailships-combat .ssc-unit-sail { fill: #e5dcc1; stroke: #fff1d4; stroke-width: .65; }
-.sailships-combat .ssc-unit-seam { fill: none; stroke: #a9997d; stroke-width: .6; }
-.sailships-combat .ssc-unit-metal { fill: #b99e6e; stroke: #423d31; stroke-width: .65; }
-.sailships-combat .ssc-unit-pennant { fill: var(--ssc-side-color, #8792a0); stroke: #efe2bb; stroke-width: .6; }
-.sailships-combat .ssc-unit-mortar { fill: #27303a; stroke: #c6b18a; stroke-width: 1; }
-.sailships-combat .ssc-unit-heading { stroke: var(--ssc-side-color, #d7bb78); stroke-width: 2; }
-.sailships-combat .ssc-unit-skin { fill: var(--ssc-creature-tint, #9cbdab); stroke: #e7e6d4; stroke-width: 1; }
-.sailships-combat .ssc-unit-belly { fill: #405c65; fill-opacity: .55; stroke: #bed4cb; stroke-width: .6; }
-.sailships-combat .ssc-unit-anatomy { fill: none; stroke: #58757c; stroke-width: .9; }
-.sailships-combat .ssc-unit-eye { fill: #ecb565; stroke: #202c33; stroke-width: .45; }
-.sailships-combat .ssc-unit-beak { fill: #c8ab71; stroke: #efe5c8; stroke-width: .6; }
-.sailships-combat .ssc-unit-tendrils { fill: none; stroke: var(--ssc-creature-tint, #a5c2cd); stroke-width: 1.7; }
-.sailships-combat .ssc-unit-contact { fill: #546777; stroke: #c2cfda; stroke-width: 1; stroke-dasharray: 2 2; }
+.ssc-unit-art { pointer-events: none; stroke-linejoin: round; stroke-linecap: round; }
+.ssc-unit-hull { fill: #48372c; stroke: #c29c68; stroke-width: 1.4; }
+.ssc-unit-deck { fill: #896e4b; stroke: #302a26; stroke-width: .8; }
+.ssc-unit-rail { fill: none; stroke: #c2a77a; stroke-width: .55; opacity: .6; }
+.ssc-unit-guns { fill: none; stroke: #1d2730; stroke-width: 2.4; }
+.ssc-unit-spar { fill: none; stroke: #d0ad73; stroke-width: 1.2; }
+.ssc-unit-sail { fill: #e5dcc1; stroke: #fff1d4; stroke-width: .65; }
+.ssc-unit-seam { fill: none; stroke: #a9997d; stroke-width: .6; }
+.ssc-unit-metal { fill: #b99e6e; stroke: #423d31; stroke-width: .65; }
+.ssc-unit-pennant { fill: var(--ssc-side-color, #8792a0); stroke: #efe2bb; stroke-width: .6; }
+.ssc-unit-mortar { fill: #27303a; stroke: #c6b18a; stroke-width: 1; }
+.ssc-unit-heading { stroke: var(--ssc-side-color, #d7bb78); stroke-width: 2; }
+.ssc-unit-skin { fill: var(--ssc-creature-tint, #9cbdab); stroke: #e7e6d4; stroke-width: 1; }
+.ssc-unit-belly { fill: #405c65; fill-opacity: .55; stroke: #bed4cb; stroke-width: .6; }
+.ssc-unit-anatomy { fill: none; stroke: #58757c; stroke-width: .9; }
+.ssc-unit-eye { fill: #ecb565; stroke: #202c33; stroke-width: .45; }
+.ssc-unit-beak { fill: #c8ab71; stroke: #efe5c8; stroke-width: .6; }
+.ssc-unit-tendrils { fill: none; stroke: var(--ssc-creature-tint, #a5c2cd); stroke-width: 1.7; }
+.ssc-unit-contact { fill: #546777; stroke: #c2cfda; stroke-width: 1; stroke-dasharray: 2 2; }
 .sailships-combat .ssc-creature-token-image { filter: none; }
 .sailships-combat .ssc-creature-token.camouflaged:not(.selected):not(.active-turn) .ssc-unit-art { opacity: .58; }
-.sailships-combat .ssc-board-svg[data-lod="far"] .ssc-unit-detail,
-.sailships-combat .ssc-board-svg[data-lod="medium"] .ssc-unit-seam { display: none; }
+.ssc-board-svg[data-lod="far"] { --ssc-art-details: none; --ssc-art-seams: none; }
+.ssc-board-svg[data-lod="medium"] { --ssc-art-seams: none; }
+.ssc-unit-detail { display: var(--ssc-art-details, inline); }
+.ssc-unit-seam { display: var(--ssc-art-seams, var(--ssc-art-details, inline)); }
 .sailships-combat .ssc-board-svg[data-lod="far"] .ssc-unit-heading { stroke-width: 2.5; }

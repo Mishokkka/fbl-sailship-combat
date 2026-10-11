@@ -242,6 +242,7 @@ try {
   }
   await page.setContent('<style>body{margin:0;background:#13232e}.ssc-board-svg{width:1100px;height:1450px}</style><style>'+newCss+'</style><body class="sailships-combat">'+gallery+'</svg></body>');
   assert.equal(await page.locator("use").count(), 66);
+  assert.equal(await page.locator("#ssc-art-cutter .ssc-unit-hull").evaluate(n => getComputedStyle(n).fill), "rgb(72, 55, 44)");
   assert.ok(await page.locator("use").evaluateAll(nodes => nodes.every(n => n.getBBox().width > 20 && n.getBBox().height > 10)));
   await page.screenshot({ path: "artifacts/interface/fleet-directions.png" });
   console.log("VISUAL_IMAGE:"+(await page.screenshot({type:"jpeg",quality:65})).toString("base64"));
