@@ -1,3 +1,4 @@
+import { captureAttackVisual } from "../visuals/attack-visuals.js";
 import { BattleReportService } from "../services/battle-report-service.js";
 import { CreatureAttackEngine } from "../engine/creature-attack-engine.js";
 import { CreatureDamageEngine } from "../engine/creature-damage-engine.js";
@@ -79,6 +80,8 @@ export class CreatureCombatController {
         if (!this.app._requireActivePhase(battle, creature, "gunnery", "Атака существа")) return false;
         if (!this.app._markTurnAction(battle, creature, "creatureAttack")) return false;
         const before = BattleReportService.capture(battle);
+        const attack = CreatureAttackEngine.getAttack(creature, attackId);
+        const visual = captureAttackVisual(creature, battle.ships.find(unit => unit.id === request.targetId), attack ?? {});
         const result = CreatureAttackEngine.resolve(battle, creature.id, attackId, request.targetId);
         if (!result.ok) {
           this.app._refundTurnAction(battle, creature, "creatureAttack");
@@ -88,7 +91,7 @@ export class CreatureCombatController {
         this.app._addLog(battle, result.text);
         reportId = BattleReportService.record(battle, before, {
           outcome: result.hit ? "hit" : "miss", sourceId: creature.id, targetId: result.target.id,
-          title: creature.name + " → " + result.target.name, details: [result.text]
+          title: creature.name + " → " + result.target.name, details: [result.text], visual
         }).id;
         const timestamp = Date.now();
         battle.lastAudioEvent = { id: "audio-" + reportId, type: "creatureAttack", shipId: creature.id, timestamp };
@@ -175,12 +178,22 @@ export class CreatureCombatController {
         ui.notifications.warn(`${creature.name}: управление ИИ отключено в редакторе.`);
         return false;
       }
+      const before = battle.phase === "gunnery" ? BattleReportService.capture(battle) : null;
+      const positions = new Map((battle.ships ?? []).map(unit => [unit.id, { x: unit.x, y: unit.y, heading: unit.heading }]));
       const result = CreatureAIEngine.runPhase(battle, creature);
       if (!result.ok) {
         ui.notifications.warn(result.text ?? "ИИ не смог выполнить действие.");
         return false;
       }
       this.app._addLog(battle, `[ИИ] ${result.text}`);
+      if (before && result.attack && result.target) {
+        const report = BattleReportService.record(battle, before, {
+          outcome: result.hit ? "hit" : "miss", sourceId: creature.id, targetId: result.target.id,
+          title: creature.name + " → " + result.target.name, details: [result.text],
+          visual: captureAttackVisual(positions.get(creature.id), positions.get(result.target.id), result.attack)
+        });
+        battle.lastAudioEvent = { id: "audio-" + report.id, type: "creatureAttack", shipId: creature.id, timestamp: Date.now() };
+      }
       if (battle.phase === "movement") {
         const actions = this.app._getShipTurnActions(battle, creature);
         if (result.moved) actions.move = true;

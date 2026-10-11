@@ -75,12 +75,15 @@
           {{#each board.ships as |ship|}}
             <g class="ssc-ship-token {{#if ship.isCreature}}ssc-creature-token{{/if}} {{#if ship.attached}}attached{{/if}} {{#if ship.camouflaged}}camouflaged{{/if}} side-{{ship.side}} {{#if ship.contactState}}contact contact-{{ship.contactState}}{{/if}} {{#if ship.selected}}selected{{/if}} {{#if ship.active}}active-turn{{/if}} {{#if ship.phaseDone}}phase-done{{/if}} {{#if ship.targetable}}targetable{{/if}} {{#if ship.isTarget}}target-selected{{/if}}" style="--ssc-side-color: {{ship.sideColor}}; --ssc-creature-tint: {{ship.tokenTint}};" data-ship-id="{{ship.id}}" data-unit-type="{{ship.unitType}}" transform="translate({{ship.cx}} {{ship.cy}}) rotate({{ship.renderHeading}})">
               <ellipse class="ssc-ship-halo" cx="0" cy="0" rx="26" ry="23" transform="scale({{ship.visual.cellScale}})"></ellipse>
-              <g class="ssc-unit-art {{#if ship.isCreature}}ssc-unit-creature{{else}}ssc-unit-ship{{/if}}" data-family="{{ship.visual.family}}" transform="scale({{ship.visual.scale}})">
+              <g class="ssc-unit-art {{#if ship.struck}}ssc-unit-disabled{{/if}} {{#if ship.isCreature}}ssc-unit-creature{{else}}ssc-unit-ship{{/if}}" data-family="{{ship.visual.family}}" transform="scale({{ship.visual.scale}})">
                 {{#if ship.hasTokenImage}}
                   {{#unless ship.contactState}}<image class="ssc-creature-token-image" href="{{ship.tokenImage}}" x="-27" y="-27" width="54" height="54" preserveAspectRatio="xMidYMid meet" transform="rotate({{ship.visual.imageRotation}})"></image>{{/unless}}
                 {{else}}
                   <use href="{{ship.visual.href}}"></use>
                 {{/if}}
+                {{#if ship.visualDamaged}}<path class="ssc-unit-damage" d="M-13 -5 L-5 2 L-10 6 M2 -4 L8 3 L4 6"></path>{{/if}}
+                {{#if ship.visualBurning}}<path class="ssc-unit-fire" d="M-8 4 Q-16 -1 -11 -9 L-8 -4 L-5 -12 Q4 -1 -8 4Z"></path>{{/if}}
+                {{#if ship.showAltitudeCore}}<path class="ssc-unit-core {{#if ship.visualCoreHot}}is-hot{{/if}}" d="M-18 -3 L-14 0 L-18 3 L-22 0Z"></path>{{/if}}
                 <path class="ssc-unit-heading" d="M30 -3 L35 0 L30 3" fill="none"></path>
               </g>
               {{#if ship.attached}}<circle class="ssc-creature-attached-mark" cx="-22" cy="-22" r="5"></circle>{{/if}}

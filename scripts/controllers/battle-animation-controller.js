@@ -1,3 +1,5 @@
+import { BattleEffectsController } from "./battle-effects-controller.js";
+import { VisualSettingsService } from "../services/visual-settings-service.js";
 import { tokenRotation } from "../visuals/token-visuals.js";
 import { cellToPixel, normalizeAngle } from "../board/board-geometry.js";
 import { SoundService } from "../services/sound-service.js";
@@ -11,6 +13,11 @@ function shortestAngle(from, to) {
 export class BattleAnimationController {
   constructor(app) {
     this.app = app;
+    this.effects = new BattleEffectsController(app);
+    this.visible = true;
+    this.cleanupListeners = null;
+    this.finishMovement = null;
+    this.finishCollision = null;
     this.playedMovementIds = new Set();
     this.playedAudioIds = new Set();
     this.playedCollisionIds = new Set();
@@ -21,6 +28,11 @@ export class BattleAnimationController {
   }
 
   onRender(battle) {
+    this.bindVisibility();
+    this.syncVisibility();
+    if (this.movementNode && !this.movementNode.isConnected) this.cancelMovementAnimation();
+    if (this.collisionNode && !this.collisionNode.isConnected) this.cancelCollisionAnimation();
+    this.effects.consume(battle, this.visible);
     if (!this.initialized) {
       if (battle?.lastMovement?.id) this.remember(this.playedMovementIds, battle.lastMovement.id);
       if (battle?.lastAudioEvent?.id) this.remember(this.playedAudioIds, battle.lastAudioEvent.id);
@@ -41,10 +53,10 @@ export class BattleAnimationController {
 
   animateMovement(battle, movement) {
     if (!movement?.id || this.playedMovementIds.has(movement.id)) return 0;
+    this.remember(this.playedMovementIds, movement.id);
     const node = this.getToken(movement.shipId);
     if (!node) return 0;
-    this.remember(this.playedMovementIds, movement.id);
-    if (globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches || typeof globalThis.requestAnimationFrame !== "function") return 0;
+    if (!this.visible || !VisualSettingsService.motion() || typeof globalThis.requestAnimationFrame !== "function") return 0;
 
     const points = [movement.start, ...(movement.path ?? []), movement.end]
       .filter(Boolean)
@@ -61,6 +73,12 @@ export class BattleAnimationController {
     const tokenUi = node.querySelector?.(".ssc-token-ui");
     const startedAt = performance.now();
     this.cancelMovementAnimation();
+    this.movementNode = node;
+    this.finishMovement = () => {
+      const end = frames.at(-1);
+      this.setTokenTransform(node, tokenUi, end.x, end.y, end.heading);
+      node.classList.remove("is-animating");
+    };
     node.classList.add("is-animating");
     this.setTokenTransform(node, tokenUi, frames[0].x, frames[0].y, frames[0].heading);
 
@@ -81,7 +99,7 @@ export class BattleAnimationController {
         return;
       }
       this.animationFrame = null;
-      node.classList.remove("is-animating");
+      this.finishMovement?.(); this.finishMovement = null; this.movementNode = null;
     };
     this.animationFrame = requestAnimationFrame(tick);
     return duration;
@@ -90,9 +108,9 @@ export class BattleAnimationController {
   animateCollision(battle, collision, delay = 0) {
     if (!collision?.id || this.playedCollisionIds.has(collision.id)) return;
     this.remember(this.playedCollisionIds, collision.id);
-    if (globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches || typeof globalThis.requestAnimationFrame !== "function") return;
+    if (!this.visible || !VisualSettingsService.motion() || typeof globalThis.requestAnimationFrame !== "function") return;
     this.cancelCollisionAnimation();
-    const run = () => this.runCollisionAnimation(battle, collision);
+    const run = () => { if (this.visible && VisualSettingsService.motion()) this.runCollisionAnimation(battle, collision); };
     if (delay > 0) this.collisionTimer = setTimeout(run, Math.max(0, delay - 40));
     else run();
   }
@@ -120,6 +138,12 @@ export class BattleAnimationController {
     const bHeading = tokenRotation(target.heading);
     const aUi = a.querySelector?.(".ssc-token-ui");
     const bUi = b.querySelector?.(".ssc-token-ui");
+    this.collisionNode = a;
+    this.finishCollision = () => {
+      this.setTokenTransform(a, aUi, aCenter.cx, aCenter.cy, aHeading);
+      this.setTokenTransform(b, bUi, bCenter.cx, bCenter.cy, bHeading);
+      a.classList.remove("ssc-collision-impact"); b.classList.remove("ssc-collision-impact");
+    };
     a.classList.add("ssc-collision-impact");
     b.classList.add("ssc-collision-impact");
 
@@ -141,10 +165,41 @@ export class BattleAnimationController {
       this.collisionFrame = null;
       this.setTokenTransform(a, aUi, aCenter.cx, aCenter.cy, aHeading);
       this.setTokenTransform(b, bUi, bCenter.cx, bCenter.cy, bHeading);
-      a.classList.remove("ssc-collision-impact");
-      b.classList.remove("ssc-collision-impact");
+      this.finishCollision?.(); this.finishCollision = null; this.collisionNode = null;
     };
     this.collisionFrame = requestAnimationFrame(tick);
+  }
+
+  bindVisibility() {
+    if (this.cleanupListeners || !globalThis.document) return;
+    const update = () => this.syncVisibility();
+    const settings = () => { update(); this.app.renderBattleState?.(["board"]); };
+    const media = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
+    document.addEventListener("visibilitychange", update);
+    globalThis.addEventListener?.("ssc-visual-settings", settings);
+    media?.addEventListener?.("change", update);
+    const observer = typeof MutationObserver === "function" ? new MutationObserver(update) : null;
+    if (this.app.element) observer?.observe(this.app.element, { attributes: true, attributeFilter: ["style","class","hidden"] });
+    this.cleanupListeners = () => {
+      document.removeEventListener("visibilitychange", update);
+      globalThis.removeEventListener?.("ssc-visual-settings", settings);
+      media?.removeEventListener?.("change", update); observer?.disconnect();
+    };
+  }
+
+  syncVisibility() {
+    const svg = this.app.element?.querySelector?.(".ssc-board-svg");
+    const main = this.app.element?.querySelector?.(".ssc-main-grid");
+    this.visible = !globalThis.document?.hidden && !this.app.minimized &&
+      !(main?.dataset.layout === "narrow" && main.dataset.narrowPane !== "board") &&
+      Boolean(svg?.getClientRects?.().length);
+    const wind = svg?.querySelector?.(".ssc-wind-particles");
+    if (wind) wind.style.display = VisualSettingsService.wind() ? "" : "none";
+    if (this.visible && VisualSettingsService.wind()) svg?.unpauseAnimations?.();
+    else svg?.pauseAnimations?.();
+    if (!this.visible || !VisualSettingsService.motion()) {
+      this.cancelAnimation(); this.effects.cancel();
+    }
   }
 
   getToken(id) {
@@ -160,6 +215,7 @@ export class BattleAnimationController {
   cancelMovementAnimation() {
     if (this.animationFrame != null && typeof globalThis.cancelAnimationFrame === "function") cancelAnimationFrame(this.animationFrame);
     this.animationFrame = null;
+    this.finishMovement?.(); this.finishMovement = null; this.movementNode = null;
     this.app.element?.querySelector?.(".ssc-ship-token.is-animating")?.classList?.remove("is-animating");
   }
 
@@ -168,6 +224,7 @@ export class BattleAnimationController {
     if (this.collisionFrame != null && typeof globalThis.cancelAnimationFrame === "function") cancelAnimationFrame(this.collisionFrame);
     this.collisionTimer = null;
     this.collisionFrame = null;
+    this.finishCollision?.(); this.finishCollision = null; this.collisionNode = null;
     this.app.element?.querySelectorAll?.(".ssc-ship-token.ssc-collision-impact")?.forEach(node => node.classList.remove("ssc-collision-impact"));
   }
 
@@ -185,6 +242,8 @@ export class BattleAnimationController {
 
   destroy() {
     this.cancelAnimation();
+    this.effects.destroy();
+    this.cleanupListeners?.(); this.cleanupListeners = null;
     this.playedMovementIds.clear();
     this.playedAudioIds.clear();
     this.playedCollisionIds.clear();
