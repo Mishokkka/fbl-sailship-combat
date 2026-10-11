@@ -79,6 +79,12 @@
         <label class="ssc-wide-field">Путь к изображению<input type="text" data-creature-edit="tokenImg" value="{{selectedShip.token.img}}"></label>
         <button type="button" data-action="chooseCreatureToken"><i class="fa-solid fa-image"></i> Выбрать изображение</button>
         <label>Масштаб<input type="number" data-creature-edit="tokenScale" value="{{selectedShip.token.scale}}" min="0.35" max="3" step="0.05"></label>
+        <label>Голова на изображении<select data-creature-edit="imageFacing">
+          <option value="right" {{#if (sscEq selectedShip.token.imageFacing 'right')}}selected{{/if}}>Справа →</option>
+          <option value="up" {{#if (sscEq selectedShip.token.imageFacing 'up')}}selected{{/if}}>Сверху ↑</option>
+          <option value="left" {{#if (sscEq selectedShip.token.imageFacing 'left')}}selected{{/if}}>Слева ←</option>
+          <option value="down" {{#if (sscEq selectedShip.token.imageFacing 'down')}}selected{{/if}}>Снизу ↓</option>
+        </select></label>
         <label>Цвет силуэта<input type="text" data-creature-edit="tokenTint" value="{{selectedShip.token.tint}}"></label>
         <label>Силуэт<select data-creature-edit="silhouette">
           <option value="beast" {{#if (sscEq selectedShip.token.silhouette 'beast')}}selected{{/if}}>Зверь</option>

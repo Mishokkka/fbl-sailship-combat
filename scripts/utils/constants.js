@@ -78,6 +78,7 @@ export const BATTLE_SETUP_PARTIAL_TEMPLATES = [
 ];
 
 export const NAVAL_PARTIAL_TEMPLATES = [
+  "modules/sailships-combat/templates/naval/parts/naval-unit-art.hbs",
   "modules/sailships-combat/templates/naval/parts/naval-navigation.hbs",
   "modules/sailships-combat/templates/naval/parts/naval-left-panel.hbs",
   "modules/sailships-combat/templates/naval/parts/naval-board-part.hbs",

@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -38,6 +39,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -58,6 +60,8 @@ jobs:
         run: node tools/preview-crew.mjs
       - name: Check readiness and round pacing
         run: node tools/preview-pacing.mjs
+      - name: Check fleet artwork and direction
+        run: node tools/preview-visuals.mjs
       - name: Save interface previews
         if: always()
         uses: actions/upload-artifact@v7

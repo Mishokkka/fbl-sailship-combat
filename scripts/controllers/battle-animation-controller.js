@@ -1,3 +1,4 @@
+import { tokenRotation } from "../visuals/token-visuals.js";
 import { cellToPixel, normalizeAngle } from "../board/board-geometry.js";
 import { SoundService } from "../services/sound-service.js";
 
@@ -54,7 +55,7 @@ export class BattleAnimationController {
     if (points.length < 2) return 0;
     const frames = points.map(point => {
       const center = cellToPixel(battle.board, point.x, point.y);
-      return { x: center.cx, y: center.cy, heading: normalizeAngle(Number(point.heading ?? 0) - 90) };
+      return { x: center.cx, y: center.cy, heading: tokenRotation(point.heading) };
     });
     const duration = Math.min(2200, Math.max(STEP_DURATION_MS, (frames.length - 1) * STEP_DURATION_MS));
     const tokenUi = node.querySelector?.(".ssc-token-ui");
@@ -115,8 +116,8 @@ export class BattleAnimationController {
     const amplitude = Math.min(16, 4 + strength * 0.55);
     const duration = 620;
     const startedAt = performance.now();
-    const aHeading = normalizeAngle(Number(attacker.heading ?? 0) - 90);
-    const bHeading = normalizeAngle(Number(target.heading ?? 0) - 90);
+    const aHeading = tokenRotation(attacker.heading);
+    const bHeading = tokenRotation(target.heading);
     const aUi = a.querySelector?.(".ssc-token-ui");
     const bUi = b.querySelector?.(".ssc-token-ui");
     a.classList.add("ssc-collision-impact");
