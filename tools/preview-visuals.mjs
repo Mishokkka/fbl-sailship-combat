@@ -245,6 +245,5 @@ try {
   assert.equal(await page.locator("#ssc-art-cutter .ssc-unit-hull").evaluate(n => getComputedStyle(n).fill), "rgb(72, 55, 44)");
   assert.ok(await page.locator("use").evaluateAll(nodes => nodes.every(n => n.getBBox().width > 20 && n.getBBox().height > 10)));
   await page.screenshot({ path: "artifacts/interface/fleet-directions.png" });
-  console.log("VISUAL_IMAGE:"+(await page.screenshot({type:"jpeg",quality:65})).toString("base64"));
   await page.close();
 } finally { await browser.close(); }

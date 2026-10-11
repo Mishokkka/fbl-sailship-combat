@@ -1,5 +1,5 @@
 /* Token artwork: bounded SVG geometry, shared definitions, no idle animation or filters. */
-.ssc-unit-art { pointer-events: none; stroke-linejoin: round; stroke-linecap: round; }
+.ssc-unit-art { pointer-events: visiblePainted; stroke-linejoin: round; stroke-linecap: round; }
 .ssc-unit-hull { fill: #48372c; stroke: #c29c68; stroke-width: 1.4; }
 .ssc-unit-deck { fill: #896e4b; stroke: #302a26; stroke-width: .8; }
 .ssc-unit-rail { fill: none; stroke: #c2a77a; stroke-width: .55; opacity: .6; }

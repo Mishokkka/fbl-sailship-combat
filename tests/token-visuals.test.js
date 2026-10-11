@@ -57,3 +57,21 @@ test("Families and size are cosmetic and hidden contacts reveal neither class no
   assert.deepEqual(tokenVisual({ contactState: "detected", stats: { sm: 1 } }),
     tokenVisual({ contactState: "detected", stats: { sm: 20 }, template: "firstRate" }));
 });
+
+test("Wind streaks and gun arcs use the same north-clockwise convention", async () => {
+  const { WindEngine } = await import("../scripts/engine/wind-engine.js");
+  const { GunneryEngine } = await import("../scripts/engine/gunnery-engine.js");
+  const { BoardContextBuilder } = await import("../scripts/context/board-context-builder.js");
+  const builder = new BoardContextBuilder({});
+  for (const heading of headings) {
+    const wind = { direction: heading, strength: "light" };
+    const data = builder.prepareWindParticles({ wind }, 500, 500);
+    assert.equal(data.windParticleAngle, tokenVisual({ heading }).rotation);
+    assert.equal(WindEngine.getPointOfSail({ heading }, wind), "running");
+    assert.equal(WindEngine.getPointOfSail({ heading: (heading+180)%360 }, wind), "inIrons");
+    for (const arc of ["bow","stern","port","starboard"]) for (const direction of headings) {
+      assert.equal(GunneryEngine.isDirectionInArc({heading},arc,direction),
+        CreatureAttackEngine.isDirectionInArc({heading},arc,direction));
+    }
+  }
+});
