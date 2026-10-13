@@ -205,6 +205,7 @@ export class BattlePhaseController {
     const canReduceSpeed = canMovementPrep && !actions.sail && reducedSpeed < beforeSpeed
       && this.canSpendMovementPreparation(battle, ship, { resultingSpeed: reducedSpeed });
     const canTurn = canMovementPrep && !actions.turn && MovementEngine.getTurnLimit(ship) > 0
+      && beforeSpeed <= MovementEngine.getSafeTurnSpeed(ship)
       && this.canSpendMovementPreparation(battle, ship, { resultingSpeed: beforeSpeed });
     const canCore = canAct && usesCore && phase === "movement" && !actions.core
       && this.canSpendMovementPreparation(battle, ship, { resultingSpeed: beforeSpeed });
@@ -352,7 +353,7 @@ export class BattlePhaseController {
     if (phase === "crew" && order === "damageControl") budget += 1;
     if (phase === "crew" && order === "boarding") budget += 1;
     if (ship?.flags?.grappledWith && phase === "movement") budget = 1;
-    if (ship?.flags?.inIrons && phase === "movement") budget = Math.min(budget, 1);
+    if (ship?.flags?.inIrons && Number(ship.speed ?? 0) <= 0 && phase === "movement") budget = Math.min(budget, 1);
     return Math.max(1, budget);
   }
 

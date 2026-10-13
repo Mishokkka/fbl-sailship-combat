@@ -218,7 +218,14 @@ export class CreatureMovementEngine {
         const vector = headingToVector(heading, current.x, current.y);
         const x = current.x + vector.dx;
         const y = current.y + vector.dy;
-        if (!withinBoard(battle.board, x, y)) break;
+        if (!withinBoard(battle.board, x, y)) {
+          if (path.length && path.length < inertia.requiredAdvance) {
+            candidates.push({ ...current, heading, key: cellKey(current.x, current.y), steps: path.length,
+              requiredAdvance: inertia.requiredAdvance, resultingSpeed: 0, brakingCost: speed, steeringDelta: delta,
+              turnDelay: 0, turnStep: delta ? 1 : null, boundary: true, path: path.map(entry => ({ ...entry })) });
+          }
+          break;
+        }
         const terrain = movementApi.getTerrain(battle, x, y);
         if (movementApi.isBlockingTerrain(terrain, Number(creature.altitude ?? 0))) break;
         const cell = { x, y, key: cellKey(x, y), step, terrain, heading };
@@ -307,7 +314,7 @@ export class CreatureMovementEngine {
     const creature = result.creature;
     const candidate = result.candidate;
     const start = { x: Number(creature.x ?? 0), y: Number(creature.y ?? 0), heading: Number(creature.heading ?? 0), speed: Number(creature.speed ?? 0) };
-    creature.speed = Math.min(start.speed, Number(candidate.steps ?? 0));
+    creature.speed = candidate.boundary ? 0 : Math.min(start.speed, Number(candidate.steps ?? 0));
     const notes = [];
     for (const step of result.path ?? []) {
       const terrain = movementApi.terrainList(step.terrain);
@@ -400,7 +407,11 @@ export class CreatureMovementEngine {
         const vector = headingToVector(battle?.wind?.direction ?? 0, creature.x, creature.y);
         const x = Number(creature.x ?? 0) + vector.dx;
         const y = Number(creature.y ?? 0) + vector.dy;
-        if (!withinBoard(battle.board, x, y) || movementApi.isBlockingTerrain(movementApi.getTerrain(battle, x, y), creature.altitude)) break;
+        if (!withinBoard(battle.board, x, y)) {
+          entries.push(creature.name + ": снос остановлен на границе поля; выход из боя требует подтверждения.");
+          break;
+        }
+        if (movementApi.isBlockingTerrain(movementApi.getTerrain(battle, x, y), creature.altitude)) break;
         if (OccupancyEngine.findShipAt(battle, x, y, creature.altitude, { excludeShipId: creature.id })) break;
         creature.x = x;
         creature.y = y;

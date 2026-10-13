@@ -96,6 +96,7 @@ export class CreatureNormalizer {
     creature.flags.rulesPending = false;
     creature.flags.struck = Boolean(creature.flags.struck);
     creature.flags.withdrawn = Boolean(creature.flags.withdrawn);
+    creature.flags.withdrawalKind = creature.flags.withdrawn && ["escape", "retreat", "rout"].includes(creature.flags.withdrawalKind) ? creature.flags.withdrawalKind : null;
     creature.flags.falling = Boolean(creature.flags.falling);
     creature.flags.fallReason = creature.flags.falling
       ? enumValue(creature.flags.fallReason, FALL_REASONS, this.inferFallReason(creature))
@@ -207,7 +208,7 @@ export class CreatureNormalizer {
       ability.cooldown = 0;
       ability.uses = ability.usesMax;
     }
-    clean.flags = { rulesPending: false, struck: false, withdrawn: false, falling: false, fallReason: null, burning: false, bleeding: 0, stunned: 0, camouflaged: 0, attachedTo: null };
+    clean.flags = { rulesPending: false, struck: false, withdrawn: false, withdrawalKind: null, falling: false, fallReason: null, burning: false, bleeding: 0, stunned: 0, camouflaged: 0, attachedTo: null };
     clean.turn = { round: 1, actions: {} };
     return clean;
   }

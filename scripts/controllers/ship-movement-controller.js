@@ -68,7 +68,10 @@ export class ShipMovementController {
   }
 
   async turn(delta) {
-    await this.app._updateBattleAndRender(async battle => {
+    return this.app.movementPlan.stageTurn(delta);
+  }
+
+  executeTurn(battle, delta) {
       const ship = this.getSelectedShip(battle);
       if (!this.app._requireActivePhase(battle, ship, "movement", "Поворот")) return false;
       if (MovementEngine.getTurnLimit(ship) <= 0) {
@@ -108,8 +111,8 @@ export class ShipMovementController {
         };
       }
       this.app._addLog(battle, `${ship.name}: поворот ${direction}: ${result.text} Осталось ОД: ${this.app._getRemainingAP(battle, ship, "movement")}.`);
-      await this.app._completeIfNoAP(battle, ship, "movement");
-    }, { reason: "turn" });
+      if (this.app._getRemainingAP(battle, ship, "movement") <= 0) this.app._completeShipActivation(battle, ship, "movement");
+      return true;
   }
 
   async coreManeuver(mode) {

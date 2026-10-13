@@ -146,7 +146,15 @@ export class MovementEngine {
         const vector = headingToVector(heading, current.x, current.y);
         const x = current.x + vector.dx;
         const y = current.y + vector.dy;
-        if (!withinBoard(battle.board, x, y)) break;
+        if (!withinBoard(battle.board, x, y)) {
+          if (path.length && path.length < inertia.requiredAdvance) {
+            candidates.push({ ...current, heading: path.at(-1).heading, key: cellKey(current.x, current.y),
+              steps: path.length, requiredAdvance: inertia.requiredAdvance, resultingSpeed: 0, brakingCost: speed,
+              steeringDelta: steering.delta, turnDelay: steering.turnDelay,
+              boundary: true, path: path.map(cell => ({ ...cell })) });
+          }
+          break;
+        }
         const key = cellKey(x, y);
         const terrain = this.getTerrain(battle, x, y);
         if (this.isBlockingTerrain(terrain, altitude)) break;
@@ -336,6 +344,7 @@ export class MovementEngine {
       canComplete: !mustMove || (checkRoutes && !hasLegalMove),
       hasLegalMove,
       forcedStop: Boolean(mustMove && checkRoutes && !hasLegalMove),
+      boundaryStop: Boolean(mustMove && checkRoutes && !hasLegalMove && this.getBoundaryStop(battle, unit)),
       requiredAdvance,
       speed: currentSpeed,
       rawSpeed,
@@ -344,7 +353,29 @@ export class MovementEngine {
     };
   }
 
+  /** Safe straight approach to the tactical boundary; never bypass terrain or contacts. */
+  static getBoundaryStop(battle, unit) {
+    let current = { x: Number(unit.x ?? 0), y: Number(unit.y ?? 0) };
+    const path = [];
+    for (let step = 1; step <= Number(unit.speed ?? 0); step++) {
+      const vector = headingToVector(unit.heading, current.x, current.y);
+      const next = { x: current.x + vector.dx, y: current.y + vector.dy, step, heading: unit.heading };
+      if (!withinBoard(battle.board, next.x, next.y)) return { ...current, heading: unit.heading, steps: path.length, path, boundary: true };
+      next.terrain = this.getTerrain(battle, next.x, next.y);
+      if (this.isBlockingTerrain(next.terrain, unit.altitude) || OccupancyEngine.findConflict(battle, unit, next, { ...current, step: step - 1 })) return null;
+      path.push(next); current = next;
+    }
+    return null;
+  }
+
   static applyBlockedInertia(battle, unit, state = null) {
+    const boundary = this.getBoundaryStop(battle, unit);
+    if (boundary) {
+      const before = Number(unit.speed ?? 0);
+      const result = this.applyMoveResult(battle, { ok: true, ship: unit, candidate: boundary, path: boundary.path });
+      return { ok: result.ok, forced: true, boundary: true,
+        text: unit.name + ": остановка у границы поля, ход " + before + " → 0. Граница не наносит урона; выход из боя требует подтверждения." + (result.terrain?.text ?? "") };
+    }
     const resolution = state ?? this.getHorizontalResolutionState(battle, unit, { checkRoutes: true });
     const speed = Math.max(1, Number(resolution.rawSpeed ?? unit?.speed ?? 0));
     const vector = headingToVector(unit?.heading ?? 0, unit?.x ?? 0, unit?.y ?? 0);
@@ -392,7 +423,7 @@ export class MovementEngine {
   static applyMoveInertia(ship, candidate) {
     const before = Math.max(0, Number(ship?.speed ?? 0));
     const traveled = Math.max(0, Number(candidate?.steps ?? 0));
-    ship.speed = Math.min(before, traveled);
+    ship.speed = candidate.boundary ? 0 : Math.min(before, traveled);
     return { before, after: ship.speed, traveled, brakingCost: Math.max(0, before - ship.speed) };
   }
 
@@ -419,7 +450,7 @@ export class MovementEngine {
 
     if (pointOfSail === "inIrons") {
       max = 0;
-      modifiers.push("нос в ветер: ход 0");
+      modifiers.push("нос в ветер: тяга парусов 0; набранный ход сохраняется");
     } else if (ship?.flags?.inIrons) {
       modifiers.push("выход из положения против ветра требует успешного поворота");
     }
@@ -463,7 +494,7 @@ export class MovementEngine {
       ? ` Текущая клетка: ${terrainList.map(t => TERRAIN_LABELS[t] ?? t).join(" + ")}${this.isBlockingTerrain(terrainList, Number(ship?.altitude ?? 0)) ? " блокирует ход на этой высоте." : " не блокирует ход; опасный террейн только наносит урон при входе."}`
       : "";
 
-    const value = Math.max(0, max);
+    const value = pointOfSail === "inIrons" ? 0 : Math.max(0, max);
     const profileLabel = profile.label ?? profileKey;
     const title = `Базовый максимум ${baseMax}; паруса: ${profileLabel}; ветер: ${POINT_OF_SAIL_LABELS[pointOfSail] ?? pointOfSail}, профиль ${basePointPercent}% × сила/повреждения рангоута (${sailDamage.text}) = ${windPercent}% → ${afterWind}${modifiers.length ? `; ${modifiers.join("; ")}` : ""}; итог ${value}.${terrainText}`;
     return { value, baseMax, pointOfSail, profileKey, profileLabel, basePointPercent, windPercent, afterWind, modifiers, sailDamage, title };
@@ -586,7 +617,7 @@ export class MovementEngine {
     if (assessment.turbulencePenalty) notes.push(`турбулентность: -${assessment.turbulencePenalty}`);
     if (assessment.tacking) notes.push("лавировка через линию ветра");
     if (assessment.hardTurn) notes.push(`сложный поворот: ход ${assessment.speed} > безопасного ${assessment.safeSpeed}`);
-    if (assessment.enteringIrons) notes.push("после поворота ход станет 0");
+    if (assessment.enteringIrons) notes.push("тяга парусов 0; накопленный ход сохраняется");
 
     if (assessment.needsCheck) {
       summary += `, ${requirement}`;
@@ -629,7 +660,7 @@ export class MovementEngine {
       right,
       last,
       notice: inIrons
-        ? "Корабль стоит носом к источнику ветра. Набор хода заблокирован. Провалы выхода дают накопительный +2: корабль постепенно сносит носом с линии ветра, поэтому вечной ловушки нет."
+        ? "Нос к источнику ветра: паруса не разгоняют корабль, но накопленный ход сохраняется. Торможение действует обычно; после неудачи выхода следующая проверка получает +2."
         : "Корабль не против ветра. Набор хода и обычные повороты работают по текущему лимиту хода."
     };
   }
@@ -659,8 +690,7 @@ export class MovementEngine {
         if (assessment.leavingIrons || assessment.tacking) {
           ship.flags.inIrons = true;
           ship.flags.inIronsAttempts = Number(ship.flags.inIronsAttempts ?? 0) + 1;
-          ship.speed = 0;
-          assessment.speedLoss = beforeSpeed;
+          // A failed tack costs the normal speed loss; it is not an instant stop.
         }
         return {
           ok: true,
@@ -679,12 +709,11 @@ export class MovementEngine {
     }
     if (assessment.enteringIrons) {
       ship.flags.inIrons = true;
-      ship.speed = 0;
       return {
         ok: true,
         changed: true,
         assessment,
-        text: `поворот выполнен, но корабль встал носом против ветра: курс ${ship.heading}°, ход 0.`
+        text: `поворот выполнен: нос против ветра, курс ${ship.heading}°. Тяга парусов 0; ход ${ship.speed} сохраняется.`
       };
     }
 
@@ -858,6 +887,10 @@ export class MovementEngine {
       const vector = headingToVector(heading, ship.x, ship.y);
       const x = Number(ship.x ?? 0) + vector.dx;
       const y = Number(ship.y ?? 0) + vector.dy;
+      if (!withinBoard(battle.board, x, y)) {
+        entries.push(ship.name + ": снос остановлен на границе поля без урона и потери хода. Выход из боя требует подтверждения.");
+        break;
+      }
       const terrain = this.getTerrain(battle, x, y);
       const target = OccupancyEngine.findShipAt(battle, x, y, ship.altitude, { excludeShipId: ship.id });
       if (target) {
@@ -870,7 +903,7 @@ export class MovementEngine {
         if (collision.applied) entries.push(`${ship.name}: дрейф заканчивается столкновением. ${collision.text}`);
         return entries;
       }
-      if (!withinBoard(battle.board, x, y) || this.isBlockingTerrain(terrain, Number(ship.altitude ?? 0))) {
+      if (this.isBlockingTerrain(terrain, Number(ship.altitude ?? 0))) {
         const section = ship.sections?.midship ?? ship.sections?.bow ?? Object.values(ship.sections ?? {})[0];
         if (section) section.hp.value = Math.max(0, Number(section.hp?.value ?? 0) - (4 + steps));
         ship.speed = 0;
@@ -1190,8 +1223,7 @@ export class MovementEngine {
     if (WindEngine.getPointOfSail(ship, battle?.wind ?? {}) === "inIrons" || ship.flags?.inIrons) {
       ship.flags ??= {};
       ship.flags.inIrons = true;
-      ship.speed = 0;
-      return { ok: false, reason: "Корабль стоит носом против ветра: сперва выйдите из ветра поворотом." };
+      return { ok: false, reason: "Нос против ветра: разгон парусами недоступен, накопленный ход сохраняется." };
     }
     const inertia = this.getInertiaProfile(battle, ship);
     const effectiveMax = inertia.effectiveMax;

@@ -15,8 +15,8 @@
     <div class="ssc-action-grid">
       <button type="button" data-action="fullSail" title="Увеличить воздушную скорость на величину ускорения профиля." {{#unless actionState.canIncreaseSpeed}}disabled{{/unless}}>Ускориться</button>
       <button type="button" data-action="reduceSail" title="Снизить воздушную скорость на величину торможения профиля." {{#unless actionState.canReduceSpeed}}disabled{{/unless}}>Затормозить</button>
-      <button type="button" data-action="turnLeft" {{#unless actionState.canTurn}}disabled{{/unless}}>Поворот влево</button>
-      <button type="button" data-action="turnRight" {{#unless actionState.canTurn}}disabled{{/unless}}>Поворот вправо</button>
+      <button type="button" data-action="turnLeft" {{#unless actionState.canTurn}}disabled{{/unless}}>На месте влево…</button>
+      <button type="button" data-action="turnRight" {{#unless actionState.canTurn}}disabled{{/unless}}>На месте вправо…</button>
       <button type="button" data-action="creatureClimb" {{#unless actionState.canCreatureClimb}}disabled{{/unless}}>Набрать высоту</button>
       <button type="button" data-action="creatureDive" {{#unless actionState.canCreatureDive}}disabled{{/unless}}>Снизиться</button>
       {{#if creatureGrappleInfo.attached}}<button type="button" data-action="creatureDetach" {{#unless actionState.canCreatureDetach}}disabled{{/unless}}>Отцепиться</button>{{/if}}

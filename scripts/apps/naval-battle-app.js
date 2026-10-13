@@ -82,6 +82,9 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
       passTurn: this._onPassTurn,
       confirmMovementPlan: this._onConfirmMovementPlan,
       cancelMovementPlan: this._onCancelMovementPlan,
+      planCourse: this._onPlanCourse,
+      planWithdrawal: this._onPlanWithdrawal,
+      togglePlanWithdrawal: this._onTogglePlanWithdrawal,
       rotateWindLeft: this._onRotateWindLeft,
       rotateWindRight: this._onRotateWindRight,
       fullSail: this._onFullSail,
@@ -420,6 +423,9 @@ export class NavalBattleApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static async _onRotateWindRight(event) { event.preventDefault(); return this.environment.rotateWind(1); }
   static async _onFullSail(event) { event.preventDefault(); return this.movement.fullSail(); }
   static async _onReduceSail(event) { event.preventDefault(); return this.movement.reduceSail(); }
+  static async _onPlanCourse(event, target) { event.preventDefault(); return this.movementPlan.stageRoute(Number(target?.dataset.delta ?? event.currentTarget?.dataset.delta)); }
+  static async _onPlanWithdrawal(event) { event.preventDefault(); return this.movementPlan.stageWithdrawal(); }
+  static async _onTogglePlanWithdrawal(event) { event.preventDefault(); return this.movementPlan.toggleWithdrawal(); }
   static async _onTurnLeft(event) { event.preventDefault(); return this.movement.turn(-1); }
   static async _onTurnRight(event) { event.preventDefault(); return this.movement.turn(1); }
   static async _onCreatureClimb(event) { event.preventDefault(); return this.creatures.vertical("climb"); }
