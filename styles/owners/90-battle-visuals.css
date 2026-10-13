@@ -47,3 +47,31 @@
 .sailships-combat .ssc-unit-core { fill: #86cadd; stroke: #d6edf3; stroke-width: .7; }
 .sailships-combat .ssc-unit-core.is-hot { fill: #efa275; stroke: #ffe2b5; }
 .sailships-combat .ssc-unit-disabled { opacity: .48; }
+
+/* Wind belongs to the visible camera, underneath tokens and movement routes. */
+.sailships-combat .ssc-wind-camera { pointer-events: none; }
+.sailships-combat .ssc-wind-particles line { stroke: #b5d4e2; stroke-linecap: round; filter: none; }
+.sailships-combat .ssc-wind-widget { grid-template-rows: auto auto auto; }
+.sailships-combat .ssc-wind-widget-compass { grid-row: 1 / span 3; }
+.sailships-combat .ssc-wind-strength { grid-column: 2; color: var(--ssc-muted); font-size: 10px; }
+.sailships-combat .ssc-wind-widget.is-calm .ssc-wind-widget-arrow { display: none; }
+
+/* Ambient flow stays behind units and does not require a blending surface. */
+.sailships-combat .ssc-wind-particles { mix-blend-mode: normal; }
+.sailships-combat .ssc-motion-readout { display: grid; gap: 7px; margin: 10px 0; padding: 10px; border: 1px solid #466275; border-radius: 8px; background: #101f2b; font-size: 12px; line-height: 1.45; }
+.sailships-combat .ssc-motion-readout p { margin: 0; }
+.sailships-combat .ssc-motion-heading { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.sailships-combat .ssc-motion-heading strong { font-size: 15px; color: #e5eff7; }
+.sailships-combat .ssc-motion-turn { color: #e8c981; }
+.sailships-combat .ssc-motion-end { display: grid; gap: 4px; border-top: 1px solid #34495b; padding-top: 7px; color: #b5dae6; }
+.sailships-combat .ssc-motion-readout .danger { color: #ffc0a2; }
+.sailships-combat .ssc-turn-cue, .sailships-combat .ssc-drift-cue { pointer-events: none; }
+.sailships-combat .ssc-turn-cue polyline { fill: none; stroke: #e8c981; stroke-width: 3; vector-effect: non-scaling-stroke; opacity: .8; }
+.sailships-combat .ssc-turn-cue circle { fill: #192732; stroke: #e8c981; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.sailships-combat .ssc-drift-cue polyline, .sailships-combat .ssc-drift-cue circle { fill: none; stroke: #9ed8e5; stroke-width: 2; stroke-dasharray: 5 5; vector-effect: non-scaling-stroke; }
+.sailships-combat .ssc-drift-cue path { fill: #9ed8e5; }
+.sailships-combat .ssc-turn-cue text, .sailships-combat .ssc-drift-cue text { fill: #e5eff7; font-size: 11px; font-weight: 600; paint-order: stroke; stroke: #10212b; stroke-width: 4; stroke-linejoin: round; }
+.sailships-combat .ssc-plan-drift { color: #b5dae6; font-size: 12px; margin: 8px 0; }
+
+.sailships-combat .ssc-drift-key { display: inline-block; width: 22px; border-top: 2px dashed #9ed8e5; margin-right: 7px; vertical-align: middle; }
+.sailships-combat .ssc-board-svg[data-lod="far"] .ssc-turn-cue text { display: none; }

@@ -1,3 +1,4 @@
+import { syncWindCamera } from "../visuals/wind-field.js";
 import { AIR_ONLY_TERRAIN_TYPES, SEA_ONLY_TERRAIN_TYPES, TERRAIN_LABELS } from "../utils/constants.js";
 import { cellKey, cellPath, distanceCells, pixelToCell, withinBoard } from "../board/board-geometry.js";
 import { MovementEngine } from "../engine/movement-engine.js";
@@ -78,6 +79,7 @@ export class BoardInteractionController {
     const camera = this.getBoardCamera(pixelWidth, pixelHeight);
     svg.setAttribute("viewBox", `${camera.x} ${camera.y} ${camera.viewWidth} ${camera.viewHeight}`);
     svg.dataset.lod = camera.zoom < 0.75 ? "far" : camera.zoom < 1.15 ? "medium" : "near";
+    syncWindCamera(svg, camera);
   }
 
   eventToBoardPoint(svg, event) {

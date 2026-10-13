@@ -1,3 +1,5 @@
+import { MovementReadoutBuilder } from "./movement-readout-builder.js";
+import { describeWindField } from "../visuals/wind-field.js";
 import { VisualSettingsService } from "../services/visual-settings-service.js";
 import {
   boardPixelSize,
@@ -56,12 +58,13 @@ export class BoardContextBuilder {
       setupZones: this.prepareSetupZones(battle),
       deployable: this.prepareDeployableCells(battle, selectedShip, occupied),
       movementPlan: app.movementPlan?.getContext(battle) ?? null,
+      turnCue: reachable.length ? MovementReadoutBuilder.turnCue(battle, selectedShip, reachable) : null,
       reachable: reachable.map(c => this.prepareCellShape(battle, c)),
       targetIds: [...targetIds],
       ships: this.prepareShipTokens(battle, selectedShip, { targetIds, cellSize }),
       arcs: canUseSelectedShip && battle.setupConfirmed ? this.prepareArcOverlays(battle, selectedShip) : [],
       targetLine: canUseSelectedShip && selectedTarget && battle.setupConfirmed ? this.prepareTargetLine(battle, selectedShip, selectedTarget) : null,
-      ...this.prepareWindParticles(battle, pixelWidth, pixelHeight, camera.zoom < 0.75 ? "far" : camera.zoom < 1.15 ? "medium" : "near")
+      ...this.prepareWindParticles(battle, pixelWidth, pixelHeight, camera.zoom < 0.75 ? "far" : camera.zoom < 1.15 ? "medium" : "near", camera)
     };
   }
   buildFleetContext(battle, selectedShip) {
@@ -77,36 +80,10 @@ export class BoardContextBuilder {
       .map(ship => this.shipView.prepareShipToken(battle, ship, cellSize, selectedShip, targetIds));
   }
 
-  prepareWindParticles(battle, pixelWidth, pixelHeight, lod = "near") {
-    const rating = ({ calm: 0, light: 1, moderate: 2, strong: 3, storm: 4 }[battle.wind?.strength] ?? 2);
-    const baseCount = [0, 8, 12, 16, 20][rating] ?? 12;
-    const lodFactor = lod === "far" ? 0.45 : lod === "medium" ? 0.72 : 1;
-    const count = rating === 0 || !VisualSettingsService.wind() ? 0 : Math.max(4, Math.round(baseCount * lodFactor));
-    const span = Math.max(pixelWidth, pixelHeight);
-    const travel = Math.ceil(span * 2.6);
-    const durationBase = Math.max(0.9, 3.0 - rating * 0.5);
-    const particles = Array.from({ length: count }, (_, i) => {
-      const lane = ((i * 137 + 53) % Math.max(1, pixelHeight * 3)) - pixelHeight;
-      const x = -span - ((i * 83) % Math.max(1, span));
-      const length = 12 + (i % 5) * 5 + rating * 2;
-      return {
-        i,
-        x1: x,
-        x2: x + length,
-        y: lane,
-        width: 0.7 + (i % 3) * 0.35,
-        duration: Number((durationBase + (i % 5) * 0.18).toFixed(2)),
-        delay: Number((-(i * 0.31) % Math.max(0.1, durationBase)).toFixed(2))
-      };
-    });
-    return {
-      windParticles: particles,
-      windParticleAngle: normalizeAngle(Number(battle.wind?.direction ?? 0) - 90),
-      windParticleCenterX: Math.round(pixelWidth / 2),
-      windParticleCenterY: Math.round(pixelHeight / 2),
-      windParticleTravel: travel,
-      windParticleOpacity: rating === 0 ? 0 : Math.min(0.66, 0.16 + rating * 0.11)
-    };
+  prepareWindParticles(battle, pixelWidth, pixelHeight, _lod = "near", camera = null) {
+    return describeWindField(battle.wind,
+      camera ?? { x: 0, y: 0, viewWidth: pixelWidth, viewHeight: pixelHeight },
+      { enabled: VisualSettingsService.wind() });
   }
 
   getTargetIds(battle, selectedShip) {

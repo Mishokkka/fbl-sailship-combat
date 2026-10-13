@@ -1,3 +1,4 @@
+import { syncWindCamera } from "../visuals/wind-field.js";
 import { BattleEffectsController } from "./battle-effects-controller.js";
 import { VisualSettingsService } from "../services/visual-settings-service.js";
 import { tokenRotation } from "../visuals/token-visuals.js";
@@ -177,13 +178,13 @@ export class BattleAnimationController {
     const media = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
     document.addEventListener("visibilitychange", update);
     globalThis.addEventListener?.("ssc-visual-settings", settings);
-    media?.addEventListener?.("change", update);
+    media?.addEventListener?.("change", settings);
     const observer = typeof MutationObserver === "function" ? new MutationObserver(update) : null;
     if (this.app.element) observer?.observe(this.app.element, { attributes: true, attributeFilter: ["style","class","hidden"] });
     this.cleanupListeners = () => {
       document.removeEventListener("visibilitychange", update);
       globalThis.removeEventListener?.("ssc-visual-settings", settings);
-      media?.removeEventListener?.("change", update); observer?.disconnect();
+      media?.removeEventListener?.("change", settings); observer?.disconnect();
     };
   }
 
@@ -193,6 +194,7 @@ export class BattleAnimationController {
     this.visible = !globalThis.document?.hidden && !this.app.minimized &&
       !(main?.dataset.layout === "narrow" && main.dataset.narrowPane !== "board") &&
       Boolean(svg?.getClientRects?.().length);
+    if (this.visible) syncWindCamera(svg);
     const wind = svg?.querySelector?.(".ssc-wind-particles");
     if (wind) wind.style.display = VisualSettingsService.wind() ? "" : "none";
     if (this.visible && VisualSettingsService.wind()) svg?.unpauseAnimations?.();

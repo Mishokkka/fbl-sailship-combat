@@ -1,6 +1,7 @@
 {{#if phaseFlags.movement}}
   <section class="ssc-action-box">
     <h3>Полет</h3>
+    {{> "modules/sailships-combat/templates/naval/parts/right/naval-motion-readout.hbs"}}
     {{#if selectedShip.flags.falling}}
       <div class="ssc-maneuver-advice danger">
         <div class="ssc-maneuver-advice-head">
@@ -23,7 +24,7 @@
     </div>
     {{#if creatureGrappleInfo.attached}}<p class="ssc-hint danger">Существо держится за <strong>{{creatureGrappleInfo.hostName}}</strong> и перемещается вместе с кораблем.</p>{{/if}}
     {{#if actionState.movementState.mustMove}}<p class="ssc-hint danger"><strong>Инерция:</strong> до завершения активации существо обязано пройти не менее {{actionState.movementState.requiredAdvance}} гекс.</p>{{/if}}
-    <p class="ssc-hint">Профиль: {{selectedInfo.sailingProfileLabel}}. Эффективный максимум: {{selectedInfo.effectiveMaxSpeed}}. Перемещение выполняется выбором подсвеченной клетки поля.</p>
+    <p class="ssc-hint">Профиль: {{selectedInfo.sailingProfileLabel}}. Эффективный максимум: {{selectedInfo.effectiveMaxSpeed}}. Клик по подсвеченной клетке открывает прогноз. Перемещение выполняется после подтверждения.</p>
     {{#if selectedInfo.maneuverAdvice.notice}}<p class="ssc-hint">{{selectedInfo.maneuverAdvice.notice}}</p>{{/if}}
   </section>
 {{/if}}
