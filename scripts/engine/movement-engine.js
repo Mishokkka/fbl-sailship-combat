@@ -494,7 +494,7 @@ export class MovementEngine {
       ? ` Текущая клетка: ${terrainList.map(t => TERRAIN_LABELS[t] ?? t).join(" + ")}${this.isBlockingTerrain(terrainList, Number(ship?.altitude ?? 0)) ? " блокирует ход на этой высоте." : " не блокирует ход; опасный террейн только наносит урон при входе."}`
       : "";
 
-    const value = Math.max(0, max);
+    const value = pointOfSail === "inIrons" ? 0 : Math.max(0, max);
     const profileLabel = profile.label ?? profileKey;
     const title = `Базовый максимум ${baseMax}; паруса: ${profileLabel}; ветер: ${POINT_OF_SAIL_LABELS[pointOfSail] ?? pointOfSail}, профиль ${basePointPercent}% × сила/повреждения рангоута (${sailDamage.text}) = ${windPercent}% → ${afterWind}${modifiers.length ? `; ${modifiers.join("; ")}` : ""}; итог ${value}.${terrainText}`;
     return { value, baseMax, pointOfSail, profileKey, profileLabel, basePointPercent, windPercent, afterWind, modifiers, sailDamage, title };

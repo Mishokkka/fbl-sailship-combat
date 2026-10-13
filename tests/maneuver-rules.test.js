@@ -36,6 +36,8 @@ test("wind sync, rejected acceleration and a turn into wind all preserve momentu
   const normalized = BattleNormalizer.normalize(b);
   assert.equal(normalized.ships[0].speed, before);
   assert.equal(MovementEngine.getEffectiveMaxSpeed(b, ship), 0);
+  ship.selectedOrder = "pressSail";
+  assert.equal(MovementEngine.getEffectiveMaxSpeed(b, ship), 0, "Sail orders cannot restore thrust into the wind");
   assert.ok(MovementEngine.getReachableCells(b, ship).length);
 });
 

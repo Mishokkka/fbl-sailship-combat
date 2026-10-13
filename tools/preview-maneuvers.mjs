@@ -243,7 +243,6 @@ try {
     await page.locator('[data-action="togglePlanWithdrawal"]').click();
     assert.match(await page.locator('[data-action="confirmMovementPlan"]').textContent(), /выйти/);
     await page.screenshot({ path: "artifacts/interface/maneuver-exit-" + width + "-" + height + ".png" });
-    if (width === 1500) console.log("MANEUVER_PREVIEW_BASE64 " + (await page.screenshot({ type: "jpeg", quality: 80 })).toString("base64"));
     await checkCard(page, "Exit after route " + width);
     await confirm();
     const escaped = await page.evaluate(() => movementTest.read());
