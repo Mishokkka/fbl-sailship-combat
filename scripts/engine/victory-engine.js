@@ -129,23 +129,41 @@ export class VictoryEngine {
     return y >= Number(board?.height ?? 0) - 1;
   }
 
-  static processWithdrawals(battle) {
-    const sideIds = sideIdsForBattle(battle);
-    const config = this.normalizeConfig(battle?.setup?.victory, sideIds);
-    if (!config.enabled || config.mode !== "escape") return [];
-    const entries = [];
-    for (const ship of getCombatants(battle)) {
-      if (!CombatantRules.supports(ship, "victory")) continue;
-      if (ship.side !== config.objectiveSideId || ship.flags?.struck || ship.flags?.withdrawn) continue;
-      if (!this.isAtExitEdge(ship, battle.board, config.exitEdge)) continue;
-      ship.flags ??= {};
-      ship.flags.withdrawn = true;
-      ship.flags.withdrawnRound = Number(battle.round ?? 1);
-      ship.flags.struck = true;
-      entries.push(`${ship.name}: выходит из зоны боя и считается успешно отведённым.`);
-    }
-    return entries;
+  static getWithdrawalPreview(battle, unit) {
+    if (!unit || !CombatantRules.supports(unit, "victory") || unit.flags?.struck || unit.flags?.withdrawn) return null;
+    const edges = [...EXIT_EDGES].filter(edge => this.isAtExitEdge(unit, battle.board, edge));
+    if (!edges.length) return null;
+    const tied = unit.flags?.grappledWith || unit.flags?.towingId || unit.flags?.attachedTo
+      || getCombatants(battle).some(other => other.flags?.attachedTo === unit.id || other.flags?.towingId === unit.id);
+    const wreckage = Object.values(unit.sections ?? {}).reduce((sum, section) => sum + Number(section.mastWreckage ?? 0), 0);
+    const reason = tied ? "Сначала освободитесь от сцепления, буксира или прикрепившегося существа."
+      : CombatantRules.getMovementBlockReason(unit, battle) || (wreckage >= 2 ? "Движение блокируют обломки рангоута." : "");
+    const config = this.normalizeConfig(battle?.setup?.victory, sideIdsForBattle(battle));
+    const successful = config.enabled && config.mode === "escape" && unit.side === config.objectiveSideId && edges.includes(config.exitEdge);
+    return {
+      allowed: !reason, reason, successful, kind: successful ? "escape" : "retreat",
+      title: successful ? "Выйти: засчитать прорыв" : "Выйти из боя",
+      consequence: successful
+        ? "Выход засчитается в цель прорыва. Боевая единица покинет поле до конца боя."
+        : "Боевая единица покинет поле до конца боя; её сила больше не учитывается. Выход не засчитывается как прорыв."
+    };
   }
+
+  static withdraw(battle, unit) {
+    const preview = this.getWithdrawalPreview(battle, unit);
+    if (!preview?.allowed) return { ok: false, text: preview?.reason || "Выход доступен только на границе поля." };
+    unit.flags ??= {};
+    unit.flags.withdrawn = true;
+    unit.flags.withdrawnRound = Number(battle.round ?? 1);
+    unit.flags.withdrawalKind = preview.kind;
+    unit.speed = 0;
+    if (battle.turn?.movementReservations) delete battle.turn.movementReservations[unit.id];
+    return { ok: true, kind: preview.kind, text: unit.name + ": " + preview.consequence };
+  }
+
+  // Reaching an edge, including drift, is not consent to withdraw.
+  // Keep this round hook for integrations; all exits now use explicit withdraw().
+  static processWithdrawals(_battle) { return []; }
 
   static sideScores(battle, config = battle?.setup?.victory) {
     const sideIds = sideIdsForBattle(battle);
@@ -177,7 +195,7 @@ export class VictoryEngine {
     if (round < config.deferUntilRound) return { resolved: false };
 
     if (config.mode === "escape") {
-      const withdrawn = getCombatantsForSide(battle, config.objectiveSideId).filter(ship => ship.flags?.withdrawn).length;
+      const withdrawn = getCombatantsForSide(battle, config.objectiveSideId).filter(ship => ship.flags?.withdrawn && (!ship.flags.withdrawalKind || ship.flags.withdrawalKind === "escape")).length;
       if (withdrawn >= config.requiredShips) {
         const name = sideName(battle, config.objectiveSideId);
         return this.outcome("escape", config.objectiveSideId, round, scores, `${name}: прорыв выполнен`, `${withdrawn} боевых единиц успешно вышло из зоны боя при требовании ${config.requiredShips}.`);

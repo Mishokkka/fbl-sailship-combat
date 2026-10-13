@@ -1,3 +1,4 @@
+import { VictoryEngine } from "../engine/victory-engine.js";
 import { syncWindCamera } from "../visuals/wind-field.js";
 import { AIR_ONLY_TERRAIN_TYPES, SEA_ONLY_TERRAIN_TYPES, TERRAIN_LABELS } from "../utils/constants.js";
 import { cellKey, cellPath, distanceCells, pixelToCell, withinBoard } from "../board/board-geometry.js";
@@ -662,13 +663,17 @@ export class BoardInteractionController {
       ship.flags.sharpManeuver = true;
     }
     const inIrons = MovementEngine.syncSailingState(battle, ship);
-    const windText = inIrons ? " Корабль встал носом против ветра: ход падает до 0." : "";
+    const windText = inIrons ? " Нос против ветра: тяга парусов 0, набранный ход сохраняется." : "";
     const inertiaText = inertiaResult.brakingCost > 0
       ? ` Инерция погашена: ход ${inertiaResult.before} → ${inertiaResult.after}.`
       : ` Ход сохранён: ${ship.speed}.`;
 
     this.app._addLog(battle, `${ship.name}: маневрирует в клетку ${ship.x + 1}:${ship.y + 1}, курс ${ship.heading}°.${inertiaText}${terrainText}${windText}`);
     if (execution.collision.applied) this.app._addLog(battle, `Столкновение: ${execution.collision.text}`);
+    if (plan.withdraw) {
+      const exit = VictoryEngine.withdraw(battle, ship);
+      this.app._addLog(battle, exit.ok ? exit.text : "Выход не выполнен после манёвра: " + exit.text);
+    }
     this.app._completeShipActivation(battle, ship, "movement");
     const next = this.app._getActiveShip(battle);
     if (next) {

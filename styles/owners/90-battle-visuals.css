@@ -75,3 +75,11 @@
 
 .sailships-combat .ssc-drift-key { display: inline-block; width: 22px; border-top: 2px dashed #9ed8e5; margin-right: 7px; vertical-align: middle; }
 .sailships-combat .ssc-board-svg[data-lod="far"] .ssc-turn-cue text { display: none; }
+
+/* Local maneuver choices never cover the confirmation footer. */
+.sailships-combat .ssc-course-choices { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 5px; margin: 6px 0; }
+.sailships-combat .ssc-course-choices button { min-width: 0; white-space: normal; font-size: 11px; padding: 6px 4px; }
+.sailships-combat .ssc-course-choices button[aria-pressed="true"] { border-color: #d6b978; background: #344449; color: #f3dfad; }
+.sailships-combat .ssc-boundary-choice { display: grid; gap: 6px; padding: 8px; border: 1px solid #9a794c; border-radius: 6px; background: #2a2922; font-size: 12px; }
+.sailships-combat .ssc-boundary-choice p { margin: 0; }
+.sailships-combat .ssc-boundary-choice button { white-space: normal; }

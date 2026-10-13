@@ -132,7 +132,7 @@ export class WindEngine {
     ship.flags ??= {};
     const inIrons = this.isInIrons(ship, wind);
     ship.flags.inIrons = inIrons;
-    if (inIrons) ship.speed = 0;
+    // Losing sail thrust does not erase accumulated momentum.
     return inIrons;
   }
 

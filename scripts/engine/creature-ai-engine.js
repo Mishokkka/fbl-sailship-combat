@@ -44,6 +44,8 @@ export class CreatureAIEngine {
     if (behavior === "coward" && Number(creature.vitality?.morale ?? 10) <= 3) {
       creature.flags ??= {};
       creature.flags.withdrawn = true;
+      creature.flags.withdrawalKind = "rout";
+      creature.flags.withdrawnRound = Number(battle.round ?? 1);
       return { ok: true, moved: false, text: [...entries, `${creature.name}: ломается и покидает бой.`].join(" ") };
     }
 

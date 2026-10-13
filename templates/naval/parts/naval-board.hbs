@@ -143,7 +143,7 @@
           <g class="ssc-route-ghost" transform="translate({{cx}} {{cy}})">
             <circle r="25"></circle>
             <path d="M 23 0 L -13 -12 L -7 0 L -13 12 Z" transform="rotate({{renderHeading}})"></path>
-            <text y="41" text-anchor="middle">Остановка · {{destination}}</text>
+            <text y="41" text-anchor="middle">{{#if isTurn}}Курс {{heading}}°{{else}}{{#if withdraw}}Выход · {{destination}}{{else}}Остановка · {{destination}}{{/if}}{{/if}}</text>
           </g>
         </g>
         {{#with endOfRound}}{{#if hasPath}}
@@ -202,28 +202,32 @@
         <section class="ssc-movement-plan {{#if hasWarnings}}has-warnings{{/if}}" aria-label="План манёвра">
           <div class="ssc-plan-body">
             {{#if @root.board.movementPlan.notice}}<p class="ssc-plan-danger" role="status">{{@root.board.movementPlan.notice}}</p>{{/if}}
-            <div class="ssc-plan-heading"><span>План манёвра</span><strong>{{shipName}}</strong></div>
-            <p class="ssc-plan-destination">Остановка {{destination}} <span>· курс {{heading}}° · путь {{distance}} гекс.</span></p>
+            <div class="ssc-plan-heading"><span>{{#if isTurn}}Поворот на месте{{else}}{{#if isWithdrawal}}Выход из боя{{else}}План манёвра{{/if}}{{/if}}</span><strong>{{shipName}}</strong></div>
+            {{#if isMove}}<div class="ssc-course-choices" aria-label="Изменить курс маршрута">
+              {{#each @root.board.movementPlan.choices}}<button type="button" data-action="planCourse" data-delta="{{delta}}" aria-pressed="{{selected}}" {{#unless enabled}}disabled{{else}}{{#if @root.board.movementPlan.busy}}disabled{{/if}}{{/unless}}>{{label}}</button>{{/each}}
+            </div>{{/if}}
+            <p class="ssc-plan-destination">{{#if isTurn}}Позиция{{else}}{{#if withdraw}}Выход{{else}}Остановка{{/if}}{{/if}} {{destination}} <span>· курс {{heading}}° · путь {{distance}} гекс.</span></p>
             <div class="ssc-plan-stats">
               <span>Ход после манёвра* <strong>{{speedBefore}} → {{speedAfter}}</strong></span>
               <span>Стоимость <strong>{{apCost}} ОД</strong></span>
               {{#if showAltitude}}<span>Высота сейчас <strong>H{{altitudeNow}}</strong></span>
               <span>К концу раунда* <strong>H{{altitudeEnd}}</strong></span>{{/if}}
             </div>
-            <p class="ssc-plan-drift"><span class="ssc-drift-key" aria-hidden="true"></span><b>Конец раунда*</b> · {{endOfRound.driftText}}{{#if endOfRound.hasPath}} · клетка {{endOfRound.destination}}{{/if}}</p>
+            {{#if endOfRound}}<p class="ssc-plan-drift"><span class="ssc-drift-key" aria-hidden="true"></span><b>Конец раунда*</b> · {{endOfRound.driftText}}{{#if endOfRound.hasPath}} · клетка {{endOfRound.destination}}{{/if}}</p>{{/if}}
+            {{#if isMove}}{{#if withdrawal}}<div class="ssc-boundary-choice"><p>{{withdrawal.consequence}}</p><button type="button" data-action="togglePlanWithdrawal" aria-pressed="{{withdraw}}" {{#unless withdrawal.allowed}}disabled{{else}}{{#if @root.board.movementPlan.busy}}disabled{{/if}}{{/unless}}>{{#if withdraw}}Остаться на поле{{else}}{{withdrawal.title}} после манёвра{{/if}}</button>{{#if withdraw}}<strong class="ssc-plan-danger">Выбран выход из боя</strong>{{/if}}</div>{{/if}}{{/if}}
             {{#if collision}}<p class="ssc-plan-danger">Столкновение: корабль остановится перед клеткой контакта.</p>{{/if}}
             {{#if hasWarnings}}
-            <details class="ssc-plan-risks" {{#if collision}}open{{/if}}>
+            <details class="ssc-plan-risks" {{#if collision}}open{{else}}{{#if isTurn}}open{{else}}{{#if isWithdrawal}}open{{/if}}{{/if}}{{/if}}>
               <summary>Последствия и риски · {{warnings.length}}</summary>
               <ul>{{#each warnings}}<li>{{this}}</li>{{/each}}</ul>
             </details>
             {{/if}}
-            <p class="ssc-plan-note">* При сохранении условий, без последствий новых повреждений. Движение завершит активацию. До подтверждения маршрут можно заменить другой клеткой.</p>
+            <p class="ssc-plan-note">* При сохранении условий, без последствий новых повреждений. {{note}}</p>
           </div>
           <div class="ssc-plan-actions">
             <button type="button" data-action="cancelMovementPlan" {{#if @root.board.movementPlan.busy}}disabled{{/if}}>Отмена <kbd>Esc</kbd></button>
-            <button type="button" class="{{#if collision}}danger{{else}}primary{{/if}}" data-action="confirmMovementPlan" {{#if @root.board.movementPlan.busy}}disabled{{/if}}>
-              {{#if @root.board.movementPlan.busy}}Выполняется…{{else}}{{#if collision}}Подтвердить столкновение{{else}}Выполнить манёвр{{/if}}{{/if}}
+            <button type="button" class="{{#if withdraw}}danger{{else}}{{#if collision}}danger{{else}}primary{{/if}}{{/if}}" data-action="confirmMovementPlan" {{#if @root.board.movementPlan.busy}}disabled{{/if}}>
+              {{#if @root.board.movementPlan.busy}}Выполняется…{{else}}{{confirmLabel}}{{/if}}
             </button>
           </div>
         </section>

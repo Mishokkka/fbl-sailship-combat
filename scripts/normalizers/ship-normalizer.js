@@ -102,6 +102,7 @@ export class ShipNormalizer {
     ship.flags.uncontrolledFire = Boolean(ship.flags.uncontrolledFire);
     ship.flags.abandoned = Boolean(ship.flags.abandoned);
     ship.flags.withdrawn = Boolean(ship.flags.withdrawn);
+    ship.flags.withdrawalKind = ship.flags.withdrawn && ["escape", "retreat", "rout"].includes(ship.flags.withdrawalKind) ? ship.flags.withdrawalKind : null;
     ship.flags.withdrawnRound = ship.flags.withdrawn
       ? boundedInteger(ship.flags.withdrawnRound, { fallback: battleRound ?? 1, min: 1, max: 1_000_000 })
       : null;
@@ -256,7 +257,7 @@ export class ShipNormalizer {
     clean.heading = normalizeHeading(clean.heading ?? 120);
     clean.speed = Math.min(2, Number(clean.maxSpeed ?? clean.speed ?? 2));
     clean.selectedOrder = null;
-    clean.flags = { inIrons: false, inIronsAttempts: 0, grappledWith: null, attachedCreatureIds: [], struck: false, falling: false, coreExploded: false, emergencyDescent: false, immobilized: false, uncontrolledFire: false, abandoned: false, withdrawn: false, withdrawnRound: null, rescueResolved: false, mastWreckage: 0 };
+    clean.flags = { inIrons: false, inIronsAttempts: 0, grappledWith: null, attachedCreatureIds: [], struck: false, falling: false, coreExploded: false, emergencyDescent: false, immobilized: false, uncontrolledFire: false, abandoned: false, withdrawn: false, withdrawalKind: null, withdrawnRound: null, rescueResolved: false, mastWreckage: 0 };
     clean.verticalVelocity = 0;
     this.normalizeSailing(clean);
     clean.turn = { round: 1, actions: {} };

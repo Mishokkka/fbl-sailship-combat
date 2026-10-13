@@ -59,8 +59,8 @@
               <div class="ssc-action-grid">
                 <button type="button" data-action="fullSail" {{#unless actionState.canIncreaseSpeed}}disabled{{/unless}}>{{localize "SAILSHIPS.FullSail"}}</button>
                 <button type="button" data-action="reduceSail" {{#unless actionState.canReduceSpeed}}disabled{{/unless}}>{{localize "SAILSHIPS.ReduceSail"}}</button>
-                <button type="button" data-action="turnLeft" title="Поворот на 60° влево. Требует исправного руля/штурвала. В блоке выше показано, нужна ли проверка." {{#unless actionState.canTurn}}disabled{{/unless}}>{{localize "SAILSHIPS.TurnLeft"}}</button>
-                <button type="button" data-action="turnRight" title="Поворот на 60° вправо. Требует исправного руля/штурвала. В блоке выше показано, нужна ли проверка." {{#unless actionState.canTurn}}disabled{{/unless}}>{{localize "SAILSHIPS.TurnRight"}}</button>
+                <button type="button" data-action="turnLeft" title="Предпросмотр поворота на месте на 60° влево. Стоимость 1 ОД и проверка показаны до подтверждения." {{#unless actionState.canTurn}}disabled{{/unless}}>На месте влево…</button>
+                <button type="button" data-action="turnRight" title="Предпросмотр поворота на месте на 60° вправо. Стоимость 1 ОД и проверка показаны до подтверждения." {{#unless actionState.canTurn}}disabled{{/unless}}>На месте вправо…</button>
               </div>
             </div>
             {{#if selectedInfo.coreAdvice}}

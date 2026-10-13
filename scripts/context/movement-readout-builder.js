@@ -2,6 +2,7 @@ import { cellToPixel, headingToVector, normalizeAngle, withinBoard } from "../bo
 import { MovementEngine } from "../engine/movement-engine.js";
 import { CreatureMovementEngine } from "../engine/creature-movement-engine.js";
 import { OccupancyEngine } from "../engine/occupancy-engine.js";
+import { VictoryEngine } from "../engine/victory-engine.js";
 import { HEADING_LABELS } from "../utils/constants.js";
 
 /** Conditional, read-only forecasts. Never roll, apply damage or reserve cells. */
@@ -16,6 +17,7 @@ export class MovementReadoutBuilder {
       overCap: inertia.speed > inertia.effectiveMax,
       turnText: MovementEngine.getTurnLimit(unit) <= 0 ? "Поворот недоступен." : inertia.turnText,
       stallOnStop: creature && !canHover && Number(unit.altitude ?? 0) > 0,
+      withdrawal: VictoryEngine.getWithdrawalPreview(battle, unit),
       endOfRound: this.forecast(battle, unit)
     };
   }
@@ -44,13 +46,18 @@ export class MovementReadoutBuilder {
     if (falling && !inactive && !attached) warnings.push("Падение: −2 H в конце раунда; при H0 возможен удар.");
     if (landing && !inactive) warnings.push("Посадка или удар о поверхность: снос зависит от полученных повреждений.");
     const path = [{ x: Number(unit.x ?? 0), y: Number(unit.y ?? 0) }];
-    let blocked = false;
+    let blocked = false, boundary = false;
     for (let i = 0; i < steps; i++) {
       const current = path.at(-1);
       const vector = headingToVector(battle.wind?.direction ?? 0, current.x, current.y);
       const next = { x: current.x + vector.dx, y: current.y + vector.dy };
       const terrain = MovementEngine.getTerrain(battle, next.x, next.y);
-      if (!withinBoard(battle.board, next.x, next.y) || MovementEngine.isBlockingTerrain(terrain, altitudeEnd)
+      if (!withinBoard(battle.board, next.x, next.y)) {
+        boundary = true;
+        warnings.push("Снос остановится у края без урона и потери хода. Выход из боя требует подтверждения.");
+        break;
+      }
+      if (MovementEngine.isBlockingTerrain(terrain, altitudeEnd)
           || OccupancyEngine.findShipAt(battle, next.x, next.y, altitudeEnd, { excludeShipId: unit.id })) {
         blocked = true;
         warnings.push(creature ? "Снос остановится перед препятствием." : "На пути сноса препятствие: возможно столкновение и повреждение.");
@@ -66,10 +73,10 @@ export class MovementReadoutBuilder {
     const direction = HEADING_LABELS[battle.wind?.direction ?? 0] ?? "";
     const driftText = inactive ? "Снос не применяется" : attached ? "Перемещается с носителем"
       : landing ? "Снос уточнится после посадки"
-      : steps ? "Снос " + steps + " гекс. → " + direction + (blocked ? " · препятствие" : "") : "Без сноса";
+      : steps ? "Снос " + steps + " гекс. → " + direction + (boundary ? " · до границы поля" : blocked ? " · препятствие" : "") : "Без сноса";
     return {
       altitudeNow, altitudeEnd, showAltitude: MovementEngine.usesAltitude(battle), driftText,
-      steps, moved: path.length - 1, blocked, landing, warnings, path,
+      steps, moved: path.length - 1, blocked, boundary, landing, warnings, path,
       destination: (path.at(-1).x + 1) + ":" + (path.at(-1).y + 1),
       hasPath: path.length > 1,
       points: points.map(p => p.cx + "," + p.cy).join(" "),

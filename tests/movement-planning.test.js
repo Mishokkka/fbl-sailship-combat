@@ -269,3 +269,74 @@ test("a draft invalidated during a queued confirmation cannot become valid again
   assert.equal(state.commits, 0);
   assert.equal(state.read().lastMovement, undefined);
 });
+
+test("turn buttons create cancellable drafts; only confirmation changes heading and spends AP", async () => {
+  const state = harness(), before = state.read();
+  await state.app.movement.turn(1);
+  assert.equal(state.app.movementPlan.pending.kind, "turn");
+  assert.deepEqual(state.read(), before);
+  await state.app.movementPlan.cancel();
+  assert.deepEqual(state.read(), before);
+  await state.app.movement.turn(1);
+  await state.app.movementPlan.confirm();
+  const saved = state.read(), id = saved.ships[0].id;
+  assert.equal(state.commits, 1); assert.equal(saved.ships[0].heading, 60);
+  assert.equal(saved.ships[0].speed, 3, "Turning into wind preserves momentum");
+  assert.equal(saved.turn.actions[id].movement._apSpent, 1);
+  assert.equal(Boolean(saved.turn.actions[id].movement.move), false);
+  assert.equal(saved.turn.activeShipId, id);
+});
+
+test("route-course choices change only the draft", async () => {
+  const state = harness(), before = state.read();
+  await state.app.movementPlan.stageRoute(1);
+  assert.equal(state.app.movementPlan.pending.preview.heading, 60);
+  await state.app.movementPlan.stageRoute(-1);
+  assert.equal(state.app.movementPlan.pending.preview.heading, 300);
+  assert.deepEqual(state.read(), before);
+});
+
+test("exit at a boundary requires confirmation and does not succeed on a denied write", async () => {
+  const b = fixture(); b.ships[0].x = 0;
+  const state = harness(b), before = state.read();
+  await state.app.movementPlan.stageWithdrawal();
+  assert.equal(state.app.movementPlan.pending.kind, "withdraw");
+  assert.deepEqual(state.read(), before);
+  state.mode = "deny-after-mutation";
+  await state.app.movementPlan.confirm();
+  assert.deepEqual(state.read(), before);
+  assert.doesNotMatch(state.app.movementPlan.notice, /манёвр выполнен/);
+  state.mode = "allow"; await state.app.movementPlan.confirm();
+  assert.equal(state.read().ships[0].flags.withdrawn, true);
+  assert.equal(state.read().ships[0].flags.withdrawalKind, "retreat");
+  assert.equal(state.commits, 1);
+});
+
+test("a route ending at the edge defaults to staying; withdrawal can be selected and cancelled", async () => {
+  const b = fixture(); b.ships[0].y = 1; b.ships[0].speed = 3;
+  const state = harness(b), cell = destination(b);
+  assert.equal(cell.y, 0);
+  await state.app.movementPlan.stage(cell.x, cell.y);
+  assert.equal(state.app.movementPlan.pending.preview.withdraw, false);
+  await state.app.movementPlan.toggleWithdrawal();
+  assert.equal(state.app.movementPlan.pending.preview.withdraw, true);
+  await state.app.movementPlan.toggleWithdrawal();
+  assert.equal(state.app.movementPlan.pending.preview.withdraw, false);
+  await state.app.movementPlan.confirm();
+  assert.equal(Boolean(state.read().ships[0].flags.withdrawn), false);
+});
+
+test("a queued turn or withdrawal rejects a stale draft before dice and AP", async () => {
+  for (const kind of ["turn","withdraw"]) {
+    const b = fixture(); b.ships[0].x = 0; b.ships[0].heading = 60; b.ships[0].flags.inIrons = true;
+    const state = harness(b);
+    if (kind === "turn") await state.app.movementPlan.stageTurn(-1);
+    else await state.app.movementPlan.stageWithdrawal();
+    assert.ok(state.app.movementPlan.pending);
+    state.beforeMutation = () => state.change(battle => { battle.revision++; });
+    await state.app.movementPlan.confirm();
+    assert.equal(state.commits, 0);
+    assert.equal(state.read().turn.lastManeuverPlan, undefined);
+    assert.equal(state.read().turn.lastManeuverCheck, undefined);
+  }
+});
