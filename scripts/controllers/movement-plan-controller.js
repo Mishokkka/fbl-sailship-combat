@@ -29,14 +29,33 @@ export class MovementPlanController {
     return MovementPlanBuilder.build(copy, ship.id, x, y, { apCost, withdraw: Boolean(options.withdraw) });
   }
 
+  /**
+   * Replace the local draft without spending AP or rolling dice.
+   * An omitted withdrawal choice carries over only from a current move draft
+   * to an allowed exit on a shared board edge with the same scenario outcome.
+   * Explicit choices, including cancelling withdrawal, always take precedence.
+   */
   async stage(x, y, options = {}) {
     if (this.busy) return;
     const battle = this.app.renderBattleSnapshot ?? this.app.battle;
-    const preview = this.preview(battle, x, y, options);
+    let preview = this.preview(battle, x, y, options);
     if (!preview) { ui.notifications.warn("Манёвр недоступен: проверьте маршрут, ход и оставшиеся ОД."); return; }
+    let notice = "";
+    if (preview.isMove && options.withdraw === undefined && this.pending?.kind === "move"
+      && this.pending.withdraw && this.matches(battle)) {
+      const previous = this.pending.preview;
+      const sharedEdge = ["left", "right", "top", "bottom"].some(edge =>
+        VictoryEngine.isAtExitEdge({ x: previous.stopX, y: previous.stopY }, battle.board, edge)
+        && VictoryEngine.isAtExitEdge({ x: preview.stopX, y: preview.stopY }, battle.board, edge));
+      if (sharedEdge && preview.withdrawal?.allowed && preview.withdrawal.kind === previous.withdrawal?.kind) {
+        preview = this.preview(battle, x, y, { ...options, withdraw: true });
+      } else {
+        notice = "Выход из боя сброшен: новый маршрут меняет край, последствия или доступность выхода. Участник останется на поле; при необходимости выберите выход заново.";
+      }
+    }
     this.pending = { battleId: battle.id, revision: Number(battle.revision ?? 0), round: battle.round,
-      shipId: preview.shipId, x, y, kind: preview.kind, delta: options.delta ?? null, withdraw: Boolean(options.withdraw), preview };
-    this.notice = "";
+      shipId: preview.shipId, x, y, kind: preview.kind, delta: options.delta ?? null, withdraw: Boolean(preview.withdraw), preview };
+    this.notice = notice;
     this.app.layout?.showPane?.("board");
     await this.app.renderBattleState(["board"]);
     this.app.element?.querySelector('[data-action="confirmMovementPlan"]')?.focus({ preventScroll: true });

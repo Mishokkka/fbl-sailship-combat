@@ -109,9 +109,9 @@ async function install(page) {
       app.movementPlan.pending = null;
       app.movementPlan.notice = "";
       if (scenario === "inIrons") stored.ships[0].heading = 60;
-      if (scenario === "edge" || scenario === "atEdge" || scenario === "creatureEdge") {
+      if (scenario === "edge" || scenario === "inlandRoute" || scenario === "atEdge" || scenario === "creatureEdge") {
         if (scenario === "creatureEdge") stored.ships[0] = createCreature({ template: "cloudJelly", id: stored.ships[0].id, side: stored.ships[0].side, x: 12, heading: 0, speed: 3 });
-        Object.assign(stored.ships[0], { y: scenario === "atEdge" ? 0 : 1, speed: scenario === "atEdge" ? 0 : 3, verticalVelocity: 0 });
+        Object.assign(stored.ships[0], { y: scenario === "atEdge" ? 0 : scenario === "inlandRoute" ? 2 : 1, speed: scenario === "atEdge" ? 0 : 3, verticalVelocity: 0 });
         Object.assign(stored.setup.victory, { mode: "escape", objectiveSideId: stored.ships[0].side, exitEdge: "top", requiredShips: 1 });
         VictoryEngine.captureInitialStrength(stored);
       }
@@ -242,6 +242,11 @@ try {
     assert.equal(await page.evaluate(() => previewApp.movementPlan.pending.preview.withdraw), false);
     await page.locator('[data-action="togglePlanWithdrawal"]').click();
     assert.match(await page.locator('[data-action="confirmMovementPlan"]').textContent(), /выйти/);
+    await page.locator('.ssc-movement-plan [data-action="planCourse"][data-delta="1"]').click();
+    assert.equal(await page.evaluate(() => previewApp.movementPlan.pending.preview.heading), 60);
+    assert.equal(await page.evaluate(() => previewApp.movementPlan.pending.withdraw), true);
+    assert.equal(await page.locator('[data-action="togglePlanWithdrawal"]').getAttribute("aria-pressed"), "true");
+    assert.match(await page.locator('[data-action="confirmMovementPlan"]').textContent(), /выйти/);
     await page.screenshot({ path: "artifacts/interface/maneuver-exit-" + width + "-" + height + ".png" });
     await checkCard(page, "Exit after route " + width);
     await confirm();
@@ -250,6 +255,16 @@ try {
     assert.equal(escaped.ships[0].flags.withdrawn, true);
     assert.equal(escaped.ships[0].y, 0);
     assert.equal(await page.locator('.ssc-board-svg [data-ship-id="' + escaped.ships[0].id + '"]').count(), 0, "Withdrawn unit leaves the board");
+
+    await page.evaluate(() => movementTest.reset({ scenario: "inlandRoute" }));
+    await choose(page, { last: true });
+    await page.locator('[data-action="togglePlanWithdrawal"]').click();
+    await page.locator('.ssc-movement-plan [data-action="planCourse"][data-delta="1"]').click();
+    assert.equal(await page.evaluate(() => previewApp.movementPlan.pending.withdraw), false);
+    assert.match(await page.locator(".ssc-movement-plan [role=status]").textContent(), /Выход из боя сброшен/);
+    await checkCard(page, "Withdrawal reset " + width);
+    await confirm();
+    assert.equal(await page.evaluate(() => Boolean(movementTest.read().ships[0].flags.withdrawn)), false);
 
     await page.evaluate(() => movementTest.reset({ scenario: "atEdge" }));
     const boundaryBefore = await page.evaluate(() => movementTest.read());

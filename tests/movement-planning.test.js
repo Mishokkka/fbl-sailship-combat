@@ -369,3 +369,99 @@ test("moving to a boundary and withdrawing matches the forecast and counts the c
   assert.equal(saved.speed, prediction.speedAfter);
   assert.equal(saved.y, prediction.stopY);
 });
+
+test("course buttons and board clicks preserve the selected exit on the same edge", async () => {
+  for (const creature of [false, true]) {
+    const b = fixture();
+    if (creature) b.ships[0] = createCreature({ template: "cloudJelly", id: b.ships[0].id, side: b.ships[0].side, x: 12, heading: 0, speed: 3 });
+    b.ships[0].y = 1;
+    Object.assign(b.setup.victory, { mode: "escape", objectiveSideId: b.ships[0].side, exitEdge: "top" });
+    const state = harness(b), before = state.read(), plan = state.app.movementPlan;
+    await plan.stageRoute(0);
+    await plan.toggleWithdrawal();
+    const straight = { x: plan.pending.x, y: plan.pending.y };
+    assert.ok(plan.routeOptions(b).find(option => option.delta === 1)?.enabled);
+    await plan.stageRoute(1);
+    assert.equal(plan.pending.preview.heading, 60);
+    assert.equal(plan.pending.withdraw, true);
+    assert.equal(plan.pending.preview.withdraw, true);
+    assert.equal(plan.pending.preview.withdrawal.kind, "escape");
+    await state.app._moveSelectedShip(straight.x, straight.y);
+    assert.equal(plan.pending.withdraw, true);
+    assert.match(plan.pending.preview.confirmLabel, /выйти/);
+    assert.equal(plan.notice, "");
+    assert.deepEqual(state.read(), before, "Changing the draft has no battle side effects");
+    await plan.confirm();
+    assert.equal(state.commits, 1);
+    assert.equal(state.read().ships[0].flags.withdrawalKind, "escape");
+  }
+});
+
+test("an inland route replaces an exit draft and explains that withdrawal was reset", async () => {
+  const b = fixture(); b.ships[0].y = 2;
+  const state = harness(b), before = state.read(), plan = state.app.movementPlan;
+  await plan.stageRoute(0);
+  assert.equal(plan.pending.preview.stopY, 0);
+  await plan.toggleWithdrawal();
+  assert.equal(plan.pending.withdraw, true);
+  await plan.stageRoute(1);
+  assert.equal(plan.pending.preview.heading, 60);
+  assert.equal(plan.pending.preview.withdrawal, null);
+  assert.equal(plan.pending.withdraw, false);
+  assert.match(plan.notice, /Выход из боя сброшен/);
+  assert.deepEqual(state.read(), before);
+  await plan.confirm();
+  assert.equal(state.commits, 1);
+  assert.equal(Boolean(state.read().ships[0].flags.withdrawn), false);
+});
+
+test("a different edge resets withdrawal even when both exits are retreats", async () => {
+  const b = fixture(); Object.assign(b.ships[0], { x: 1, y: 1 });
+  const state = harness(b), plan = state.app.movementPlan;
+  await plan.stageRoute(0);
+  await plan.toggleWithdrawal();
+  assert.equal(plan.pending.preview.withdrawal.kind, "retreat");
+  await plan.stageRoute(-1);
+  assert.equal(plan.pending.preview.stopX, 0);
+  assert.ok(plan.pending.preview.stopY > 0);
+  assert.equal(plan.pending.preview.withdrawal.kind, "retreat");
+  assert.equal(plan.pending.withdraw, false);
+  assert.match(plan.notice, /Выход из боя сброшен/);
+});
+
+test("a shared edge does not carry withdrawal over when the scenario result changes", async () => {
+  const b = fixture(); Object.assign(b.ships[0], { x: 1, y: 0, heading: 240 });
+  Object.assign(b.setup.victory, { mode: "escape", objectiveSideId: b.ships[0].side, exitEdge: "top" });
+  const state = harness(b), before = state.read(), plan = state.app.movementPlan;
+  await plan.stageRoute(1);
+  assert.equal(plan.pending.preview.stopX, 0);
+  assert.equal(plan.pending.preview.stopY, 0);
+  await plan.toggleWithdrawal();
+  assert.equal(plan.pending.preview.withdrawal.kind, "escape");
+  await plan.stageRoute(0);
+  assert.equal(plan.pending.preview.stopX, 0);
+  assert.ok(plan.pending.preview.stopY > 0);
+  assert.equal(plan.pending.preview.withdrawal.kind, "retreat");
+  assert.equal(plan.pending.withdraw, false);
+  assert.match(plan.notice, /Выход из боя сброшен/);
+  assert.deepEqual(state.read(), before);
+  await plan.toggleWithdrawal();
+  await plan.confirm();
+  assert.equal(state.read().ships[0].flags.withdrawalKind, "retreat");
+});
+
+test("withdrawal stays off after explicit cancellation or when the old draft is stale", async () => {
+  for (const stale of [false, true]) {
+    const b = fixture(); b.ships[0].y = 1;
+    const state = harness(b), plan = state.app.movementPlan;
+    await plan.stageRoute(0);
+    await plan.toggleWithdrawal();
+    assert.equal(plan.pending.withdraw, true);
+    if (stale) state.change(battle => { battle.revision++; });
+    else await plan.toggleWithdrawal();
+    await plan.stageRoute(1);
+    assert.equal(plan.pending.withdraw, false);
+    assert.equal(plan.pending.preview.withdraw, false);
+    assert.equal(state.commits, 0);
+  }
+});
