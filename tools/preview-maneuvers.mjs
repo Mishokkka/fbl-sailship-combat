@@ -250,6 +250,7 @@ try {
     assert.equal(escaped.ships[0].flags.withdrawalKind, "escape");
     assert.equal(escaped.ships[0].flags.withdrawn, true);
     assert.equal(escaped.ships[0].y, 0);
+    assert.equal(await page.locator('.ssc-board-svg [data-ship-id="' + escaped.ships[0].id + '"]').count(), 0, "Withdrawn unit leaves the board");
 
     await page.evaluate(() => movementTest.reset({ scenario: "atEdge" }));
     const boundaryBefore = await page.evaluate(() => movementTest.read());

@@ -154,6 +154,7 @@ export class VictoryEngine {
     if (!preview?.allowed) return { ok: false, text: preview?.reason || "Выход доступен только на границе поля." };
     unit.flags ??= {};
     unit.flags.withdrawn = true;
+    unit.flags.struck = true;
     unit.flags.withdrawnRound = Number(battle.round ?? 1);
     unit.flags.withdrawalKind = preview.kind;
     unit.speed = 0;

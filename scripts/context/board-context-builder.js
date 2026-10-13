@@ -61,7 +61,7 @@ export class BoardContextBuilder {
       turnCue: reachable.length ? MovementReadoutBuilder.turnCue(battle, selectedShip, reachable) : null,
       reachable: reachable.map(c => this.prepareCellShape(battle, c)),
       targetIds: [...targetIds],
-      ships: this.prepareShipTokens(battle, selectedShip, { targetIds, cellSize }),
+      ships: this.prepareShipTokens(battle, selectedShip, { targetIds, cellSize }).filter(token => !token.withdrawn),
       arcs: canUseSelectedShip && battle.setupConfirmed ? this.prepareArcOverlays(battle, selectedShip) : [],
       targetLine: canUseSelectedShip && selectedTarget && battle.setupConfirmed ? this.prepareTargetLine(battle, selectedShip, selectedTarget) : null,
       ...this.prepareWindParticles(battle, pixelWidth, pixelHeight, camera.zoom < 0.75 ? "far" : camera.zoom < 1.15 ? "medium" : "near", camera)

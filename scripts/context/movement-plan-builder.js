@@ -63,7 +63,7 @@ export class MovementPlanBuilder {
       shipId, shipName: ship.name, x, y, stopX: stop.x, stopY: stop.y,
       destination: `${stop.x + 1}:${stop.y + 1}`, heading,
       renderHeading: normalizeAngle(heading - 90),
-      distance: path.length, speedBefore, speedAfter, apCost,
+      distance: path.length, speedBefore, speedAfter: withdraw ? 0 : speedAfter, apCost,
       showAltitude, altitudeNow, altitudeEnd, endOfRound,
       warnings, hasWarnings: warnings.length > 0, collision: Boolean(collision),
       routePoints: points.map(point => `${point.cx},${point.cy}`).join(" "),

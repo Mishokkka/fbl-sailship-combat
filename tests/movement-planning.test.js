@@ -49,7 +49,7 @@ function harness(battle = fixture()) {
       await state.afterMutation?.();
       if (state.mode === "fail") throw new Error("Simulated storage failure");
       next.revision++;
-      stored = next;
+      stored = state.normalizeWrites ? BattleNormalizer.normalize(next) : next;
       state.commits++;
       return structuredClone(stored);
     }
@@ -339,4 +339,33 @@ test("a queued turn or withdrawal rejects a stale draft before dice and AP", asy
     assert.equal(state.read().turn.lastManeuverPlan, undefined);
     assert.equal(state.read().turn.lastManeuverCheck, undefined);
   }
+});
+
+test("the confirmation receipt survives storage normalization for a turn and an exit", async () => {
+  for (const kind of ["turn", "withdraw"]) {
+    const b = fixture(); b.ships[0].x = 0;
+    const state = harness(b); state.normalizeWrites = true;
+    if (kind === "turn") await state.app.movementPlan.stageTurn(1);
+    else await state.app.movementPlan.stageWithdrawal();
+    await state.app.movementPlan.confirm();
+    assert.equal(state.commits, 1);
+    assert.ok(state.read().turn.lastManeuverPlan.id);
+    assert.match(state.app.movementPlan.notice, /манёвр выполнен/);
+  }
+});
+
+test("moving to a boundary and withdrawing matches the forecast and counts the correct exit", async () => {
+  const b = fixture(); b.ships[0].y = 1;
+  Object.assign(b.setup.victory, { mode: "escape", objectiveSideId: b.ships[0].side, exitEdge: "top", requiredShips: 1 });
+  const state = harness(b), cell = destination(b);
+  await state.app.movementPlan.stage(cell.x, cell.y);
+  await state.app.movementPlan.toggleWithdrawal();
+  const prediction = state.app.movementPlan.pending.preview;
+  assert.equal(prediction.withdrawal.successful, true);
+  await state.app.movementPlan.confirm();
+  const saved = state.read().ships[0];
+  assert.equal(saved.flags.withdrawalKind, "escape");
+  assert.equal(saved.flags.struck, true);
+  assert.equal(saved.speed, prediction.speedAfter);
+  assert.equal(saved.y, prediction.stopY);
 });
