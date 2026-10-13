@@ -53,8 +53,8 @@
 
           <g class="ssc-reachable-layer">
             {{#each board.reachable as |cell|}}
-              <path class="ssc-cell reachable{{#if cell.collision}} collision-risk{{/if}}" d="{{cell.path}}"{{#if cell.collision}} aria-label="{{cell.collision.title}}"{{/if}}></path>
-              <text class="ssc-reachable-step{{#if cell.collision}} collision-risk{{/if}}" x="{{cell.cx}}" y="{{cell.cy}}" text-anchor="middle" dominant-baseline="middle">{{#if cell.collision}}⚠{{else}}{{cell.steps}}{{/if}}</text>
+              <path class="ssc-cell reachable{{#if cell.boundary}} boundary-stop{{/if}}{{#if cell.collision}} collision-risk{{/if}}" d="{{cell.path}}"{{#if cell.collision}} aria-label="{{cell.collision.title}}"{{else}}{{#if cell.boundary}} aria-label="Остановка у края поля: ход 0, без урона от границы"{{/if}}{{/if}}></path>
+              <text class="ssc-reachable-step{{#if cell.collision}} collision-risk{{/if}}" x="{{cell.cx}}" y="{{cell.cy}}" text-anchor="middle" dominant-baseline="middle">{{#if cell.collision}}⚠{{else}}{{#if cell.boundary}}Край{{else}}{{cell.steps}}{{/if}}{{/if}}</text>
             {{/each}}
           </g>
 
@@ -215,6 +215,7 @@
             </div>
             {{#if endOfRound}}<p class="ssc-plan-drift"><span class="ssc-drift-key" aria-hidden="true"></span><b>Конец раунда*</b> · {{endOfRound.driftText}}{{#if endOfRound.hasPath}} · клетка {{endOfRound.destination}}{{/if}}</p>{{/if}}
             {{#if isMove}}{{#if withdrawal}}<div class="ssc-boundary-choice"><p>{{withdrawal.consequence}}</p><button type="button" data-action="togglePlanWithdrawal" aria-pressed="{{withdraw}}" {{#unless withdrawal.allowed}}disabled{{else}}{{#if @root.board.movementPlan.busy}}disabled{{/if}}{{/unless}}>{{#if withdraw}}Остаться на поле{{else}}{{withdrawal.title}} после манёвра{{/if}}</button>{{#if withdraw}}<strong class="ssc-plan-danger">Выбран выход из боя</strong>{{/if}}</div>{{/if}}{{/if}}
+            {{#if boundary}}<p class="ssc-plan-boundary">Остановка у края: ход → 0, граница не наносит урона.</p>{{/if}}
             {{#if collision}}<p class="ssc-plan-danger">Столкновение: корабль остановится перед клеткой контакта.</p>{{/if}}
             {{#if hasWarnings}}
             <details class="ssc-plan-risks" {{#if collision}}open{{else}}{{#if isTurn}}open{{else}}{{#if isWithdrawal}}open{{/if}}{{/if}}{{/if}}>

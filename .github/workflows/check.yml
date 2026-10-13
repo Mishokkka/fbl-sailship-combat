@@ -75,6 +75,8 @@ jobs:
         run: node tools/preview-effects.mjs
       - name: Check wind visibility and inertia readouts
         run: node tools/preview-wind-inertia.mjs
+      - name: Check maneuver decisions and withdrawal
+        run: node tools/preview-maneuvers.mjs
       - name: Save interface previews
         if: always()
         uses: actions/upload-artifact@v7

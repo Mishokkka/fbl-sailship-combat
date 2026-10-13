@@ -887,6 +887,10 @@ export class MovementEngine {
       const vector = headingToVector(heading, ship.x, ship.y);
       const x = Number(ship.x ?? 0) + vector.dx;
       const y = Number(ship.y ?? 0) + vector.dy;
+      if (!withinBoard(battle.board, x, y)) {
+        entries.push(ship.name + ": снос остановлен на границе поля без урона и потери хода. Выход из боя требует подтверждения.");
+        break;
+      }
       const terrain = this.getTerrain(battle, x, y);
       const target = OccupancyEngine.findShipAt(battle, x, y, ship.altitude, { excludeShipId: ship.id });
       if (target) {
@@ -898,10 +902,6 @@ export class MovementEngine {
         const collision = CollisionEngine.applyShipCollision(battle, preview);
         if (collision.applied) entries.push(`${ship.name}: дрейф заканчивается столкновением. ${collision.text}`);
         return entries;
-      }
-      if (!withinBoard(battle.board, x, y)) {
-        entries.push(ship.name + ": снос остановлен на границе поля без урона и потери хода. Выход из боя требует подтверждения.");
-        break;
       }
       if (this.isBlockingTerrain(terrain, Number(ship.altitude ?? 0))) {
         const section = ship.sections?.midship ?? ship.sections?.bow ?? Object.values(ship.sections ?? {})[0];

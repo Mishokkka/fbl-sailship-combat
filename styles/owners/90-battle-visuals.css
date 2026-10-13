@@ -83,3 +83,6 @@
 .sailships-combat .ssc-boundary-choice { display: grid; gap: 6px; padding: 8px; border: 1px solid #9a794c; border-radius: 6px; background: #2a2922; font-size: 12px; }
 .sailships-combat .ssc-boundary-choice p { margin: 0; }
 .sailships-combat .ssc-boundary-choice button { white-space: normal; }
+
+.sailships-combat .ssc-cell.reachable.boundary-stop { stroke: #dab775; stroke-dasharray: 5 3; fill: #b88a3333; }
+.sailships-combat .ssc-plan-boundary { color: #efce94; font-size: 12px; margin: 6px 0; }
